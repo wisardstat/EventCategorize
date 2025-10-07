@@ -1,0 +1,155 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type Question = {
+	question_id: string;
+	question_title: string;
+	question_description?: string | null;
+};
+
+export default function CreateQuestionPage() {
+	const [title, setTitle] = useState("");
+	const [description, setDescription] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [message, setMessage] = useState<string | null>(null);
+	const [questions, setQuestions] = useState<Question[]>([]);
+	const [loadingList, setLoadingList] = useState(false);
+
+	async function loadQuestions() {
+		setLoadingList(true);
+		try {
+			const res = await fetch("http://localhost:8000/questions");
+			if (!res.ok) throw new Error("Failed to load questions");
+			const data = await res.json();
+			setQuestions(data);
+		} catch (e) {
+			console.error(e);
+		} finally {
+			setLoadingList(false);
+		}
+	}
+
+	useEffect(() => {
+		loadQuestions();
+	}, []);
+
+	async function handleSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		setLoading(true);
+		setMessage(null);
+		console.log("title:", title, "description:", description);
+		try {
+			const res = await fetch("http://localhost:8000/questions", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ "question_title": title, "question_description": description }),
+			});
+			if (!res.ok) {
+				const data = await res.json().catch(() => ({}));
+				throw new Error(data?.detail || "Failed to save question");
+			}
+			setMessage("Saved successfully");
+			setTitle("");
+			setDescription("");
+			await loadQuestions();
+		} catch (err: any) {
+			setMessage(err.message || "Error occurred");
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	function handleReset() {
+		setTitle("");
+		setDescription("");
+		setMessage(null);
+	}
+
+	return (
+		<div className="min-h-screen flex items-center justify-center p-8">
+			<main className="w-full max-w-5xl space-y-8">
+				<h1 className="text-2xl font-bold text-center">Create Question</h1>
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div className="space-y-2">
+						<label className="block text-sm font-medium">Question Title</label>
+						<input
+							type="text"
+							className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+							required
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<label className="block text-sm font-medium">Question description</label>
+						<textarea
+							className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent min-h-[120px]"
+							value={description}
+							onChange={(e) => setDescription(e.target.value)}
+						/>
+					</div>
+
+					<div className="flex items-center gap-3">
+						<button
+							type="submit"
+							disabled={loading}
+							className="inline-flex items-center rounded-md bg-black text-white px-4 py-2 text-sm disabled:opacity-50 dark:bg-white dark:text-black"
+						>
+							{loading ? "Saving..." : "Save"}
+						</button>
+						<button
+							type="button"
+							onClick={handleReset}
+							className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-4 py-2 text-sm"
+						>
+							Reset
+						</button>
+					</div>
+
+					{message && (
+						<p className="text-sm text-center">{message}</p>
+					)}
+				</form>
+
+				<section className="space-y-3">
+					<h2 className="text-xl font-semibold">Questions</h2>
+					<div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+						<table className="min-w-full text-sm">
+							<thead className="bg-black/5 dark:bg-white/10">
+								<tr>
+									<th className="text-left p-3">select</th>
+									<th className="text-left p-3">question_id</th>
+									<th className="text-left p-3">title</th>
+									<th className="text-left p-3">description</th>
+								</tr>
+							</thead>
+							<tbody>
+								{loadingList ? (
+									<tr><td className="p-3" colSpan={4}>Loading...</td></tr>
+								) : questions.length === 0 ? (
+									<tr><td className="p-3" colSpan={4}>No data</td></tr>
+								) : (
+									questions.map((q) => (
+										<tr key={q.question_id} className="border-t border-black/5 dark:border-white/10">
+											<td className="p-3 align-top">
+												<Link href={`/present-answer/${q.question_id}`} className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-3 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10">
+													goto answer
+												</Link>
+											</td>
+											<td className="p-3 align-top">{q.question_id}</td>
+											<td className="p-3 align-top">{q.question_title}</td>
+											<td className="p-3 align-top">{q.question_description || ""}</td>
+										</tr>
+									))
+								)}
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</main>
+		</div>
+	);
+}
