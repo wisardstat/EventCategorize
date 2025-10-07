@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     postgres_password: str = ""
     postgres_port: int = 5432
     database_url: str | None = None
+    openai_api_key: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

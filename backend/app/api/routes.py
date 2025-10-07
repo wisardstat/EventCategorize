@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db import models
 from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut
+from app.services.classifier import classify_category
 from sqlalchemy import desc
 
 router = APIRouter()
@@ -55,10 +56,13 @@ def get_question(question_id: str, db: Session = Depends(get_db)):
 
 @router.post("/answers", response_model=AnswerOut, status_code=status.HTTP_201_CREATED)
 def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
+    print("payload: ", payload)    
+    category = classify_category(payload.answer_text)
+    print("Return category: ", category)
     new_answer = models.Answer(
         question_id=payload.question_id,
         answer_text=payload.answer_text,
-        category=(payload.category or "General"),
+        category=category,
     )
     db.add(new_answer)
     try:
