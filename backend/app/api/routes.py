@@ -72,3 +72,43 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Failed to create answer")
     db.refresh(new_answer)
     return new_answer
+
+
+@router.get("/questions/{question_id}/answers", response_model=list[AnswerOut])
+def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
+    items = (
+        db.query(models.Answer)
+        .filter(models.Answer.question_id == question_id)
+        .order_by(desc(models.Answer.created_at))
+        .all()
+    )
+    return items
+
+
+@router.delete("/questions/{question_id}")
+def delete_question_and_answers(question_id: str, db: Session = Depends(get_db)):
+    # Ensure question exists
+    question = (
+        db.query(models.Question)
+        .filter(models.Question.question_id == question_id)
+        .first()
+    )
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    # Delete related answers first, then the question
+    try:
+        answers_deleted = (
+            db.query(models.Answer)
+            .filter(models.Answer.question_id == question_id)
+            .delete(synchronize_session=False)
+        )
+        db.query(models.Question).filter(models.Question.question_id == question_id).delete(
+            synchronize_session=False
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete question")
+
+    return {"deleted_question_id": question_id, "answers_deleted": answers_deleted}

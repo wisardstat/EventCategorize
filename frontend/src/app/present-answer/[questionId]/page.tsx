@@ -2,16 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { QRCodeCanvas } from "qrcode.react";
 
 export default function PresentAnswerPage() {
 	const params = useParams<{ questionId: string }>();
 	const questionId = params?.questionId as string;
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [question, setQuestion] = useState<any>(null);
+const [error, setError] = useState<string | null>(null);
+type Question = { question_id: string; question_title: string; question_description?: string | null };
+const [question, setQuestion] = useState<Question | null>(null);
 	const [answerText, setAnswerText] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
+	const [answers, setAnswers] = useState<{
+		answer_id: number;
+		question_id: string;
+		answer_text: string;
+		category: string;
+		created_at: string;
+	}[]>([]);
+	const [loadingAnswers, setLoadingAnswers] = useState(false);
+	const [qrUrl, setQrUrl] = useState("");
 
 	useEffect(() => {
 		async function load() {
@@ -22,8 +33,9 @@ export default function PresentAnswerPage() {
 				if (!res.ok) throw new Error("Failed to load question");
 				const data = await res.json();
 				setQuestion(data);
-			} catch (e: any) {
-				setError(e.message || "Error loading question");
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Error loading question";
+                setError(message);
 			} finally {
 				setLoading(false);
 			}
@@ -33,11 +45,37 @@ export default function PresentAnswerPage() {
 		}
 	}, [questionId]);
 
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			setQrUrl(window.location.href);
+		}
+	}, [questionId]);
+
+	async function loadAnswers() {
+		if (!questionId) return;
+		setLoadingAnswers(true);
+		try {
+			const res = await fetch(`http://localhost:8000/questions/${questionId}/answers`);
+			if (!res.ok) throw new Error("Failed to load answers");
+			const data = await res.json();
+			setAnswers(data);
+		} catch (e) {
+			console.error(e);
+		} finally {
+			setLoadingAnswers(false);
+		}
+	}
+
+	useEffect(() => {
+		loadAnswers();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [questionId]);
+
 	async function handleSave(e: React.FormEvent) {
 		e.preventDefault();
 		setSaving(true);
 		setMessage(null);
-		try {
+    try {
 			const res = await fetch("http://localhost:8000/answers", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -49,8 +87,10 @@ export default function PresentAnswerPage() {
 			}
 			setMessage("Saved successfully");
 			setAnswerText("");
-		} catch (e: any) {
-			setMessage(e.message || "Error occurred");
+			await loadAnswers();
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Error occurred";
+        setMessage(message);
 		} finally {
 			setSaving(false);
 		}
@@ -63,16 +103,29 @@ export default function PresentAnswerPage() {
 
 	return (
 		<div className="min-h-screen flex items-center justify-center p-8">
-			<main className="w-full max-w-2xl space-y-6">
+			<main className="w-full max-w-4xl space-y-6">
 				{loading ? (
 					<p>Loading...</p>
 				) : error ? (
 					<p className="text-red-600">{error}</p>
 				) : (
 					<>
-						<h1 className="text-3xl font-bold">{question?.question_title}</h1>
-						<h2 className="text-xl opacity-80">{question?.question_description || ""}</h2>
+					
+					<section className="flex items-start justify-center gap-6">
+						<div className="space-y-2">
+							<p className="text-sm opacity-80">Scan to open this page:</p>
+							<div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
+								<QRCodeCanvas value={qrUrl || `${process.env.NEXT_PUBLIC_HOST_URL}/present-answer/${questionId}`} size={160} includeMargin />
+							</div>
+						</div>
+					</section>
+
+					<h1 className="text-3xl font-bold text-center">{question?.question_title}</h1>
+					
+						<h2 className="text-xl opacity-80 text-center">{question?.question_description || ""}</h2>
+
 						<form onSubmit={handleSave} className="space-y-4">
+							
 							<div className="space-y-2">
 								<label className="block text-sm font-medium">answer_text</label>
 								<textarea
@@ -100,6 +153,36 @@ export default function PresentAnswerPage() {
 							</div>
 							{message && <p className="text-sm">{message}</p>}
 						</form>
+
+						<section className="space-y-3">
+							<h3 className="text-lg font-semibold">Answers</h3>
+							<div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+								<table className="min-w-full text-sm">
+									<thead className="bg-black/5 dark:bg-white/10">
+										<tr>
+											<th className="text-left p-3">answer_text</th>
+											<th className="text-left p-3">category</th>
+											<th className="text-left p-3">created_at</th>
+										</tr>
+									</thead>
+									<tbody>
+										{loadingAnswers ? (
+											<tr><td className="p-3" colSpan={3}>Loading...</td></tr>
+										) : answers.length === 0 ? (
+											<tr><td className="p-3" colSpan={3}>No data</td></tr>
+										) : (
+											answers.map((a) => (
+												<tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
+													<td className="p-3 align-top whitespace-pre-wrap">{a.answer_text}</td>
+													<td className="p-3 align-top">{a.category}</td>
+													<td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
+												</tr>
+											))
+										)}
+									</tbody>
+								</table>
+							</div>
+						</section>
 					</>
 				)}
 			</main>

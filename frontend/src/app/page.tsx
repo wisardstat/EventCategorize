@@ -13,7 +13,7 @@ export default function Home() {
             <span className="text-lg font-medium">Create Question</span>
           </Link>
           <Link
-            href="/present-answer"
+            href="/answer_analytic"
             className="block rounded-lg border border-black/10 dark:border-white/20 p-6 hover:bg-black/5 dark:hover:bg-white/10 transition"
           >
             <span className="text-lg font-medium">Present Answer</span>

@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark theme defaults */
+  --background: #0b0d12; /* deep near-black */
+  --foreground: #e5e7eb; /* slate-200 */
+  --brand: #6d4aff; /* purple CTA */
 }
 
 @theme inline {
@@ -12,10 +14,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* You can override via prefers-color-scheme if desired */
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 

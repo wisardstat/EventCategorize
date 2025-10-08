@@ -17,6 +17,24 @@ export default function CreateQuestionPage() {
 	const [questions, setQuestions] = useState<Question[]>([]);
 	const [loadingList, setLoadingList] = useState(false);
 
+	async function handleDelete(questionId: string) {
+		if (!confirm("Are you sure you want to delete this question and its answers?")) return;
+		try {
+			const res = await fetch(`http://localhost:8000/questions/${questionId}`, { method: "DELETE" });
+			if (!res.ok) {
+            const data = (await res.json().catch(() => ({}))) as unknown;
+            const detail = (data && typeof data === "object" && "detail" in (data as Record<string, unknown>))
+                ? (data as Record<string, unknown>).detail as string
+                : "Failed to delete question";
+            throw new Error(detail);
+			}
+			await loadQuestions();
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Delete failed";
+        alert(message);
+		}
+	}
+
 	async function loadQuestions() {
 		setLoadingList(true);
 		try {
@@ -24,8 +42,8 @@ export default function CreateQuestionPage() {
 			if (!res.ok) throw new Error("Failed to load questions");
 			const data = await res.json();
 			setQuestions(data);
-		} catch (e) {
-			console.error(e);
+    } catch (err) {
+        console.error(err);
 		} finally {
 			setLoadingList(false);
 		}
@@ -40,7 +58,7 @@ export default function CreateQuestionPage() {
 		setLoading(true);
 		setMessage(null);
 		console.log("title:", title, "description:", description);
-		try {
+    try {
 			const res = await fetch("http://localhost:8000/questions", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -54,8 +72,9 @@ export default function CreateQuestionPage() {
 			setTitle("");
 			setDescription("");
 			await loadQuestions();
-		} catch (err: any) {
-			setMessage(err.message || "Error occurred");
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Error occurred";
+        setMessage(message);
 		} finally {
 			setLoading(false);
 		}
@@ -120,17 +139,19 @@ export default function CreateQuestionPage() {
 						<table className="min-w-full text-sm">
 							<thead className="bg-black/5 dark:bg-white/10">
 								<tr>
-									<th className="text-left p-3">select</th>
-									<th className="text-left p-3">question_id</th>
+								<th className="text-left p-3">select</th>
+								<th className="text-left p-3">select</th>
+								<th className="text-left p-3">question_id</th>
 									<th className="text-left p-3">title</th>
 									<th className="text-left p-3">description</th>
+								<th className="text-left p-3">select</th>
 								</tr>
 							</thead>
 							<tbody>
 								{loadingList ? (
-									<tr><td className="p-3" colSpan={4}>Loading...</td></tr>
+								<tr><td className="p-3" colSpan={6}>Loading...</td></tr>
 								) : questions.length === 0 ? (
-									<tr><td className="p-3" colSpan={4}>No data</td></tr>
+								<tr><td className="p-3" colSpan={6}>No data</td></tr>
 								) : (
 									questions.map((q) => (
 										<tr key={q.question_id} className="border-t border-black/5 dark:border-white/10">
@@ -139,9 +160,22 @@ export default function CreateQuestionPage() {
 													goto answer
 												</Link>
 											</td>
+										<td className="p-3 align-top">
+											<Link href={`/answer_analytic/${q.question_id}`} className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-3 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10">
+												goto analytic
+											</Link>
+										</td>
 											<td className="p-3 align-top">{q.question_id}</td>
 											<td className="p-3 align-top">{q.question_title}</td>
 											<td className="p-3 align-top">{q.question_description || ""}</td>
+										<td className="p-3 align-top">
+											<button
+												onClick={() => handleDelete(q.question_id)}
+												className="inline-flex items-center rounded-md border border-red-300 text-red-700 px-3 py-1 text-xs hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
+											>
+												delete
+											</button>
+										</td>
 										</tr>
 									))
 								)}

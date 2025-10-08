@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: eventcategorize-db
+    environment:
+      POSTGRES_DB: eventfeedback
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eventfeedback"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eventcategorize-backend
+    environment:
+      postgres_host: db
+      postgres_db: eventfeedback
+      postgres_user: postgres
+      postgres_password: postgres
+      postgres_port: 5432
+      # Optional: pass OpenAI key if you use classifier
+      # openai_api_key: ${OPENAI_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eventcategorize-frontend
+    environment:
+      NEXT_PUBLIC_HOST_URL: http://localhost:3000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+    driver: local
+
+
