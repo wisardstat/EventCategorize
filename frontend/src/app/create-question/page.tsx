@@ -20,7 +20,7 @@ export default function CreateQuestionPage() {
 	async function handleDelete(questionId: string) {
 		if (!confirm("Are you sure you want to delete this question and its answers?")) return;
 		try {
-			const res = await fetch(`http://localhost:8000/questions/${questionId}`, { method: "DELETE" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`, { method: "DELETE" });
 			if (!res.ok) {
             const data = (await res.json().catch(() => ({}))) as unknown;
             const detail = (data && typeof data === "object" && "detail" in (data as Record<string, unknown>))
@@ -38,7 +38,7 @@ export default function CreateQuestionPage() {
 	async function loadQuestions() {
 		setLoadingList(true);
 		try {
-			const res = await fetch("http://localhost:8000/questions");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`);
 			if (!res.ok) throw new Error("Failed to load questions");
 			const data = await res.json();
 			setQuestions(data);
@@ -59,7 +59,7 @@ export default function CreateQuestionPage() {
 		setMessage(null);
 		console.log("title:", title, "description:", description);
     try {
-			const res = await fetch("http://localhost:8000/questions", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ "question_title": title, "question_description": description }),

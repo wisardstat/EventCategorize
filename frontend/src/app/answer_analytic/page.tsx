@@ -19,7 +19,7 @@ export default function AnswerAnalyticIndexPage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch("http://localhost:8000/questions");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`);
                 if (!res.ok) throw new Error("Failed to load questions");
                 const data: Question[] = await res.json();
                 setQuestions(data);

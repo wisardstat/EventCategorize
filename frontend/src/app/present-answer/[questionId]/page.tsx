@@ -29,7 +29,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 			setLoading(true);
 			setError(null);
 			try {
-				const res = await fetch(`http://localhost:8000/questions/${questionId}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`);
 				if (!res.ok) throw new Error("Failed to load question");
 				const data = await res.json();
 				setQuestion(data);
@@ -55,7 +55,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 		if (!questionId) return;
 		setLoadingAnswers(true);
 		try {
-			const res = await fetch(`http://localhost:8000/questions/${questionId}/answers`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`);
 			if (!res.ok) throw new Error("Failed to load answers");
 			const data = await res.json();
 			setAnswers(data);
@@ -76,7 +76,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 		setSaving(true);
 		setMessage(null);
     try {
-			const res = await fetch("http://localhost:8000/answers", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/answers`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ question_id: questionId, answer_text: answerText }),

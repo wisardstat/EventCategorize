@@ -67,3 +67,76 @@ CREATE TABLE IF NOT EXISTS public."Answer" (
 ```
 
 Note: No ORM/DB relation between `Question` and `Answer`. `Answer.question_id` is a plain text field.
+
+## Run with Docker
+
+### Using docker-compose (recommended)
+
+From the project root (where `docker-compose.yml` exists):
+
+```bash
+docker compose up -d --build
+```
+
+Services:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
+- Postgres: localhost:5432 (db=eventfeedback, user=postgres, password=postgres)
+
+Stop:
+
+```bash
+docker compose down
+```
+
+### Run each Dockerfile manually
+
+Create a network and Postgres:
+
+```bash
+docker network create eventnet
+docker run -d --name event-db --network eventnet -p 5432:5432 \
+  -e POSTGRES_DB=eventfeedback -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
+  postgres:16-alpine
+```
+
+Build images:
+
+```bash
+docker build -t event-backend ./backend
+docker build -t event-frontend ./frontend
+
+docker build --network=host -t event-backend ./backend
+docker build --network=host -t event-frontend ./frontend
+
+
+docker build -t event-frontend ./frontend
+
+```
+
+Run backend:
+
+```bash
+docker run -d --name event-backend --network eventnet -p 8000:8000 \
+  -e postgres_host=event-db -e postgres_db=eventfeedback \
+  -e postgres_user=postgres -e postgres_password=postgres -e postgres_port=5432 \
+  event-backend
+```
+
+Run frontend:
+```bash
+docker rm -f event-frontend
+```
+
+```bash
+docker run -d --name event-frontend --network eventnet -p 3000:3000 \
+  -e NEXT_PUBLIC_HOST_URL=http://localhost:3000 \
+  event-frontend
+```
+
+Cleanup:
+
+```bash
+docker rm -f event-frontend event-backend event-db
+docker network rm eventnet
+```
