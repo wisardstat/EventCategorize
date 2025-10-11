@@ -13,6 +13,8 @@ const [error, setError] = useState<string | null>(null);
 type Question = { question_id: string; question_title: string; question_description?: string | null };
 const [question, setQuestion] = useState<Question | null>(null);
 	const [answerText, setAnswerText] = useState("");
+	const [createUserName, setCreateUserName] = useState("");
+	const [createUserDepartment, setCreateUserDepartment] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
 	const [answers, setAnswers] = useState<{
@@ -20,6 +22,9 @@ const [question, setQuestion] = useState<Question | null>(null);
 		question_id: string;
 		answer_text: string;
 		category: string;
+		create_user_name?: string | null;
+		create_user_department?: string | null;
+		answer_keywords?: string | null;
 		created_at: string;
 	}[]>([]);
 	const [loadingAnswers, setLoadingAnswers] = useState(false);
@@ -80,7 +85,12 @@ const [question, setQuestion] = useState<Question | null>(null);
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/answers`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ question_id: questionId, answer_text: answerText }),
+            body: JSON.stringify({
+                question_id: questionId,
+                answer_text: answerText,
+                create_user_name: createUserName,
+                create_user_department: createUserDepartment,
+            }),
 			});
 			if (!res.ok) {
 				const data = await res.json().catch(() => ({}));
@@ -88,6 +98,8 @@ const [question, setQuestion] = useState<Question | null>(null);
 			}
 			setMessage("Saved successfully");
 			setAnswerText("");
+        setCreateUserName("");
+        setCreateUserDepartment("");
 			await loadAnswers();
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Error occurred";
@@ -146,6 +158,27 @@ const [question, setQuestion] = useState<Question | null>(null);
 									required
 								/>
 							</div>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<label className="block text-sm font-medium">ชื่อผู้ตอบคำถาม</label>
+								<input
+									type="text"  placeholder="เช่น นายสมชาย เข็มกลัด เป็นต้น"
+									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
+									value={createUserName}
+									onChange={(e) => setCreateUserName(e.target.value)}
+								/>
+							</div>
+							<div className="space-y-2">
+								<label className="block text-sm font-medium">หน่วยงานผู้ตอบคำถาม</label>
+								<input
+									type="text" placeholder="เช่น วพ. บข. สบ. เป็นต้น"
+									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
+									value={createUserDepartment}
+									onChange={(e) => setCreateUserDepartment(e.target.value)}
+								/>
+							</div>
+						</div>
 							<div className="flex items-center gap-3">
 								<button
 									type="submit"
@@ -171,21 +204,31 @@ const [question, setQuestion] = useState<Question | null>(null);
 								<table className="min-w-full text-sm">
 									<thead className="bg-black/5 dark:bg-white/10">
 										<tr>
-											<th className="text-left p-3">answer_text</th>
-											<th className="text-left p-3">category</th>
-											<th className="text-left p-3">created_at</th>
+											<th className="text-left p-3">ความคิดเห็น</th>
+											<th className="text-left p-3">หมวดหมู่</th>
+											<th className="text-left p-3">ผู้ตอบ</th>
+											<th className="text-left p-3">หน่วยงาน</th>
+											<th className="text-left p-3">คำสำคัญ</th>
+											<th className="text-left p-3">Update</th>
 										</tr>
 									</thead>
 									<tbody>
 										{loadingAnswers ? (
-											<tr><td className="p-3" colSpan={3}>Loading...</td></tr>
+											<tr><td className="p-3" colSpan={6}>Loading...</td></tr>
 										) : answers.length === 0 ? (
-											<tr><td className="p-3" colSpan={3}>No data</td></tr>
+											<tr><td className="p-3" colSpan={6}>No data</td></tr>
 										) : (
 											answers.map((a) => (
 												<tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
 													<td className="p-3 align-top whitespace-pre-wrap">{a.answer_text}</td>
 													<td className="p-3 align-top">{a.category}</td>
+													<td className="p-3 align-top">{a.create_user_name || "-"}</td>
+													<td className="p-3 align-top">{a.create_user_department || "-"}</td>
+													<td className="p-3 align-top">
+														{(a.answer_keywords || "").split(",").filter(Boolean).map((k, i) => (
+															<span key={i} className="inline-block mr-2 mb-1 rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs">{k.trim()}</span>
+														))}
+													</td>
 													<td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
 												</tr>
 											))

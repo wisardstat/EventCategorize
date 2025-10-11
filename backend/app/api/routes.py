@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db import models
 from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut
-from app.services.classifier import classify_category
+from app.services.classifier import classify_category, extract_keywords
 from sqlalchemy import desc
 
 router = APIRouter()
@@ -58,11 +58,15 @@ def get_question(question_id: str, db: Session = Depends(get_db)):
 def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
     print("payload: ", payload)    
     category = classify_category(payload.answer_text)
+    keywords = extract_keywords(payload.answer_text)
     print("Return category: ", category)
     new_answer = models.Answer(
         question_id=payload.question_id,
         answer_text=payload.answer_text,
         category=category,
+        create_user_name=payload.create_user_name,
+        create_user_department=payload.create_user_department,
+        answer_keywords=keywords,
     )
     db.add(new_answer)
     try:
@@ -79,6 +83,16 @@ def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
     items = (
         db.query(models.Answer)
         .filter(models.Answer.question_id == question_id)
+        .order_by(desc(models.Answer.created_at))
+        .all()
+    )
+    return items
+
+
+@router.get("/answers", response_model=list[AnswerOut])
+def list_all_answers(db: Session = Depends(get_db)):
+    items = (
+        db.query(models.Answer)
         .order_by(desc(models.Answer.created_at))
         .all()
     )

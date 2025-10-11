@@ -25,6 +25,8 @@ class AnswerCreate(BaseModel):
     question_id: str
     answer_text: str = Field(..., min_length=1)
     category: Optional[str] = "General"
+    create_user_name: Optional[str] = None
+    create_user_department: Optional[str] = None
 
 
 class AnswerOut(BaseModel):
@@ -32,6 +34,9 @@ class AnswerOut(BaseModel):
     question_id: str
     answer_text: str
     category: str
+    create_user_name: Optional[str] = None
+    create_user_department: Optional[str] = None
+    answer_keywords: Optional[str] = None
     created_at: datetime
 
     class Config:

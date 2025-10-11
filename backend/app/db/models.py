@@ -30,6 +30,9 @@ class Answer(Base):
     question_id = Column(Text, nullable=False)
     answer_text = Column(Text, nullable=False)
     category = Column(Text, nullable=False)
+    create_user_name = Column(Text)
+    create_user_department = Column(Text)
+    answer_keywords = Column(Text)
     created_at = Column(
         TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )

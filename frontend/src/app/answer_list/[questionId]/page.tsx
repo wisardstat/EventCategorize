@@ -1,0 +1,122 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+
+type Answer = {
+    answer_id: number;
+    question_id: string;
+    answer_text: string;
+    category: string;
+    answer_keywords?: string | null;
+    create_user_name?: string | null;
+    create_user_department?: string | null;
+    created_at: string;
+};
+
+type Question = {
+    question_id: string;
+    question_title: string;
+    question_description?: string | null;
+};
+
+export default function AnswerListByQuestionPage() {
+    const params = useParams<{ questionId: string }>();
+    const questionId = params?.questionId as string;
+    const [question, setQuestion] = useState<Question | null>(null);
+    const [answers, setAnswers] = useState<Answer[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function load() {
+            if (!questionId) return;
+            setLoading(true);
+            setError(null);
+            try {
+                const [qRes, aRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`),
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`),
+                ]);
+                if (!qRes.ok) throw new Error("Failed to load question");
+                if (!aRes.ok) throw new Error("Failed to load answers");
+                const qData: Question = await qRes.json();
+                const aData: Answer[] = await aRes.json();
+                setQuestion(qData);
+                setAnswers(aData);
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Error loading answers";
+                setError(message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        load();
+    }, [questionId]);
+
+    return (
+        <div className="min-h-screen p-8">
+            <main className="mx-auto max-w-6xl space-y-6">
+                <h1 className="text-2xl font-bold text-center">{question?.question_title || `แสดงความคิดเห็นทั้งหมดของโจทย์: ${questionId}`}</h1>
+                <h2 className="text-lg opacity-80 text-center">{question?.question_description || ""}</h2>
+
+                <div className="flex justify-center">
+                    <Link
+                        href={`/answer_analytic/${questionId}`}
+                        className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
+                    >
+                        <span className="text-emerald-300">»»</span>
+                        <span> Dashboard </span>
+                    </Link>
+                </div>
+
+                {loading ? (
+                    <p>Loading...</p>
+                ) : error ? (
+                    <p className="text-red-600">{error}</p>
+                ) : (
+                    <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+                        <table className="min-w-full text-sm">
+                            <thead className="bg-black/5 dark:bg-white/10">
+                                <tr>
+                                    <th className="text-left p-3">แสดงความคิดเห็น</th>
+                                    <th className="text-left p-3">วันเวลาตอบ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {answers.length === 0 ? (
+                                    <tr><td className="p-3" colSpan={6}>No data</td></tr>
+                                ) : (
+                                    answers.map((a) => (
+                                        <tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
+
+                                            <td className="p-3 align-top whitespace-pre-wrap">
+
+                                                <div className="text-yellow-500">
+                                                    <b> ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
+                                                    &nbsp;&nbsp; <b>หน่วยงานผู้ตอบคำถาม : </b> {a.create_user_department || "-"}
+                                                </div>
+                                                <br /><br /> {a.answer_text}
+
+                                                <div className="text-blue-300">
+
+                                                    <br /><br /> <b  >หมวดหมู่ : </b> {a.category}
+                                                    <br /> <b  >คำสำคัญ : </b> {a.answer_keywords || ""}
+                                                </div>
+
+                                            </td>
+                                            <td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </main>
+        </div>
+    );
+}
+
+

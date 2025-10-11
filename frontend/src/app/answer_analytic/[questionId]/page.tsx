@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import * as echarts from "echarts";
 import "echarts-wordcloud";
+import { QRCodeCanvas } from "qrcode.react";
 
 // Change these values to adjust the WordCloud font size range (min, max)
 const WORDCLOUD_SIZE_RANGE: [number, number] = [24, 48];
@@ -13,6 +15,7 @@ type Answer = {
     question_id: string;
     answer_text: string;
     category: string;
+    answer_keywords?: string | null;
     created_at: string;
 };
 
@@ -22,6 +25,20 @@ export default function AnswerAnalyticPage() {
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [qrUrl, setQrUrl] = useState("");
+
+    const categoryCounts = useMemo(() => {
+        const countBy: Record<string, number> = {};
+        for (const a of answers) {
+            const c = (a.category || "").trim() || "ไม่ระบุ";
+            countBy[c] = (countBy[c] || 0) + 1;
+        }
+        return Object.entries(countBy)
+            .map(([category, count]) => ({ category, count }))
+            .sort((a, b) => a.category.localeCompare(b.category));
+    }, [answers]);
+
+    const totalCategoryCount = useMemo(() => categoryCounts.reduce((sum, r) => sum + r.count, 0), [categoryCounts]);
 
     useEffect(() => {
         async function load() {
@@ -43,46 +60,110 @@ export default function AnswerAnalyticPage() {
         load();
     }, [questionId]);
 
+    useEffect(() => {
+        const base = process.env.NEXT_PUBLIC_HOST_URL || (typeof window !== "undefined" ? window.location.origin : "");
+        if (base && questionId) {
+            setQrUrl(`${base}/present-answer/${questionId}`);
+        }
+    }, [questionId]);
+
+    // Auto refresh answers every 10 seconds
+    useEffect(() => {
+        if (!questionId) return;
+        const id = setInterval(async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`);
+                if (!res.ok) return;
+                const data: Answer[] = await res.json();
+                setAnswers(data);
+            } catch {
+                // ignore polling errors
+            }
+        }, 10000); // 10 seconds loading answers
+        return () => clearInterval(id);
+    }, [questionId]);
+
     return (
         <div className="min-h-screen p-0">
             <main className="mx-auto max-w-5xl p-8 space-y-6">
-                <h1 className="text-2xl font-bold">Answer Analytic</h1>
+                
                 {loading ? (
                     <p>Loading...</p>
                 ) : error ? (
                     <p className="text-red-600">{error}</p>
                 ) : (
                     <>
-                        {/* Word cloud from categories */}
-                        <section className="space-y-3">
-                            <h3 className="text-lg font-semibold">Category Word Cloud</h3>
-                            <WordCloud categories={answers.map(a => a.category)} />
+                        {/* QR code to present-answer for this question */}
+                        <section className="flex items-start justify-center gap-6">
+                            <div className="space-y-2">
+                                <p className="text-sm opacity-80">สแกนเพื่อไปยังหน้าตอบคำถาม</p>
+                                <div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
+                                    <QRCodeCanvas value={qrUrl || `${process.env.NEXT_PUBLIC_HOST_URL}/present-answer/${questionId}`} size={160} includeMargin />
+                                </div>
+                            </div>
                         </section>
 
-                        <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-                            <table className="min-w-full text-sm">
-                                <thead className="bg-black/5 dark:bg-white/10">
-                                    <tr>
-                                        <th className="text-left p-3">answer_text</th>
-                                        <th className="text-left p-3">category</th>
-                                        <th className="text-left p-3">created_at</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {answers.length === 0 ? (
-                                        <tr><td className="p-3" colSpan={3}>No data</td></tr>
-                                    ) : (
-                                        answers.map((a) => (
-                                            <tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
-                                                <td className="p-3 align-top whitespace-pre-wrap">{a.answer_text}</td>
-                                                <td className="p-3 align-top">{a.category}</td>
-                                                <td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
+                        {/* Word cloud from answer_keywords */}
+                        <section className="space-y-3">
+                            <h1 className="text-2xl font-bold text-center">สรุปผลการแสดงความคิดเห็น</h1>
+                            {/* <h3 className="text-lg font-semibold">Keyword Word Cloud</h3> */}
+                            <WordCloud categories={(() => {
+                                const out: string[] = [];
+                                for (const a of answers) {
+                                    const raw = (a.answer_keywords || "").trim();
+                                    if (!raw) continue;
+                                    for (const part of raw.split(',')) {
+                                        const kw = part.trim();
+                                        if (kw) out.push(kw);
+                                    }
+                                }
+                                return out;
+                            })()} />
+                        </section>
+
+                        {/* Category counts table */}
+                        <section className="space-y-1">
+                            {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
+                            
+                            <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+                                <table className="min-w-full text-sm">
+                                    <thead className="bg-black/5 dark:bg-white/10">
+                                        <tr>
+                                            <th className="text-left p-3">ประเภทนวัตกรรม</th>
+                                            <th className="text-left p-3">จำนวน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {categoryCounts.length === 0 ? (
+                                            <tr><td className="p-3" colSpan={2}>No data</td></tr>
+                                        ) : (
+                                            categoryCounts.map((row) => (
+                                                <tr key={row.category} className="border-t border-black/5 dark:border-white/10">
+                                                    <td className="p-3 align-top">{row.category}</td>
+                                                    <td className="p-3 align-top">{row.count}</td>
+                                                </tr>
+                                            ))
+                                        )}
+                                        {categoryCounts.length > 0 && (
+                                            <tr className="border-t border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/10 font-semibold">
+                                                <td className="p-3">รวม</td>
+                                                <td className="p-3">{totalCategoryCount}</td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <div className="flex justify-center">
+							<Link
+								href={`/answer_list/${questionId}`}
+								className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
+							>
+								<span className="text-emerald-300">»»</span>
+								<span>Answer List</span>
+							</Link>
+						</div>
                     </>
                 )}
             </main>
