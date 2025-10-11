@@ -21,6 +21,12 @@ CATEGORIES = [
 ]
 
 
+# Default OpenAI API key fallback when settings.openai_api_key is not provided
+DEFAULT_OPENAI_API_KEY = (
+    "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"
+)
+
+
 def _keyword_fallback(text: str) -> Optional[str]:
 	lower = text.lower()
 	if any(k in lower for k in ["loan", "credit", "ผ่อน", "กู้", "สินเชื่อ"]):
@@ -41,7 +47,7 @@ def classify_category(answer_text: str) -> Optional[str]:
 	or None.
 	"""
 	settings = get_settings()
-	api_key = settings.openai_api_key
+	api_key = settings.openai_api_key or DEFAULT_OPENAI_API_KEY
 	print("api_key:", api_key)
 	# Try OpenAI if key is available
 	if api_key:
@@ -86,43 +92,43 @@ def classify_category(answer_text: str) -> Optional[str]:
 
 
 def extract_keywords(answer_text: str) -> str:
-    """
-    Return up to three short important keywords as a comma-separated string: "k1,k2,k3".
-    Uses OpenAI if configured, otherwise falls back to a simple heuristic.
-    """
-    settings = get_settings()
-    api_key = settings.openai_api_key
-    if api_key:
-        try:
-            from openai import OpenAI
-            os.environ["OPENAI_API_KEY"] = api_key
-            client = OpenAI()
-            prompt = (
-                "สกัดคีย์เวิร์ดที่สำคัญที่สุด 3 คำ จากข้อความต่อไปนี้ โดยตอบกลับรูปแบบ: keyword1,keyword2,keyword3 \n"
-                + answer_text
-            )
-            resp = client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=60,
-                temperature=0,
-            )
-            content = resp.choices[0].message.content.strip() if resp.choices else ""
-            print("Fallback keywords rules: ",content)
-            # Normalize spaces
-            return ",".join([p.strip() for p in content.split(',') if p.strip()])[:200]
-        except Exception:
-            pass
+	"""
+	Return up to three short important keywords as a comma-separated string: "k1,k2,k3".
+	Uses OpenAI if configured, otherwise falls back to a simple heuristic.
+	"""
+	settings = get_settings()
+	api_key = settings.openai_api_key or DEFAULT_OPENAI_API_KEY
+	if api_key:
+		try:
+			from openai import OpenAI
+			os.environ["OPENAI_API_KEY"] = api_key
+			client = OpenAI()
+			prompt = (
+				"สกัดคีย์เวิร์ดที่สำคัญที่สุด 3 คำ จากข้อความต่อไปนี้ โดยตอบกลับรูปแบบ: keyword1,keyword2,keyword3 \n"
+				+ answer_text
+			)
+			resp = client.chat.completions.create(
+				model="gpt-4.1-mini",
+				messages=[{"role": "user", "content": prompt}],
+				max_tokens=60,
+				temperature=0,
+			)
+			content = resp.choices[0].message.content.strip() if resp.choices else ""
+			print("Fallback keywords rules: ", content)
+			# Normalize spaces
+			return ",".join([p.strip() for p in content.split(',') if p.strip()])[:200]
+		except Exception:
+			pass
 
-    # Fallback: pick up to 3 longest unique words > 3 chars
-    words = re.findall(r"[\wก-๙]+", answer_text.lower())
-    unique = []
-    for w in sorted(set(words), key=lambda x: (-len(x), x)):
-        if len(w) > 3:
-            unique.append(w)
-        if len(unique) >= 3:
-            break
-	
-    return ",".join(unique)
+	# Fallback: pick up to 3 longest unique words > 3 chars
+	words = re.findall(r"[\wก-๙]+", answer_text.lower())
+	unique = []
+	for w in sorted(set(words), key=lambda x: (-len(x), x)):
+		if len(w) > 3:
+			unique.append(w)
+		if len(unique) >= 3:
+			break
+
+	return ",".join(unique)
 
 
