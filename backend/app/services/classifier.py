@@ -21,11 +21,7 @@ CATEGORIES = [
 ]
 
 
-# Default OpenAI API key fallback when settings.openai_api_key is not provided
-DEFAULT_OPENAI_API_KEY = (
-    "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"
-)
-
+ 
 
 def _keyword_fallback(text: str) -> Optional[str]:
 	lower = text.lower()
@@ -47,7 +43,7 @@ def classify_category(answer_text: str) -> Optional[str]:
 	or None.
 	"""
 	settings = get_settings()
-	api_key = settings.openai_api_key or DEFAULT_OPENAI_API_KEY
+	api_key = settings.openai_api_key 
 	print("api_key:", api_key)
 	# Try OpenAI if key is available
 	if api_key:
@@ -97,7 +93,7 @@ def extract_keywords(answer_text: str) -> str:
 	Uses OpenAI if configured, otherwise falls back to a simple heuristic.
 	"""
 	settings = get_settings()
-	api_key = settings.openai_api_key or DEFAULT_OPENAI_API_KEY
+	api_key = settings.openai_api_key 
 	if api_key:
 		try:
 			from openai import OpenAI

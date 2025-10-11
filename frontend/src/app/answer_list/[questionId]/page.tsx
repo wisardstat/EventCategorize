@@ -55,13 +55,47 @@ export default function AnswerListByQuestionPage() {
         load();
     }, [questionId]);
 
+    function handleExport() {
+        const headers = [
+            "create_user_name",
+            "create_user_department",
+            "answer_text",
+            "category",
+            "answer_keywords",
+            "created_at",
+        ];
+        const csvEscape = (val: unknown) => {
+            const s = String(val ?? "");
+            return '"' + s.replace(/"/g, '""') + '"';
+        };
+        const rows = answers.map((a) => [
+            csvEscape(a.create_user_name),
+            csvEscape(a.create_user_department),
+            csvEscape(a.answer_text),
+            csvEscape(a.category),
+            csvEscape(a.answer_keywords),
+            csvEscape(new Date(a.created_at).toISOString()),
+        ].join(","));
+        const content = [headers.join(","), ...rows].join("\n");
+        const bom = "\ufeff"; // UTF-8 BOM for Excel/Thai support
+        const blob = new Blob([bom + content], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `answers_${questionId}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     return (
         <div className="min-h-screen p-8">
             <main className="mx-auto max-w-6xl space-y-6">
                 <h1 className="text-2xl font-bold text-center">{question?.question_title || `แสดงความคิดเห็นทั้งหมดของโจทย์: ${questionId}`}</h1>
                 <h2 className="text-lg opacity-80 text-center">{question?.question_description || ""}</h2>
 
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-3">
                     <Link
                         href={`/answer_analytic/${questionId}`}
                         className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
@@ -69,6 +103,14 @@ export default function AnswerListByQuestionPage() {
                         <span className="text-emerald-300">»»</span>
                         <span> Dashboard </span>
                     </Link>
+                    <button
+                        type="button"
+                        onClick={handleExport}
+                        className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-sky-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-sky-100 bg-gradient-to-r from-sky-900/60 to-cyan-900/40 shadow-[0_0_8px_rgba(56,189,248,0.6),inset_0_0_12px_rgba(56,189,248,0.2)] hover:from-sky-800/70 hover:to-cyan-800/60 hover:shadow-[0_0_14px_rgba(56,189,248,0.9),inset_0_0_16px_rgba(56,189,248,0.35)] transition"
+                    >
+                        <span className="text-sky-300">⬇</span>
+                        <span> Export </span>
+                    </button>
                 </div>
 
                 {loading ? (
@@ -102,7 +144,9 @@ export default function AnswerListByQuestionPage() {
                                                 <div className="text-blue-300">
 
                                                     <br /><br /> <b  >หมวดหมู่ : </b> {a.category}
-                                                    <br /> <b  >คำสำคัญ : </b> {a.answer_keywords || ""}
+                                                    <br /> <b  >คำสำคัญ : </b> {(a.answer_keywords || "").split(",").filter(Boolean).map((k, i) => (
+															<span key={i} className="inline-block mr-2 mb-1 rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs">{k.trim()}</span>
+														))}
                                                 </div>
 
                                             </td>

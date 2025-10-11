@@ -205,10 +205,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 									<thead className="bg-black/5 dark:bg-white/10">
 										<tr>
 											<th className="text-left p-3">ความคิดเห็น</th>
-											<th className="text-left p-3">หมวดหมู่</th>
-											<th className="text-left p-3">ผู้ตอบ</th>
-											<th className="text-left p-3">หน่วยงาน</th>
-											<th className="text-left p-3">คำสำคัญ</th>
+																						
 											<th className="text-left p-3">Update</th>
 										</tr>
 									</thead>
@@ -220,15 +217,25 @@ const [question, setQuestion] = useState<Question | null>(null);
 										) : (
 											answers.map((a) => (
 												<tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
-													<td className="p-3 align-top whitespace-pre-wrap">{a.answer_text}</td>
-													<td className="p-3 align-top">{a.category}</td>
-													<td className="p-3 align-top">{a.create_user_name || "-"}</td>
-													<td className="p-3 align-top">{a.create_user_department || "-"}</td>
-													<td className="p-3 align-top">
-														{(a.answer_keywords || "").split(",").filter(Boolean).map((k, i) => (
+													<td className="p-3 align-top whitespace-pre-wrap">
+
+													<div className="text-yellow-500">
+														<b> ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
+														&nbsp;&nbsp; <b>หน่วยงานผู้ตอบคำถาม : </b> {a.create_user_department || "-"}
+													</div>
+													<br /><br /> {a.answer_text}
+
+													<div className="text-blue-300">
+
+														<br /><br /> <b  >หมวดหมู่ : </b> {a.category}
+														<br /> <b  >คำสำคัญ : </b>  {(a.answer_keywords || "").split(",").filter(Boolean).map((k, i) => (
 															<span key={i} className="inline-block mr-2 mb-1 rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs">{k.trim()}</span>
 														))}
+													</div>
+
 													</td>
+													
+													 
 													<td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
 												</tr>
 											))
