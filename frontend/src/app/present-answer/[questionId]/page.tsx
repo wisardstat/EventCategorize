@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 
 export default function PresentAnswerPage() {
@@ -124,10 +125,20 @@ const [question, setQuestion] = useState<Question | null>(null);
 					
 						<h2 className="text-xl opacity-80 text-center">{question?.question_description || ""}</h2>
 
+						<div className="flex justify-center">
+							<Link
+								href={`/answer_analytic/${questionId}`}
+								className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
+							>
+								<span className="text-emerald-300">»»</span>
+								<span>Dashboard</span>
+							</Link>
+						</div>
+
 						<form onSubmit={handleSave} className="space-y-4">
 							
 							<div className="space-y-2">
-								<label className="block text-sm font-medium">answer_text</label>
+								<label className="block text-sm font-medium">เชิญแสดงความคิดเห็นของท่าน</label>
 								<textarea
 									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent min-h-[120px]"
 									value={answerText}
@@ -141,21 +152,21 @@ const [question, setQuestion] = useState<Question | null>(null);
 									disabled={saving}
 									className="inline-flex items-center rounded-md bg-black text-white px-4 py-2 text-sm disabled:opacity-50 dark:bg-white dark:text-black"
 								>
-									{saving ? "Saving..." : "Save"}
+									{saving ? "Saving..." : "ส่งความคิดเห็น"}
 								</button>
 								<button
 									type="button"
 									onClick={handleReset}
 									className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-4 py-2 text-sm"
 								>
-									Reset
+									เริ่มใหม่/Reset
 								</button>
 							</div>
 							{message && <p className="text-sm">{message}</p>}
 						</form>
 
 						<section className="space-y-3">
-							<h3 className="text-lg font-semibold">Answers</h3>
+							<h3 className="text-lg font-semibold">แสดงความคิดเห็นทั้งหมด</h3>
 							<div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
 								<table className="min-w-full text-sm">
 									<thead className="bg-black/5 dark:bg-white/10">

@@ -87,12 +87,12 @@ export default function CreateQuestionPage() {
 	}
 
 	return (
-		<div className="min-h-screen flex items-center justify-center p-8">
+		<div className="min-h-screen flex items-top justify-center p-8">
 			<main className="w-full max-w-5xl space-y-8">
-				<h1 className="text-2xl font-bold text-center">Create Question</h1>
+				<h1 className="text-2xl font-bold text-center roboto-bold">สร้างโจทย์ปัญหา</h1>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div className="space-y-2">
-						<label className="block text-sm font-medium">Question Title</label>
+						<label className="block text-sm font-medium">หัวข้อโจทย์ปัญหา</label>
 						<input
 							type="text"
 							className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
@@ -103,7 +103,7 @@ export default function CreateQuestionPage() {
 					</div>
 
 					<div className="space-y-2">
-						<label className="block text-sm font-medium">Question description</label>
+						<label className="block text-sm font-medium">รายละเอียดโจทย์ปัญหา</label>
 						<textarea
 							className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent min-h-[120px]"
 							value={description}
@@ -117,15 +117,21 @@ export default function CreateQuestionPage() {
 							disabled={loading}
 							className="inline-flex items-center rounded-md bg-black text-white px-4 py-2 text-sm disabled:opacity-50 dark:bg-white dark:text-black"
 						>
-							{loading ? "Saving..." : "Save"}
+							{loading ? "Saving..." : "สร้างโจทย์ปัญหา / Create Question"}
 						</button>
 						<button
 							type="button"
 							onClick={handleReset}
 							className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-4 py-2 text-sm"
 						>
-							Reset
+							เริ่มใหม่/Reset
 						</button>
+						<Link
+							href="/"
+							className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-4 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10"
+						>
+							Home
+						</Link>
 					</div>
 
 					{message && (
@@ -134,38 +140,37 @@ export default function CreateQuestionPage() {
 				</form>
 
 				<section className="space-y-3">
-					<h2 className="text-xl font-semibold">Questions</h2>
+					<h2 className="text-xl font-semibold">แสดงโจทย์ปัญหาทั้งหมด</h2>
 					<div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
 						<table className="min-w-full text-sm">
 							<thead className="bg-black/5 dark:bg-white/10">
 								<tr>
-								<th className="text-left p-3">select</th>
-								<th className="text-left p-3">select</th>
-								<th className="text-left p-3">question_id</th>
-									<th className="text-left p-3">title</th>
-									<th className="text-left p-3">description</th>
-								<th className="text-left p-3">select</th>
+								<th className="text-left p-3"></th>
+								<th className="text-left p-3"></th>								
+									<th className="text-left p-3">โจทย์ปัญหา</th>
+									<th className="text-left p-3">รายละเอียด</th>
+								<th className="text-left p-3">ลบ</th>
 								</tr>
 							</thead>
 							<tbody>
 								{loadingList ? (
 								<tr><td className="p-3" colSpan={6}>Loading...</td></tr>
 								) : questions.length === 0 ? (
-								<tr><td className="p-3" colSpan={6}>No data</td></tr>
+								<tr><td className="p-3" colSpan={6}>ไม่พบรายการ</td></tr>
 								) : (
 									questions.map((q) => (
 										<tr key={q.question_id} className="border-t border-black/5 dark:border-white/10">
 											<td className="p-3 align-top">
 												<Link href={`/present-answer/${q.question_id}`} className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-3 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10">
-													goto answer
+													ความคิดเห็น
 												</Link>
 											</td>
 										<td className="p-3 align-top">
 											<Link href={`/answer_analytic/${q.question_id}`} className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-3 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10">
-												goto analytic
+												Dashboard
 											</Link>
 										</td>
-											<td className="p-3 align-top">{q.question_id}</td>
+											
 											<td className="p-3 align-top">{q.question_title}</td>
 											<td className="p-3 align-top">{q.question_description || ""}</td>
 										<td className="p-3 align-top">
@@ -173,7 +178,7 @@ export default function CreateQuestionPage() {
 												onClick={() => handleDelete(q.question_id)}
 												className="inline-flex items-center rounded-md border border-red-300 text-red-700 px-3 py-1 text-xs hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
 											>
-												delete
+												ลบ
 											</button>
 										</td>
 										</tr>

@@ -36,7 +36,7 @@ def classify_category(answer_text: str) -> Optional[str]:
 	or None.
 	"""
 	settings = get_settings()
-	api_key = settings.openai_api_key.strip()
+	api_key = settings.openai_api_key
 	print("api_key:", api_key)
 	# Try OpenAI if key is available
 	if api_key:
@@ -58,7 +58,7 @@ def classify_category(answer_text: str) -> Optional[str]:
 			print("prompt: ", prompt)
 
 			resp = client.chat.completions.create(
-				model="gpt-4o-mini",
+				model="gpt-4.1-mini",
 				messages=[{"role": "user", "content": prompt}],
 				max_tokens=10,
 				temperature=0,
