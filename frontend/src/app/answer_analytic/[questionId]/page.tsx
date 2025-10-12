@@ -147,7 +147,7 @@ export default function AnswerAnalyticPage() {
                             <section className="space-y-1 md:col-span-3">
                                 {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
 
-                                <div className="overflow-x-auto rounded-md border border-red-500 dark:border-white/20">
+                                <div className="overflow-x-auto rounded-md  dark:border-white/20">
                                     <table className="min-w-full text-sm border border-gray-500">
                                         <thead className="bg-black/5 dark:bg-white/10">
                                             <tr>

@@ -39,6 +39,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=matrix2805
 POSTGRES_PORT=5432
 DATABASE_URL=postgresql+psycopg://postgres:matrix2805@172.19.32.1:5432/eventfeedback
+OPENAI_API_KEY=xxxx
 ```
 
 On startup, the backend creates tables `public."Question"` and `public."Answer"` if they do not exist.

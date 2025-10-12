@@ -196,12 +196,10 @@ const [question, setQuestion] = useState<Question | null>(null);
 						<section className="space-y-3">
 							<h3 className="text-lg font-semibold">แสดงความคิดเห็นทั้งหมด</h3>
 							<div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-								<table className="min-w-full text-sm">
+								<table className="min-w-full text-sm border border-gray-500">
 									<thead className="bg-black/5 dark:bg-white/10">
 										<tr>
 											<th className="text-left p-3">ความคิดเห็น</th>
-																						
-											<th className="text-left p-3">Update</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -212,12 +210,15 @@ const [question, setQuestion] = useState<Question | null>(null);
 										) : (
 											answers.map((a) => (
 												<tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
-													<td className="p-3 align-top whitespace-pre-wrap">
+													<td className="p-3 align-top whitespace-pre-wrap border border-gray-500">
 
 													<div className="text-yellow-500">
-														<b> ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
+														<b>ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
 														&nbsp;&nbsp; <b>หน่วยงานผู้ตอบคำถาม : </b> {a.create_user_department || "-"}
 													</div>
+													<div className="text-gray-400 p-t-3">
+                                                วันเวลาตอบ : {new Date(a.created_at).toLocaleString()}
+                                                </div>
 													<br /><br /> {a.answer_text}
 
 													<div className="text-blue-300">
@@ -231,7 +232,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 													</td>
 													
 													 
-													<td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
+													
 												</tr>
 											))
 										)}
