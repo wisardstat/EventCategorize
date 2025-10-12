@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { QRCodeCanvas } from "qrcode.react";
 
 export default function PresentAnswerPage() {
 	const params = useParams<{ questionId: string }>();
@@ -28,7 +27,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 		created_at: string;
 	}[]>([]);
 	const [loadingAnswers, setLoadingAnswers] = useState(false);
-	const [qrUrl, setQrUrl] = useState("");
+// QR code not used currently on this page
 
 	useEffect(() => {
 		async function load() {
@@ -51,11 +50,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 		}
 	}, [questionId]);
 
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			setQrUrl(window.location.href);
-		}
-	}, [questionId]);
+// Removed unused QR url state/effect
 
 	async function loadAnswers() {
 		if (!questionId) return;

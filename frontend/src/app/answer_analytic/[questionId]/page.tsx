@@ -15,6 +15,7 @@ type Answer = {
     question_id: string;
     answer_text: string;
     category: string;
+    create_user_department?: string | null;
     answer_keywords?: string | null;
     created_at: string;
 };
@@ -43,7 +44,7 @@ export default function AnswerAnalyticPage() {
     const departmentCounts = useMemo(() => {
         const countBy: Record<string, number> = {};
         for (const a of answers) {
-            const d = (a as any).create_user_department ? String((a as any).create_user_department).trim() : "ไม่ระบุ";
+            const d = a.create_user_department ? String(a.create_user_department).trim() : "ไม่ระบุ";
             const key = d || "ไม่ระบุ";
             countBy[key] = (countBy[key] || 0) + 1;
         }
