@@ -29,3 +29,14 @@ body {
   color: var(--foreground);
   font-family: var(--font-roboto), var(--font-noto-thai), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
+
+/* Neon pink text glow (เหมือนตัวอย่างในภาพ) */
+.neon-pink {
+  color: #ff76da; /* core pink */
+  text-shadow:
+    0 0 6px rgba(255, 118, 218, 0.30),
+    0 0 12px rgba(255, 118, 218, 0.50),
+    0 0 24px rgba(255, 118, 218, 0.60),
+    0 0 48px rgba(255, 118, 218, 0.30),
+    0 0 72px rgba(255, 118, 218, 0.45);
+}

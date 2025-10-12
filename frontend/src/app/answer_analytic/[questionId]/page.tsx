@@ -40,6 +40,18 @@ export default function AnswerAnalyticPage() {
 
     const totalCategoryCount = useMemo(() => categoryCounts.reduce((sum, r) => sum + r.count, 0), [categoryCounts]);
 
+    const departmentCounts = useMemo(() => {
+        const countBy: Record<string, number> = {};
+        for (const a of answers) {
+            const d = (a as any).create_user_department ? String((a as any).create_user_department).trim() : "ไม่ระบุ";
+            const key = d || "ไม่ระบุ";
+            countBy[key] = (countBy[key] || 0) + 1;
+        }
+        return Object.entries(countBy)
+            .map(([department, count]) => ({ department, count }))
+            .sort((a, b) => a.department.localeCompare(b.department));
+    }, [answers]);
+
     useEffect(() => {
         async function load() {
             if (!questionId) return;
@@ -86,15 +98,19 @@ export default function AnswerAnalyticPage() {
     return (
         <div className="min-h-screen p-0">
             <main className="mx-auto max-w-5xl p-8 space-y-6">
-                
+
                 {loading ? (
                     <p>Loading...</p>
                 ) : error ? (
                     <p className="text-red-600">{error}</p>
                 ) : (
                     <>
+                    <h1 className="text-2xl font-bold text-center">สรุปผลการแสดงความคิดเห็น</h1>
+                    
+                    <div className="grid grid-cols-5 gap-4">
+ 
                         {/* QR code to present-answer for this question */}
-                        <section className="flex items-start justify-center gap-6">
+                        <section className="flex items-start justify-center gap-6  ">
                             <div className="space-y-2">
                                 <p className="text-sm opacity-80">สแกนเพื่อไปยังหน้าตอบคำถาม</p>
                                 <div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
@@ -104,8 +120,8 @@ export default function AnswerAnalyticPage() {
                         </section>
 
                         {/* Word cloud from answer_keywords */}
-                        <section className="space-y-3">
-                            <h1 className="text-2xl font-bold text-center">สรุปผลการแสดงความคิดเห็น</h1>
+                        <section className="space-y-3 col-span-4" >
+                            
                             {/* <h3 className="text-lg font-semibold">Keyword Word Cloud</h3> */}
                             <WordCloud categories={(() => {
                                 const out: string[] = [];
@@ -120,50 +136,84 @@ export default function AnswerAnalyticPage() {
                                 return out;
                             })()} />
                         </section>
+                        </div>
 
-                        {/* Category counts table */}
-                        <section className="space-y-1">
-                            {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
-                            
-                            <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-                                <table className="min-w-full text-sm">
-                                    <thead className="bg-black/5 dark:bg-white/10">
-                                        <tr>
-                                            <th className="text-left p-3">ประเภทนวัตกรรม</th>
-                                            <th className="text-left p-3">จำนวน</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {categoryCounts.length === 0 ? (
-                                            <tr><td className="p-3" colSpan={2}>No data</td></tr>
-                                        ) : (
-                                            categoryCounts.map((row) => (
-                                                <tr key={row.category} className="border-t border-black/5 dark:border-white/10">
-                                                    <td className="p-3 align-top">{row.category}</td>
-                                                    <td className="p-3 align-top">{row.count}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                        {categoryCounts.length > 0 && (
+                        <h1 className="text-2xl font-bold text-center neon-pink">จำนวนไอเดีย {totalCategoryCount} รายการ</h1>
+
+                        <div className="grid grid-cols-5 gap-4">
+
+                            {/* Category counts table */}
+                            <section className="space-y-1 col-span-3">
+                                {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
+
+                                <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+                                    <table className="min-w-full text-sm">
+                                        <thead className="bg-black/5 dark:bg-white/10">
+                                            <tr>
+                                                <th className="text-left p-3">ประเภทนวัตกรรม</th>
+                                                <th className="text-left p-3">จำนวน</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {categoryCounts.length === 0 ? (
+                                                <tr><td className="p-3" colSpan={2}>No data</td></tr>
+                                            ) : (
+                                                categoryCounts.map((row) => (
+                                                    <tr key={row.category} className="border-t border-black/5 dark:border-white/10">
+                                                        <td className="p-3 align-top">{row.category}</td>
+                                                        <td className="p-3 align-top text-right">{row.count}</td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                            {/* {categoryCounts.length > 0 && (
                                             <tr className="border-t border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/10 font-semibold">
                                                 <td className="p-3">รวม</td>
                                                 <td className="p-3">{totalCategoryCount}</td>
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
+                                        )} */}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+
+
+
+                            {/* Department counts table */}
+                            <section className="space-y-1 col-span-2">
+                                <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
+                                    <table className="min-w-full text-sm">
+                                        <thead className="bg-black/5 dark:bg-white/10">
+                                            <tr>
+                                                <th className="text-left p-3">หน่วยงาน</th>
+                                                <th className="text-left p-3  text-right">จำนวน</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {departmentCounts.length === 0 ? (
+                                                <tr><td className="p-3" colSpan={2}>No data</td></tr>
+                                            ) : (
+                                                departmentCounts.map((row) => (
+                                                    <tr key={row.department} className="border-t border-black/5 dark:border-white/10">
+                                                        <td className="p-3 align-top">{row.department}</td>
+                                                        <td className="p-3 align-top text-right">{row.count}</td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
 
                         <div className="flex justify-center">
-							<Link
-								href={`/answer_list/${questionId}`}
-								className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
-							>
-								<span className="text-emerald-300">»»</span>
-								<span>Answer List</span>
-							</Link>
-						</div>
+                            <Link
+                                href={`/answer_list/${questionId}`}
+                                className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
+                            >
+                                <span className="text-emerald-300">»»</span>
+                                <span>Answer List</span>
+                            </Link>
+                        </div>
                     </>
                 )}
             </main>

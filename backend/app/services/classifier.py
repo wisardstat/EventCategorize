@@ -41,8 +41,9 @@ def classify_category(answer_text: str) -> Optional[str]:
 	or None.
 	"""
 	settings = get_settings()
+	print("start-settings ")
 	api_key = settings.openai_api_key 
-	print("api_key:", api_key)
+	print("api_key >>", api_key)
 	# Try OpenAI if key is available
 	if api_key:
 		try:

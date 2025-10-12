@@ -124,14 +124,14 @@ const [question, setQuestion] = useState<Question | null>(null);
 				) : (
 					<>
 					
-					<section className="flex items-start justify-center gap-6">
+					{/* <section className="flex items-start justify-center gap-6">
 						<div className="space-y-2">
 							<p className="text-sm opacity-80">Scan to open this page:</p>
 							<div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
 								<QRCodeCanvas value={qrUrl || `${process.env.NEXT_PUBLIC_HOST_URL}/present-answer/${questionId}`} size={160} includeMargin />
 							</div>
 						</div>
-					</section>
+					</section> */}
 
 					<h1 className="text-3xl font-bold text-center">{question?.question_title}</h1>
 					
