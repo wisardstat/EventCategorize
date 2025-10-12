@@ -5,6 +5,131 @@
   --background: #0b0d12; /* deep near-black */
   --foreground: #e5e7eb; /* slate-200 */
   --brand: #6d4aff; /* purple CTA */
+  /* Local font family variables (used by theme + body) */
+  --font-roboto: "Roboto";
+  --font-noto-thai: "Noto Sans Thai Local";
+  --font-geist-mono: "Geist Mono Local";
+}
+
+/* Local font faces - place your font files under /public/google_font/... */
+/* Thin 100 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-ThinItalic.ttf") format("truetype");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Light 300 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Regular 400 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Medium 500 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Bold 700 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Black 900 */
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/google_font/roboto/Roboto-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+} 
+
+/* Noto Sans Thai */
+@font-face {
+  font-family: "Noto Sans Thai Local";
+  src: url("/google_font/noto-sans-thai/NotoSansThai-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist Mono */
+@font-face {
+  font-family: "Geist Mono Local";
+  src: url("/google_font/geist-mono/GeistMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme inline {
@@ -27,6 +152,7 @@ body {
   background: radial-gradient(1200px 600px at 85% 10%, rgba(89, 0, 255, 0.15), transparent 60%),
               linear-gradient(90deg, #0b0d12 0%, #0e0b1a 50%, #210a2f 100%);
   color: var(--foreground);
+  /* font-family: var(--font-roboto), var(--font-noto-thai),  Roboto, "Apple Color Emoji", "Segoe UI Emoji"; */
   font-family: var(--font-roboto), var(--font-noto-thai), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 

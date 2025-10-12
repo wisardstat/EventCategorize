@@ -1,25 +1,5 @@
 import type { Metadata } from "next";
-import { Roboto, Noto_Sans_Thai, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const roboto = Roboto({
-  variable: "--font-roboto",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
-  style: ["normal", "italic"],
-});
-
-const notoThai = Noto_Sans_Thai({
-  variable: "--font-noto-thai",
-  subsets: ["thai"],
-  weight: ["300", "400", "500", "700"],
-  style: ["normal"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Innovation Conners",
@@ -33,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} ${notoThai.variable} ${geistMono.variable} antialiased`}>
+      <body className={`antialiased`}>
         <header className="w-full border-b border-white/10 bg-[#0f1220]/30">
           <nav className="mx-auto max-w-6xl px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">               
