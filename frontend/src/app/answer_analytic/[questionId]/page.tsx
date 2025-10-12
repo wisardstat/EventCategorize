@@ -108,10 +108,10 @@ export default function AnswerAnalyticPage() {
                     <>
                     <h1 className="text-2xl font-bold text-center">สรุปผลการแสดงความคิดเห็น</h1>
                     
-                    <div className="grid grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
  
                         {/* QR code to present-answer for this question */}
-                        <section className="flex items-start justify-center gap-6  ">
+                        <section className="flex items-start justify-center gap-6 md:col-span-1 ">
                             <div className="space-y-2">
                                 <p className="text-sm opacity-80">สแกนเพื่อไปยังหน้าตอบคำถาม</p>
                                 <div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
@@ -121,7 +121,7 @@ export default function AnswerAnalyticPage() {
                         </section>
 
                         {/* Word cloud from answer_keywords */}
-                        <section className="space-y-3 col-span-4" >
+                        <section className="space-y-3 md:col-span-4" >
                             
                             {/* <h3 className="text-lg font-semibold">Keyword Word Cloud</h3> */}
                             <WordCloud categories={(() => {
@@ -141,10 +141,10 @@ export default function AnswerAnalyticPage() {
 
                         <h1 className="text-2xl font-bold text-center neon-pink">จำนวนไอเดีย {totalCategoryCount} รายการ</h1>
 
-                        <div className="grid grid-cols-5 gap-4">
+                        <div className="grid md:grid-cols-5 gap-4">
 
                             {/* Category counts table */}
-                            <section className="space-y-1 col-span-3">
+                            <section className="space-y-1 md:col-span-3">
                                 {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
 
                                 <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
@@ -180,7 +180,7 @@ export default function AnswerAnalyticPage() {
 
 
                             {/* Department counts table */}
-                            <section className="space-y-1 col-span-2">
+                            <section className="space-y-1 md:col-span-2">
                                 <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
                                     <table className="min-w-full text-sm">
                                         <thead className="bg-black/5 dark:bg-white/10">
