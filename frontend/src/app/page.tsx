@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -36,7 +35,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center p-8">
       <main className="w-full max-w-xl text-center space-y-8">
         <h1 className="text-3xl font-bold">welcome to Innovation Conner</h1>
-        <nav className="grid gap-4 sm:grid-cols-1">
+        <nav className="grid gap-4 sm:grid-cols-1"> 
           <button
             onClick={openLogin}
             className="block rounded-lg border border-black/10 dark:border-white/20 p-6 hover:bg-black/5 dark:hover:bg-white/10 transition text-center"
