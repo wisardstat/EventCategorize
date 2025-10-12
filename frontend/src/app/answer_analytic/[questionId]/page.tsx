@@ -147,8 +147,8 @@ export default function AnswerAnalyticPage() {
                             <section className="space-y-1 md:col-span-3">
                                 {/* <h3 className="text-lg font-semibold">จำนวนตามหมวดหมู่ (Category)</h3> */}
 
-                                <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-                                    <table className="min-w-full text-sm">
+                                <div className="overflow-x-auto rounded-md border border-red-500 dark:border-white/20">
+                                    <table className="min-w-full text-sm border border-gray-500">
                                         <thead className="bg-black/5 dark:bg-white/10">
                                             <tr>
                                                 <th className="text-left p-3">ประเภทนวัตกรรม</th>
@@ -161,8 +161,8 @@ export default function AnswerAnalyticPage() {
                                             ) : (
                                                 categoryCounts.map((row) => (
                                                     <tr key={row.category} className="border-t border-black/5 dark:border-white/10">
-                                                        <td className="p-3 align-top">{row.category}</td>
-                                                        <td className="p-3 align-top text-right">{row.count}</td>
+                                                        <td className="p-3 align-top border border-gray-500">{row.category}</td>
+                                                        <td className="p-3 align-top border border-gray-500 text-right">{row.count}</td>
                                                     </tr>
                                                 ))
                                             )}
@@ -182,7 +182,7 @@ export default function AnswerAnalyticPage() {
                             {/* Department counts table */}
                             <section className="space-y-1 md:col-span-2">
                                 <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-                                    <table className="min-w-full text-sm">
+                                    <table className="min-w-full text-sm border border-gray-500">
                                         <thead className="bg-black/5 dark:bg-white/10">
                                             <tr>
                                                 <th className="text-left p-3">หน่วยงาน</th>
@@ -195,8 +195,8 @@ export default function AnswerAnalyticPage() {
                                             ) : (
                                                 departmentCounts.map((row) => (
                                                     <tr key={row.department} className="border-t border-black/5 dark:border-white/10">
-                                                        <td className="p-3 align-top">{row.department}</td>
-                                                        <td className="p-3 align-top text-right">{row.count}</td>
+                                                        <td className="p-3 align-top border border-gray-500">{row.department}</td>
+                                                        <td className="p-3 align-top text-right border border-gray-500">{row.count}</td>
                                                     </tr>
                                                 ))
                                             )}

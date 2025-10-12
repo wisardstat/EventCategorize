@@ -146,8 +146,8 @@ const [question, setQuestion] = useState<Question | null>(null);
 							
 							<div className="space-y-2">
 								<label className="block text-sm font-medium">เชิญแสดงความคิดเห็นของท่าน</label>
-								<textarea
-									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent min-h-[120px]"
+                                <textarea
+                                    className="w-full rounded-md border border-gray-500 p-2 bg-transparent min-h-[120px]"
 									value={answerText}
 									onChange={(e) => setAnswerText(e.target.value)}
 									required
@@ -157,18 +157,18 @@ const [question, setQuestion] = useState<Question | null>(null);
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<div className="space-y-2">
 								<label className="block text-sm font-medium">ชื่อผู้ตอบคำถาม</label>
-								<input
-									type="text"  placeholder="เช่น นายสมชาย เข็มกลัด เป็นต้น"
-									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
+                                <input
+                                    type="text"  placeholder="เช่น นายสมชาย เข็มกลัด เป็นต้น"
+                                    className="w-full rounded-md border border-gray-500 p-2 bg-transparent"
 									value={createUserName}
 									onChange={(e) => setCreateUserName(e.target.value)}
 								/>
 							</div>
 							<div className="space-y-2">
 								<label className="block text-sm font-medium">หน่วยงานผู้ตอบคำถาม</label>
-								<input
-									type="text" placeholder="เช่น วพ. บข. สบ. เป็นต้น"
-									className="w-full rounded-md border border-black/10 dark:border-white/20 p-2 bg-transparent"
+                                <input
+                                    type="text" placeholder="เช่น วพ. บข. สบ. เป็นต้น"
+                                    className="w-full rounded-md border border-gray-500 p-2 bg-transparent"
 									value={createUserDepartment}
 									onChange={(e) => setCreateUserDepartment(e.target.value)}
 								/>

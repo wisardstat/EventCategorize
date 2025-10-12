@@ -128,9 +128,9 @@ export default function AnswerListByQuestionPage() {
                 <div className="mx-auto flex max-w-6xl flex-col items-center gap-3">
                     <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
-                            <label className="text-sm opacity-80 w-32">Filter Category</label>
+                            <label className="text-sm opacity-80 w-32">Category</label>
                             <select
-                                className="w-full rounded-md border border-black/10 dark:border-white/20 bg-black text-white p-2 text-sm"
+                                className="w-full rounded-md border border-white/40 bg-black text-white p-2 text-sm"
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                             >
@@ -141,9 +141,9 @@ export default function AnswerListByQuestionPage() {
                             </select>
                         </div>
                         <div className="flex items-center gap-2">
-                            <label className="text-sm opacity-80 w-32">Filter หน่วยงาน</label>
+                            <label className="text-sm opacity-80 w-32">หน่วยงาน</label>
                             <select
-                                className="w-full rounded-md border border-black/10 dark:border-white/20 bg-black text-white p-2 text-sm"
+                                className="w-full rounded-md border border-white/40 bg-black text-white p-2 text-sm"
                                 value={selectedDept}
                                 onChange={(e) => setSelectedDept(e.target.value)}
                             >
@@ -179,11 +179,11 @@ export default function AnswerListByQuestionPage() {
                     <p className="text-red-600">{error}</p>
                 ) : (
                     <div className="overflow-x-auto rounded-md border border-black/10 dark:border-white/20">
-                        <table className="min-w-full text-sm">
+                        <table className="min-w-full text-sm border border-gray-500">
                             <thead className="bg-black/5 dark:bg-white/10">
                                 <tr>
                                     <th className="text-left p-3">แสดงความคิดเห็น</th>
-                                    <th className="text-left p-3">วันเวลาตอบ</th>
+                                   
                                 </tr>
                             </thead>
                             <tbody>
@@ -192,14 +192,15 @@ export default function AnswerListByQuestionPage() {
                                 ) : (
                                     filteredAnswers.map((a) => (
                                         <tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
-
-                                            <td className="p-3 align-top whitespace-pre-wrap">
-
+                                            <td className="p-3 align-top whitespace-pre-wrap border border-gray-500">
                                                 <div className="text-yellow-500">
-                                                    <b> ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
+                                                    <b>ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
                                                     &nbsp;&nbsp; <b>หน่วยงานผู้ตอบคำถาม : </b> {a.create_user_department || "-"}
                                                 </div>
-                                                <br /><br /> {a.answer_text}
+                                                <div className="text-gray-400 p-t-3">
+                                                วันเวลาตอบ : {new Date(a.created_at).toLocaleString()}
+                                                </div>
+                                                <br />  {a.answer_text}
 
                                                 <div className="text-blue-300">
 
@@ -208,9 +209,8 @@ export default function AnswerListByQuestionPage() {
 															<span key={i} className="inline-block mr-2 mb-1 rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs">{k.trim()}</span>
 														))}
                                                 </div>
-
                                             </td>
-                                            <td className="p-3 align-top">{new Date(a.created_at).toLocaleString()}</td>
+                                            
                                         </tr>
                                     ))
                                 )}
