@@ -142,8 +142,9 @@
 /* You can override via prefers-color-scheme if desired */
 @media (prefers-color-scheme: light) {
   :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    /* Lock colors to dark theme even when OS is light */
+    --background: #0b0d12;
+    --foreground: #e5e7eb;
   }
 }
 
