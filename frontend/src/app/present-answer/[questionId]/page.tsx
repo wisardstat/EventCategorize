@@ -228,11 +228,7 @@ const [question, setQuestion] = useState<Question | null>(null);
 															<span key={i} className="inline-block mr-2 mb-1 rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs">{k.trim()}</span>
 														))}
 													</div>
-
 													</td>
-													
-													 
-													
 												</tr>
 											))
 										)}
