@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      POSTGRES_HOST: event-db
+      POSTGRES_DB: eventfeedback
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+      openai_api_key: ${OPENAI_API_KEY:-}
+    depends_on:
+      event-db:
+        condition: service_healthy
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://139.180.144.194:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [eventnet]
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://139.180.144.194:8000
+      NEXT_PUBLIC_HOST_URL: http://139.180.144.194:3000
+    depends_on: [backend]
+    ports: ["3000:3000"]
+    networks: [eventnet]
+    restart: unless-stopped
+
+  event-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: eventfeedback
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eventfeedback"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [eventnet]
+    restart: unless-stopped
+
+networks:
+  eventnet: {}
+
+volumes:
+  db_data:

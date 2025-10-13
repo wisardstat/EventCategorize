@@ -5,18 +5,28 @@ services:
     build: ./backend
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     environment:
-      POSTGRES_HOST: event-db
+      # *** CHANGES HERE ***
+      # Point to 'host.docker.internal' (Docker's way to reference the host) or 'localhost' if using host networking
+      # The port remains 5432 if that's what the external/host postgres is using
+      #POSTGRES_HOST: host.docker.internal  # Recommended for Docker Desktop/Linux with appropriate settings
+      # OR (less reliable/secure, depends on Docker network mode):
+      # POSTGRES_HOST: 172.17.0.1  # Docker default bridge gateway (less portable)
+      # OR (if using 'host' network mode, which is not used here):
+      POSTGRES_HOST: localhost
+      
       POSTGRES_DB: eventfeedback
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
+      # *******************
+      
       openai_api_key: ${OPENAI_API_KEY:-}
-    depends_on:
-      event-db:
-        condition: service_healthy
+    # REMOVE 'depends_on' on 'event-db'
+    # REMOVE 'healthcheck' if it was specifically tied to the db status
     ports: ["8000:8000"]
-    networks: [eventnet]
+    networks: [eventnet] # Can keep this, or if you use 'host' networking, remove it. Keeping for consistency.
     restart: unless-stopped
+
 
   frontend:
     build: ./frontend
@@ -28,26 +38,24 @@ services:
     networks: [eventnet]
     restart: unless-stopped
 
-  event-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: eventfeedback
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports: ["5432:5432"]
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d eventfeedback"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    networks: [eventnet]
-    restart: unless-stopped
+
+# REMOVE the entire 'event-db' service block:
+# event-db:
+#   image: postgres:16-alpine
+#   ... (etc.)
+
+# REMOVE the 'depends_on' condition from the backend service:
+#   depends_on:
+#     event-db:
+#       condition: service_healthy
+
+# REMOVE the 'volumes' block if 'db_data' is no longer needed
+# volumes:
+#   db_data:
 
 networks:
   eventnet: {}
 
-volumes:
-  db_data:
+# REMOVE the 'volumes' block since 'event-db' is gone
+# volumes:
+#   db_data: {}
