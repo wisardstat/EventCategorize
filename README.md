@@ -120,7 +120,7 @@ Run backend:
 ```bash
 
   docker run -d --name event-backend --network eventnet -p 8000:8000 \
-    -e openai_api_key=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 \
+    -e openai_api_key={} \
     -e postgres_host=event-db -e postgres_db=eventfeedback \
     -e postgres_user=postgres -e postgres_password=postgres -e postgres_port=5432 \
     event-backend  

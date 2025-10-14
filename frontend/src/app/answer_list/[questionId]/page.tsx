@@ -9,6 +9,7 @@ type Answer = {
     question_id: string;
     answer_text: string;
     category: string;
+    create_user_code?: string | null;
     answer_keywords?: string | null;
     create_user_name?: string | null;
     create_user_department?: string | null;
@@ -59,6 +60,7 @@ export default function AnswerListByQuestionPage() {
 
     function handleExport() {
         const headers = [
+            "create_user_code",
             "create_user_name",
             "create_user_department",
             "answer_text",
@@ -71,6 +73,7 @@ export default function AnswerListByQuestionPage() {
             return '"' + s.replace(/"/g, '""') + '"';
         };
         const rows = answers.map((a) => [
+            csvEscape(a.create_user_code),
             csvEscape(a.create_user_name),
             csvEscape(a.create_user_department),
             csvEscape(a.answer_text),
@@ -194,7 +197,8 @@ export default function AnswerListByQuestionPage() {
                                         <tr key={a.answer_id} className="border-t border-black/5 dark:border-white/10">
                                             <td className="p-3 align-top whitespace-pre-wrap border border-gray-500">
                                                 <div className="text-yellow-500">
-                                                    <b>ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
+                                                    <b>รหัสพนักงาน : </b> {a.create_user_code || "-"}
+                                                    &nbsp;&nbsp; <b>ชื่อผู้ตอบคำถาม : </b> {a.create_user_name || "-"}
                                                     &nbsp;&nbsp; <b>หน่วยงานผู้ตอบคำถาม : </b> {a.create_user_department || "-"}
                                                 </div>
                                                 <div className="text-gray-400 p-t-3">
