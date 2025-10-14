@@ -5,26 +5,22 @@ services:
     build: ./backend
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     environment:
-      # *** CHANGES HERE ***
-      # Point to 'host.docker.internal' (Docker's way to reference the host) or 'localhost' if using host networking
-      # The port remains 5432 if that's what the external/host postgres is using
-      #POSTGRES_HOST: host.docker.internal  # Recommended for Docker Desktop/Linux with appropriate settings
-      # OR (less reliable/secure, depends on Docker network mode):
-      # POSTGRES_HOST: 172.17.0.1  # Docker default bridge gateway (less portable)
-      # OR (if using 'host' network mode, which is not used here):
-      POSTGRES_HOST: localhost
+      # Supabase Configuration
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_KEY: ${SUPABASE_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
       
-      POSTGRES_DB: eventfeedback
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_PORT: 5432
-      # *******************
+      # Database Configuration (Supabase)
+      DATABASE_URL: ${DATABASE_URL:-}
       
-      openai_api_key: ${OPENAI_API_KEY:-}
-    # REMOVE 'depends_on' on 'event-db'
-    # REMOVE 'healthcheck' if it was specifically tied to the db status
+      # OpenAI Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      
+      # Application Configuration
+      DEBUG: ${DEBUG:-True}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     ports: ["8000:8000"]
-    networks: [eventnet] # Can keep this, or if you use 'host' networking, remove it. Keeping for consistency.
+    networks: [eventnet]
     restart: unless-stopped
 
 
