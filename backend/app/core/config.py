@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_key: str = ""
     supabase_service_role_key: str = ""
+    # Supabase Postgres connection (from .env)
+    supabase_db_user: str = "postgres"
+    supabase_db_password: str = ""
+    supabase_db_name: str = "postgres"
+    supabase_db_port: int = 5432
     
     # Database Configuration (Supabase uses PostgreSQL)
     database_url: str = ""
@@ -45,7 +50,14 @@ class Settings(BaseSettings):
             # URL format: https://[project-ref].supabase.co
             if "supabase.co" in self.supabase_url:
                 project_ref = self.supabase_url.replace("https://", "").replace(".supabase.co", "")
-                return f"postgresql+psycopg://postgres:[YOUR-PASSWORD]@db.{project_ref}.supabase.co:5432/postgres"
+                user = self.supabase_db_user or "postgres"
+                password = self.supabase_db_password or ""
+                dbname = self.supabase_db_name or "postgres"
+                port = self.supabase_db_port or 5432
+                return (
+                    f"postgresql+psycopg://{user}:{password}"
+                    f"@db.{project_ref}.supabase.co:{port}/{dbname}"
+                )
         
         # Fallback to legacy PostgreSQL configuration
         return (

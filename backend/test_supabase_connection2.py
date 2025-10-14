@@ -7,11 +7,11 @@ import sys
 load_dotenv()
 
 # Fetch variables
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("port")
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD")
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
+DBNAME = os.getenv("DBNAME")
 
 
 # user
@@ -26,6 +26,7 @@ print('>>',DATABASE_URL)
 
 if DATABASE_URL:
     try:
+        print("Connection Method 1")
         # Example: postgresql://user:password@host:port/dbname
         connection = psycopg2.connect(DATABASE_URL)
         print("Connection via DATABASE_URL successful!")
@@ -38,12 +39,14 @@ if DATABASE_URL:
         cursor.close()
         connection.close()
         print("Connection closed.")
-        sys.exit(0)
+       
     except Exception as e:
         print(f"Failed to connect via DATABASE_URL: {e}")
 
 # Fallback: connect using discrete parameters
 try:
+    print('')
+    print("Connection Method 2")
     connection = psycopg2.connect(
         user=USER,
         password=PASSWORD,

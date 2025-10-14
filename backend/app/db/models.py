@@ -31,6 +31,7 @@ class Answer(Base):
     answer_text = Column(Text, nullable=False)
     category = Column(Text, nullable=False)
     create_user_name = Column(Text)
+    create_user_code = Column(Text)
     create_user_department = Column(Text)
     answer_keywords = Column(Text)
     created_at = Column(

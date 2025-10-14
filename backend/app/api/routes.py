@@ -65,6 +65,7 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
         answer_text=payload.answer_text,
         category=category,
         create_user_name=payload.create_user_name,
+        create_user_code=payload.create_user_code,
         create_user_department=payload.create_user_department,
         answer_keywords=keywords,
     )
