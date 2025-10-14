@@ -12,9 +12,9 @@ services:
       # OR (less reliable/secure, depends on Docker network mode):
       # POSTGRES_HOST: 172.17.0.1  # Docker default bridge gateway (less portable)
       # OR (if using 'host' network mode, which is not used here):
-      POSTGRES_HOST: localhost
+      POSTGRES_HOST: 139.180.144.194
       
-      POSTGRES_DB: eventfeedback
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
