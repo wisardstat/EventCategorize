@@ -7,16 +7,11 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      POSTGRES_DB: ${POSTGRES_DB:-eventfeedback}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       DATABASE_URL: ${DATABASE_URL:-}
       openai_api_key: ${OPENAI_API_KEY:-}
     ports: ["8000:8000"]
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "-qO-", "http://139.180.144.194:8000/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -29,9 +24,9 @@ services:
       - .env
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-      NEXT_PUBLIC_HOST_URL: ${NEXT_PUBLIC_HOST_URL:-http://localhost:3000}
+      NEXT_PUBLIC_HOST_URL: ${NEXT_PUBLIC_HOST_URL:-http://localhost:80}
     depends_on: [backend]
-    ports: ["3000:3000"]
+    ports: ["80:3000"]
     networks: [eventnet]
     restart: unless-stopped
 

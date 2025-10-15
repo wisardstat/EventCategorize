@@ -22,9 +22,13 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://139.180.144.194:3000",
+        "http://139.180.144.194",
         "http://127.0.0.1:3000",
         "http://172.30.176.1:3000",
-        "http://baacinnolab.duckdns.org:3000"
+        "http://baacinnolab.duckdns.org:3000",
+        "http://baacinnolab.duckdns.org",
+        "http://baacinno.online",
+        "http://baacinno.online:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
