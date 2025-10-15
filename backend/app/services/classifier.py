@@ -41,9 +41,9 @@ def classify_category(answer_text: str) -> Optional[str]:
 	or None.
 	"""
 	settings = get_settings()
-	print("start-settings ")
+	print("start-settings classify_category")
 	api_key = settings.openai_api_key 
-	print("api_key >>", api_key)
+	print("api_key classify_category >>", api_key)
 	# Try OpenAI if key is available
 	if api_key:
 		try:
@@ -91,17 +91,19 @@ def extract_keywords(answer_text: str) -> str:
 	Return up to three short important keywords as a comma-separated string: "k1,k2,k3".
 	Uses OpenAI if configured, otherwise falls back to a simple heuristic.
 	"""
+	print("start-settings extract_keywords")
 	settings = get_settings()
-	api_key = settings.openai_api_key 
+	api_key = settings.openai_api_key.strip() 
+	print("api_key extract_keywords >>["+ api_key +"]")
 	if api_key:
 		try:
 			from openai import OpenAI
 			os.environ["OPENAI_API_KEY"] = api_key
 			client = OpenAI()
 			prompt = (
-				"สกัดคีย์เวิร์ดที่สำคัญที่สุด 3 คำ จากข้อความต่อไปนี้ โดยตอบกลับรูปแบบ: keyword1,keyword2,keyword3 \n"
-				+ answer_text
+				"สกัดคีย์เวิร์ด (keywords) ที่สำคัญที่สุด 3 คำ (keywords) ขอเป็นคำหรือข้อความที่สั้นๆ จากข้อความ คำว่า (" + answer_text + ") และให้ตอบกลับรูปแบบ: keyword1,keyword2,keyword3 \n"				 
 			)
+
 			resp = client.chat.completions.create(
 				model="gpt-4.1-mini",
 				messages=[{"role": "user", "content": prompt}],
@@ -112,18 +114,21 @@ def extract_keywords(answer_text: str) -> str:
 			print("Fallback keywords rules: ", content)
 			# Normalize spaces
 			return ",".join([p.strip() for p in content.split(',') if p.strip()])[:200]
-		except Exception:
+		except Exception as e:
+			print("Exception: ", e)			
 			pass
 
 	# Fallback: pick up to 3 longest unique words > 3 chars
 	words = re.findall(r"[\wก-๙]+", answer_text.lower())
 	unique = []
+	print("words extract_keywords >>", words)
+
 	for w in sorted(set(words), key=lambda x: (-len(x), x)):
 		if len(w) > 3:
 			unique.append(w)
 		if len(unique) >= 3:
 			break
-
+	print("unique extract_keywords >>", unique)
 	return ",".join(unique)
 
 
