@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import * as echarts from "echarts";
 import "echarts-wordcloud";
 import { QRCodeCanvas } from "qrcode.react";
@@ -23,6 +23,7 @@ type Answer = {
 export default function AnswerAnalyticPage() {
     const params = useParams<{ questionId: string }>();
     const questionId = params?.questionId as string;
+    const router = useRouter();
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -209,13 +210,21 @@ export default function AnswerAnalyticPage() {
                         </div>
 
                         <div className="flex justify-center">
-                            <Link
-                                href={`/answer_list/${questionId}`}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const input = window.prompt("Enter password");
+                                    if (input === "matrix") {
+                                        router.push(`/answer_list/${questionId}`);
+                                    } else if (input !== null) {
+                                        window.alert("Invalid password");
+                                    }
+                                }}
                                 className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-emerald-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-emerald-100 bg-gradient-to-r from-emerald-900/60 to-green-900/40 shadow-[0_0_8px_rgba(16,185,129,0.6),inset_0_0_12px_rgba(16,185,129,0.2)] hover:from-emerald-800/70 hover:to-green-800/60 hover:shadow-[0_0_14px_rgba(16,185,129,0.9),inset_0_0_16px_rgba(16,185,129,0.35)] transition"
                             >
                                 <span className="text-emerald-300">»»</span>
                                 <span>Answer List</span>
-                            </Link>
+                            </button>
                         </div>
                     </>
                 )}
