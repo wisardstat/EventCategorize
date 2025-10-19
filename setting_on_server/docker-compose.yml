@@ -9,7 +9,6 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-}
       openai_api_key: ${OPENAI_API_KEY:-}
-      ALLOW_ORIGINS: ${ALLOW_ORIGINS:-}
     ports: ["8000:8000"]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://139.180.144.194:8000/health"]

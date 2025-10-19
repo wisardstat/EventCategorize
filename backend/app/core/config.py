@@ -1,4 +1,5 @@
 from functools import lru_cache
+import json
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -30,6 +31,9 @@ class Settings(BaseSettings):
     # Application Configuration
     debug: bool = True
     environment: str = "development"
+
+    # CORS: comma-separated list or JSON array in .env (env key: ALLOW_ORIGINS)
+    allow_origins: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -65,9 +69,23 @@ class Settings(BaseSettings):
             f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
 
+    def get_cors_allow_origins(self) -> list[str]:
+        """Parse ALLOW_ORIGINS from .env.
+        Supports either a JSON array or a comma-separated string.
+        """
+        if not self.allow_origins:
+            return []
+        val = self.allow_origins.strip()
+        if val.startswith("["):
+            try:
+                arr = json.loads(val)
+                if isinstance(arr, list):
+                    return [str(x).strip() for x in arr if str(x).strip()]
+            except Exception:
+                pass
+        return [o.strip() for o in val.split(",") if o.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
-
