@@ -147,3 +147,43 @@ Cleanup:
 docker rm -f event-frontend event-backend event-db
 docker network rm eventnet
 ```
+
+## Rebuilding Docker Images
+
+### Rebuild Frontend Image
+
+To rebuild the frontend image when you make changes to the frontend code:
+
+```bash
+# Rebuild only the frontend service
+docker compose build frontend
+
+# Rebuild and restart the frontend service
+docker compose up --build frontend
+
+# Force rebuild without cache (complete rebuild)
+docker compose build --no-cache frontend
+
+# Stop, rebuild, and start frontend
+docker compose stop frontend
+docker compose build frontend
+docker compose up frontend -d
+
+# Rebuild and restart all services
+docker compose up --build
+```
+
+### Rebuild Backend Image
+
+To rebuild the backend image when you make changes to the backend code:
+
+```bash
+# Rebuild only the backend service
+docker compose build backend
+
+# Rebuild and restart the backend service
+docker compose up --build backend
+
+# Force rebuild without cache
+docker compose build --no-cache backend
+```

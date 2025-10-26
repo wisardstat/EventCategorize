@@ -32,7 +32,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
+    <div className="min-h-screen flex items-center justify-center p-8 text-white">
       <main className="w-full max-w-xl text-center space-y-8">
         <h1 className="text-3xl font-bold">welcome to Innovation Conner</h1>
         <nav className="grid gap-4 sm:grid-cols-1"> 
@@ -52,9 +52,9 @@ export default function Home() {
       </main>
 
       {showLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center ">
           <div className="absolute inset-0 bg-black/60" onClick={closeLogin} />
-          <div className="relative z-10 w-full max-w-sm rounded-lg border border-black/10 dark:border-white/20 bg-[color:var(--background)] p-6">
+          <div className="relative z-10 w-full max-w-sm rounded-lg border border-black/10 dark:border-white/20 bg-black  ] p-6">
             <h2 className="text-xl font-semibold mb-4 text-center">เข้าสู่ระบบ</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
@@ -82,7 +82,7 @@ export default function Home() {
               {error && <p className="text-sm text-red-500">{error}</p>}
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button type="button" onClick={closeLogin} className="rounded-md border border-black/10 dark:border-white/20 px-3 py-1 text-sm">ยกเลิก</button>
-                <button type="submit" className="rounded-md bg-black text-white px-4 py-1 text-sm dark:bg-white dark:text-black">เข้าสู่ระบบ</button>
+                <button type="submit" className="rounded-md bg-black text-black px-4 py-1 text-sm dark:bg-white dark:text-black">เข้าสู่ระบบ</button>
               </div>
             </form>
           </div>

@@ -1,13 +1,24 @@
 import uuid
+from datetime import datetime
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.db.database import get_db
 from app.db import models
-from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut
+from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut, IdeaCreate, IdeaOut, UserCreate, UserOut, UserLogin, UserResponse
+from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
+from app.services.openai_service import openai_service
+from app.services.auth_service import verify_password, get_password_hash, create_access_token, verify_token, validate_password_hash
 from sqlalchemy import desc
+from datetime import timedelta
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Security
+
+security = HTTPBearer()
 
 router = APIRouter()
 
@@ -65,7 +76,7 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
         answer_text=payload.answer_text,
         category=category,
         create_user_name=payload.create_user_name,
-        create_user_code=payload.create_user_code,
+        create_user_code=payload.create_usercode,
         create_user_department=payload.create_user_department,
         answer_keywords=keywords,
     )
@@ -85,7 +96,7 @@ def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
         db.query(models.Answer)
         .filter(models.Answer.question_id == question_id)
         .order_by(desc(models.Answer.created_at))
-        .all()
+       .all()
     )
     return items
 
@@ -110,7 +121,7 @@ def delete_question_and_answers(question_id: str, db: Session = Depends(get_db))
     )
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
-
+    
     # Delete related answers first, then the question
     try:
         answers_deleted = (
@@ -125,5 +136,639 @@ def delete_question_and_answers(question_id: str, db: Session = Depends(get_db))
     except Exception:
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete question")
-
+    
     return {"deleted_question_id": question_id, "answers_deleted": answers_deleted}
+
+
+# Idea Tank API Routes
+@router.post("/ideas", response_model=IdeaOut, status_code=status.HTTP_201_CREATED)
+def create_idea(payload: IdeaCreate, db: Session = Depends(get_db)):
+    new_idea = models.IdeaTank(
+        idea_code=payload.idea_code,
+        category_idea_type1=payload.category_idea_type1,
+        idea_name=payload.idea_name,
+        idea_subject=payload.idea_subject,
+        idea_source=payload.idea_source,
+        customer_target=payload.customer_target,
+        idea_inno_type=payload.idea_inno_type,
+        idea_detail=payload.idea_detail,
+        idea_finance_impact=payload.idea_finance_impact,
+        idea_nonfinance_impact=payload.idea_nonfinance_impact,
+        idea_status=payload.idea_status,
+        idea_owner_empcode=payload.idea_owner_empcode,
+        idea_owner_empname=payload.idea_owner_empname,
+        idea_owner_deposit=payload.idea_owner_deposit,
+        idea_owner_contacts=payload.idea_owner_contacts,
+        idea_keywords=payload.idea_keywords,
+        idea_comment=payload.idea_comment,
+        idea_summary_byai=payload.idea_summary_byai,
+    )
+    db.add(new_idea)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create idea")
+    db.refresh(new_idea)
+    return new_idea
+
+
+@router.get("/ideas", response_model=list[IdeaOut])
+def list_all_ideas(keyword: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.IdeaTank)
+    
+    # Add keyword search filter if provided
+    if keyword:
+        keyword_lower = keyword.lower()
+        query = query.filter(
+            (models.IdeaTank.idea_keywords.ilike(f"%{keyword_lower}%")) |
+            (models.IdeaTank.idea_name.ilike(f"%{keyword_lower}%")) |
+            (models.IdeaTank.idea_detail.ilike(f"%{keyword_lower}%")) |
+            (models.IdeaTank.idea_code.ilike(f"%{keyword_lower}%"))
+        )
+    
+    items = (
+        query
+        .order_by(desc(models.IdeaTank.create_datetime))
+        .all()
+    )
+    return items
+
+
+@router.get("/ideas/{idea_seq}", response_model=IdeaOut)
+def get_idea(idea_seq: int, db: Session = Depends(get_db)):
+    item = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    return item
+
+
+@router.put("/ideas/{idea_seq}", response_model=IdeaOut)
+def update_idea(idea_seq: int, payload: IdeaCreate, db: Session = Depends(get_db)):
+    idea = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    # Update all fields
+    for field, value in payload.dict(exclude_unset=True).items():
+        setattr(idea, field, value)
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update idea")
+    db.refresh(idea)
+    return idea
+
+
+class IdeaUpdate(BaseModel):
+    idea_keywords: Optional[str] = None
+    # Add other fields that can be partially updated
+
+@router.patch("/ideas/{idea_seq}", response_model=IdeaOut)
+def partial_update_idea(idea_seq: int, payload: IdeaUpdate, db: Session = Depends(get_db)):
+    idea = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    # Update only provided fields
+    update_data = payload.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(idea, field, value)
+    
+    idea.update_datetime = datetime.now()
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update idea")
+    db.refresh(idea)
+    return idea
+
+@router.delete("/ideas/{idea_seq}")
+def delete_idea(idea_seq: int, db: Session = Depends(get_db)):
+    idea = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    try:
+        db.delete(idea)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete idea")
+    
+    return {"deleted_idea_seq": idea_seq}
+
+
+@router.post("/ideas/bulk-import", status_code=status.HTTP_201_CREATED)
+async def bulk_import_ideas(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Bulk import ideas from Excel file
+    Expected columns: idea_code, category_idea_type1, idea_name, idea_subject, idea_source,
+    customer_target, idea_inno_type, idea_detail, idea_finance_impact, idea_nonfinance_impact,
+    idea_status, idea_owner_empcode, idea_owner_empname, idea_owner_deposit, idea_owner_contacts,
+    idea_keywords, idea_comment, idea_summary_byai
+    """
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only Excel files (.xlsx, .xls) are supported"
+        )
+    
+    try:
+        # Import pandas only when needed
+        import pandas as pd
+        
+        # Read Excel file
+        contents = await file.read()
+        df = pd.read_excel(contents)
+        
+        # Validate required columns
+        required_columns = [
+            "idea_code", "category_idea_type1", "idea_name", "idea_subject", "idea_source",
+            "customer_target", "idea_inno_type", "idea_detail", "idea_finance_impact",
+            "idea_nonfinance_impact", "idea_status", "idea_owner_empcode", "idea_owner_empname",
+            "idea_owner_deposit", "idea_owner_contacts", "idea_keywords", "idea_comment",
+            "idea_summary_byai"
+        ]
+        
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Missing required columns: {', '.join(missing_columns)}"
+            )
+        
+        # Get current timestamp for create_datetime and update_datetime
+        current_time = datetime.now()
+        
+        # Process each row
+        imported_count = 0
+        errors = []
+        print('Process each row')
+        for index, row in df.iterrows():
+            try:
+                # Create new idea
+                new_idea = models.IdeaTank(
+                    idea_code=str(row.get("idea_code", "")) if pd.notna(row.get("idea_code")) else None,
+                    category_idea_type1=str(row.get("category_idea_type1", "")) if pd.notna(row.get("category_idea_type1")) else None,
+                    idea_name=str(row.get("idea_name", "")) if pd.notna(row.get("idea_name")) else None,
+                    idea_subject=str(row.get("idea_subject", "")) if pd.notna(row.get("idea_subject")) else None,
+                    idea_source=str(row.get("idea_source", "")) if pd.notna(row.get("idea_source")) else None,
+                    customer_target=str(row.get("customer_target", "")) if pd.notna(row.get("customer_target")) else None,
+                    idea_inno_type=str(row.get("idea_inno_type", "")) if pd.notna(row.get("idea_inno_type")) else None,
+                    idea_detail=str(row.get("idea_detail", "")) if pd.notna(row.get("idea_detail")) else None,
+                    idea_finance_impact=str(row.get("idea_finance_impact", "")) if pd.notna(row.get("idea_finance_impact")) else None,
+                    idea_nonfinance_impact=str(row.get("idea_nonfinance_impact", "")) if pd.notna(row.get("idea_nonfinance_impact")) else None,
+                    idea_status=str(row.get("idea_status", "")) if pd.notna(row.get("idea_status")) else None,
+                    idea_owner_empcode=str(row.get("idea_owner_empcode", "")) if pd.notna(row.get("idea_owner_empcode")) else None,
+                    idea_owner_empname=str(row.get("idea_owner_empname", "")) if pd.notna(row.get("idea_owner_empname")) else None,
+                    idea_owner_deposit=str(row.get("idea_owner_deposit", "")) if pd.notna(row.get("idea_owner_deposit")) else None,
+                    idea_owner_contacts=str(row.get("idea_owner_contacts", "")) if pd.notna(row.get("idea_owner_contacts")) else None,
+                    idea_keywords=str(row.get("idea_keywords", "")) if pd.notna(row.get("idea_keywords")) else None,
+                    idea_comment=str(row.get("idea_comment", "")) if pd.notna(row.get("idea_comment")) else None,
+                    idea_summary_byai=str(row.get("idea_summary_byai", "")) if pd.notna(row.get("idea_summary_byai")) else None,
+                    create_datetime=current_time,
+                    update_datetime=current_time
+                )
+                
+                db.add(new_idea)
+                imported_count += 1
+                print('Create new idea row_no: ', index + 2)  # +2 because Excel rows are 1-indexed and header is row 1
+                
+            except Exception as e:
+                errors.append(f"Row {index + 2}: {str(e)}")  # +2 because Excel rows are 1-indexed and header is row 1
+        
+        # Commit all changes
+        try:
+            print('Commit all changes')
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error: {str(e)}"
+            )
+        
+        return {
+            "message": f"Successfully imported {imported_count} ideas",
+            "total_rows": len(df),
+            "imported_count": imported_count,
+            "errors": errors
+        }
+        
+    except pd.errors.EmptyDataError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Excel file is empty"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing file: {str(e)}"
+        )
+
+
+@router.post("/ideas/{idea_seq}/summarize", response_model=IdeaOut)
+async def summarize_idea(idea_seq: int, db: Session = Depends(get_db)):
+    """
+    Use AI to summarize and format the idea detail, then update the idea_summary_byai field
+    """
+    # Get the idea
+    idea = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    # Check if idea_detail exists
+    if not idea.idea_detail or idea.idea_detail.strip() == "" or idea.idea_detail.strip() == "-":
+        raise HTTPException(status_code=400, detail="No idea detail to summarize")
+    
+    try:
+        # Call OpenAI service to summarize and format the text
+        summarized_text = await openai_service.summarize_and_format_text(idea.idea_detail)
+        
+        # Update the idea_summary_byai field
+        idea.idea_summary_byai = summarized_text
+        idea.update_datetime = datetime.now()
+        
+        # Save to database
+        db.commit()
+        db.refresh(idea)
+        
+        return idea
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error summarizing idea: {str(e)}"
+        )
+
+class ExtractKeywordsRequest(BaseModel):
+    text: str
+
+@router.post("/extract-keywords")
+def extract_keywords_endpoint(request: ExtractKeywordsRequest):
+    """
+    Extract keywords from text using AI
+    Returns comma-separated keywords: "keyword1,keyword2,keyword3"
+    """
+    try:
+        keywords = extract_keywords(request.text)
+        return {"keywords": keywords}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error extracting keywords: {str(e)}"
+        )
+
+
+@router.post("/ideas/generate-keywords")
+async def generate_keywords_for_ideas(db: Session = Depends(get_db)):
+    """
+    Generate keywords for ideas that don't have them
+    - Find ideas with empty or null idea_keywords
+    - Extract keywords from idea_detail using OpenAI
+    - Update the database with new keywords
+    - Return summary of results
+    """
+    try:
+        # Find ideas without keywords
+        target_ideas = db.query(models.IdeaTank).filter(
+            (models.IdeaTank.idea_keywords.is_(None)) |
+            (models.IdeaTank.idea_keywords == "") |
+            (models.IdeaTank.idea_keywords == "-")
+        ).all()
+        
+        if not target_ideas:
+            return {"message": "ไม่มีรายการที่ต้องการสร้างคีย์เวิร์ด", "processed_count": 0}
+        
+        processed_count = 0
+        skipped_count = 0
+        errors = []
+        
+        for idea in target_ideas:
+            try:
+                # Skip ideas with empty detail
+                if not idea.idea_detail or idea.idea_detail.strip() == "" or idea.idea_detail.strip() == "-":
+                    skipped_count += 1
+                    continue
+                
+                # Extract keywords using OpenAI
+                keywords = extract_keywords(idea.idea_detail)
+                
+                # Update the idea with new keywords
+                idea.idea_keywords = keywords
+                idea.update_datetime = datetime.now()
+                
+                processed_count += 1
+                
+            except Exception as e:
+                error_msg = f"Error processing idea {idea.idea_seq}: {str(e)}"
+                errors.append(error_msg)
+                print(error_msg)
+                continue
+        
+        # Commit all changes
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error: {str(e)}"
+            )
+        
+        return {
+            "message": "เรียบร้อยแล้ว",
+            "processed_count": processed_count,
+            "skipped_count": skipped_count,
+            "errors": errors
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generating keywords: {str(e)}"
+        )
+
+
+# Authentication dependency
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
+    token = credentials.credentials
+    payload = verify_token(token)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user_login: str = payload.get("sub")
+    if user_login is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = db.query(models.User).filter(models.User.user_login == user_login).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return user
+
+
+# User Authentication Routes
+@router.post("/auth/login", response_model=UserResponse)
+def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.user_login == user_credentials.user_login).first()
+
+    print('user_login :',models.User.user_login)
+    print('user_password :',user.user_password)
+
+    if not user or not verify_password(user_credentials.user_password, user.user_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={"sub": user.user_login}, expires_delta=access_token_expires
+    )
+    
+    return {
+        "user_code": user.user_code,
+        "user_fname": user.user_fname,
+        "user_lname": user.user_lname,
+        "user_login": user.user_login,
+        "token": access_token
+    }
+
+
+def generate_user_code(db: Session) -> str:
+    """
+    Generate a unique user_code in format USERXXXX where XXXX is a sequential number
+    """
+    # Get the maximum numeric part from existing user codes
+    max_code_query = db.query(models.User.user_code).filter(
+        models.User.user_code.like("USER%")
+    ).all()
+    
+    max_number = 0
+    for (code,) in max_code_query:
+        try:
+            # Extract numeric part from USERXXXX format
+            if code.startswith("USER"):
+                number_part = code[4:]  # Remove "USER" prefix
+                if number_part.isdigit():
+                    number = int(number_part)
+                    if number > max_number:
+                        max_number = number
+        except (ValueError, IndexError):
+            continue
+    
+    # Generate new code with next sequential number
+    new_number = max_number + 1
+    return f"USER{new_number:04d}"  # Format as USER0001, USER0002, etc.
+
+
+@router.get("/users/generate-code")
+def generate_user_code_endpoint(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """
+    Generate a unique user code
+    Returns the next available user code in format USERXXXX
+    """
+    user_code = generate_user_code(db)
+    return {"user_code": user_code}
+
+
+@router.post("/auth/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
+    # Check if user_login already exists
+    print('# Check if user_login already exists')
+    existing_user = db.query(models.User).filter(models.User.user_login == user_data.user_login).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    
+    # Auto-generate user_code if not provided or empty
+    print('# Auto-generate user_code if not provided or empty')
+    user_code = user_data.user_code.strip() if user_data.user_code else ""
+    if not user_code:
+        user_code = generate_user_code(db)
+    else:
+        # Check if provided user_code already exists
+        existing_code = db.query(models.User).filter(models.User.user_code == user_code).first()
+        if existing_code:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User code already exists"
+            )
+    
+    # Validate the password
+    print('# Validate the password')
+    if not validate_password_hash(user_data.user_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password cannot be empty"
+        )
+    
+    # Create new user with plain text password
+    print('# Create new user with plain text password')
+    new_user = models.User(
+        user_code=user_code,
+        user_fname=user_data.user_fname,
+        user_lname=user_data.user_lname,
+        user_login=user_data.user_login,
+        user_password=user_data.user_password  # Store plain text password
+    )
+    
+    db.add(new_user)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create user")
+    
+    db.refresh(new_user)
+    return new_user
+
+
+# User Management Routes
+@router.get("/users", response_model=list[UserOut])
+def list_users(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    users = db.query(models.User).order_by(desc(models.User.user_createdate)).all()
+    return users
+
+
+@router.get("/users/{user_code}", response_model=UserOut)
+def get_user(user_code: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    user = db.query(models.User).filter(models.User.user_code == user_code).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.put("/users/{user_code}", response_model=UserOut)
+def update_user(user_code: str, user_data: UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    user = db.query(models.User).filter(models.User.user_code == user_code).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if new user_login already exists (excluding current user)
+    if user_data.user_login != user.user_login:
+        existing_user = db.query(models.User).filter(
+            models.User.user_login == user_data.user_login,
+            models.User.user_code != user_code
+        ).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already registered"
+            )
+    
+    # Update user fields
+    user.user_fname = user_data.user_fname
+    user.user_lname = user_data.user_lname
+    user.user_login = user_data.user_login
+    
+    # Only update password if provided
+    if user_data.user_password:
+        # Validate the password
+        if not validate_password_hash(user_data.user_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password cannot be empty"
+            )
+        
+        user.user_password = user_data.user_password  # Store plain text password
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update user")
+    
+    db.refresh(user)
+    return user
+
+
+@router.delete("/users/{user_code}")
+def delete_user(user_code: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    user = db.query(models.User).filter(models.User.user_code == user_code).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Prevent self-deletion
+    if user.user_code == current_user.user_code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete your own account"
+        )
+    
+    try:
+        db.delete(user)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete user")
+    
+    return {"deleted_user_code": user_code}
+
+
+@router.post("/users/create-admin")
+def create_admin_user(db: Session = Depends(get_db)):
+    """Create a default admin user if it doesn't exist"""
+    admin_login = "admin"
+    admin_code = "ADMIN001"
+    
+    # Check if admin already exists
+    existing_admin = db.query(models.User).filter(models.User.user_login == admin_login).first()
+    if existing_admin:
+        return {"message": "Admin user already exists"}
+    
+    # Create admin user with plain text password
+    admin_password = "admin123"  # Default password, should be changed
+    
+    # Validate the password
+    if not validate_password_hash(admin_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password cannot be empty"
+        )
+    
+    admin_user = models.User(
+        user_code=admin_code,
+        user_fname="System",
+        user_lname="Administrator",
+        user_login=admin_login,
+        user_password=admin_password  # Store plain text password
+    )
+    
+    db.add(admin_user)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create admin user")
+    
+    return {"message": "Admin user created successfully", "login": admin_login, "password": "admin123"}
+
+
+# Password diagnostic and fix endpoints removed - no longer needed with plain text passwords

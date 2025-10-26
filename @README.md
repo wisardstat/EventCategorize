@@ -44,6 +44,17 @@ If your frontend runs on a LAN IP (e.g., `http://172.x.x.x:3000`), ensure it is 
 - POST `/answers` → Create Answer
   - Body: `{ "question_id": string, "answer_text": string, "category"?: string }`
 
+## Authentication
+- POST `/auth/login` → User login
+  - Body: `{ "user_login": string, "user_password": string }`
+  - Returns JWT token for authenticated sessions
+- POST `/auth/register` → User registration
+  - Body: `{ "user_code": string, "user_fname": string, "user_lname": string, "user_login": string, "user_password": string }`
+- POST `/users/create-admin` → Create default admin user
+  - Creates admin user with login: `admin`, password: `admin123`
+
+**IMPORTANT SECURITY NOTE:** This application currently stores passwords as plain text without encryption. This is not recommended for production environments. Password encryption has been removed as requested.
+
 ## DB Schema (created on startup if missing)
 - public."Question"(
   - `question_id` text PK,
@@ -69,4 +80,6 @@ If your frontend runs on a LAN IP (e.g., `http://172.x.x.x:3000`), ensure it is 
 ## Notes
 - Ensure PostgreSQL is reachable at `172.19.32.1:5432`.
 - For CORS issues, verify the frontend origin is allowed in `backend/app/main.py`.
+- **SECURITY WARNING:** Passwords are stored as plain text without encryption. This is a significant security risk and should not be used in production environments.
+- The admin user is created with default credentials (admin/admin123) and should be changed immediately.
 

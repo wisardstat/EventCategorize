@@ -115,7 +115,7 @@ export default function CreateQuestionPage() {
 						<button
 							type="submit"
 							disabled={loading}
-							className="inline-flex items-center rounded-md bg-black text-white px-4 py-2 text-sm disabled:opacity-50 dark:bg-white dark:text-black"
+							className="inline-flex items-center rounded-md border border-black/10 dark:border-white/20 px-4 py-2 text-sm"
 						>
 							{loading ? "Saving..." : "สร้างโจทย์ปัญหา / Create Question"}
 						</button>
