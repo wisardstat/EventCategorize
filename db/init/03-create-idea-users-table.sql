@@ -33,3 +33,11 @@ CREATE TRIGGER update_idea_users_modified_timestamp
     BEFORE UPDATE ON public.idea_users
     FOR EACH ROW
     EXECUTE FUNCTION update_user_modified_timestamp();
+
+
+create table public.tb_setting (
+  set_code character varying not null default '100'::character varying,
+  set_name character varying null,
+  set_value text not null,
+  constraint tb_setting_pkey primary key (set_code)
+) TABLESPACE pg_default;    

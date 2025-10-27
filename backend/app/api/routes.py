@@ -5,10 +5,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.sql import func as sql_func
 
 from app.db.database import get_db
 from app.db import models
 from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut, IdeaCreate, IdeaOut, UserCreate, UserOut, UserLogin, UserResponse
+from pydantic import BaseModel
 from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
 from app.services.openai_service import openai_service
@@ -174,7 +176,12 @@ def create_idea(payload: IdeaCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/ideas", response_model=list[IdeaOut])
-def list_all_ideas(keyword: Optional[str] = None, db: Session = Depends(get_db)):
+def list_all_ideas(
+    keyword: Optional[str] = None,
+    min_score: Optional[int] = None,
+    max_score: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
     query = db.query(models.IdeaTank)
     
     # Add keyword search filter if provided
@@ -187,12 +194,238 @@ def list_all_ideas(keyword: Optional[str] = None, db: Session = Depends(get_db))
             (models.IdeaTank.idea_code.ilike(f"%{keyword_lower}%"))
         )
     
+    # Add score range filter if provided
+    if min_score is not None:
+        query = query.filter(models.IdeaTank.idea_score >= min_score)
+    
+    if max_score is not None:
+        query = query.filter(models.IdeaTank.idea_score <= max_score)
+    
     items = (
         query
-        .order_by(desc(models.IdeaTank.create_datetime))
+        .order_by(models.IdeaTank.idea_seq)
         .all()
     )
     return items
+
+
+@router.get("/ideas/random", response_model=IdeaOut)
+def get_random_idea(db: Session = Depends(get_db)):
+    """
+    Get a random idea from the idea tank
+    """
+    # Get a random idea using SQLAlchemy's random function
+    idea = db.query(models.IdeaTank).filter(
+        models.IdeaTank.idea_detail.isnot(None),
+        models.IdeaTank.idea_detail != "",
+        models.IdeaTank.idea_detail != "-"
+    ).order_by(sql_func.random).first()
+    
+    if not idea:
+        raise HTTPException(status_code=404, detail="No ideas found")
+    
+    return idea
+
+
+class ScoreIdeaRequest(BaseModel):
+    system_prompt: str
+    idea_name: Optional[str] = None
+    idea_detail: Optional[str] = None
+
+
+class ScoreResponse(BaseModel):
+    scores: list[dict]
+    overall_score: float
+    overall_feedback: str
+
+
+class BatchScoreRequest(BaseModel):
+    system_prompt: str
+    limit: Optional[int] = None
+    clear_scores: Optional[bool] = False
+
+
+class BatchScoreResponse(BaseModel):
+    processed_count: int
+    success_count: int
+    error_count: int
+    errors: list[str]
+
+
+@router.post("/ideas/score", response_model=ScoreResponse)
+async def score_idea(request: ScoreIdeaRequest):
+    """
+    Score an idea using AI based on the provided system prompt
+    """
+    print('Score idea request received')
+    try:
+        # Call OpenAI service to score the idea
+        result = await openai_service.score_idea(
+            system_prompt=request.system_prompt,
+            idea_detail=request.idea_detail
+        )
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error scoring idea: {str(e)}"
+        )
+
+
+@router.post("/ideas/batch-score", response_model=BatchScoreResponse)
+async def batch_score_ideas(request: BatchScoreRequest, db: Session = Depends(get_db)):
+    """
+    Batch score ideas using AI based on the provided system prompt
+    - Get ideas from idea_tank table based on limit
+    - Score each idea using AI
+    - Update idea_score and idea_score_comment fields
+    - Return summary of results
+    """
+    try:
+        # Clear scores if requested
+        if request.clear_scores:
+            clear_result = await clear_idea_scores(db)
+            if not clear_result.get("success"):
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to clear scores: {clear_result.get('error', 'Unknown error')}"
+                )
+        
+        # Build query to get ideas that need scoring
+        query = db.query(models.IdeaTank).filter(
+            models.IdeaTank.idea_detail.isnot(None),
+            models.IdeaTank.idea_detail != "",
+            models.IdeaTank.idea_detail != "-"
+        )
+        
+        # If limit is specified (not "all"), only select ideas that don't have scores yet
+        if request.limit:
+            query = query.filter(
+                models.IdeaTank.idea_score.is_(None)
+            )
+            # Apply limit after filtering for ideas without scores
+            query = query.limit(request.limit)
+        
+        ideas = query.all()
+        
+        if not ideas:
+            return {
+                "processed_count": 0,
+                "success_count": 0,
+                "error_count": 0,
+                "errors": ["ไม่มีรายการที่ต้องการสร้าง score"]
+            }
+        
+        processed_count = 0
+        success_count = 0
+        error_count = 0
+        errors = []
+        
+        for idea in ideas:
+            try:
+                # Skip ideas with empty detail
+                if not idea.idea_detail or idea.idea_detail.strip() == "" or idea.idea_detail.strip() == "-":
+                    errors.append(f"ไอเดีย {idea.idea_seq}: ไม่มีรายละเอียดให้ประเมิน")
+                    error_count += 1
+                    continue
+                
+                # Score the idea using AI
+                result = await openai_service.score_idea(
+                    system_prompt=request.system_prompt,
+                    idea_name=idea.idea_name,
+                    idea_detail=idea.idea_detail
+                )
+                
+                # Extract the numeric score from overall_score (e.g., 80 from 80/100 format)
+                overall_score = result.get("overall_score", 0)
+                if isinstance(overall_score, str) and "/" in overall_score:
+                    # Handle format like "80/100"
+                    score_parts = overall_score.split("/")
+                    numeric_score = int(float(score_parts[0]))
+                else:
+                    # Handle direct numeric score
+                    numeric_score = int(float(overall_score))
+                
+                # Format the full response for idea_score_comment
+                formatted_result = "=== ผลการประเมินความคิดสร้างสรรค์ ===\n\n"
+                
+                for score_item in result.get("scores", []):
+                    formatted_result += f"{score_item.get('criterion', '')}\n"
+                    formatted_result += f"คะแนน: {score_item.get('score', 0)}/20\n"
+                    formatted_result += f"คำอธิบาย: {score_item.get('explanation', '')}\n\n"
+                
+                formatted_result += f"คะแนนรวม: {overall_score}\n"
+                formatted_result += f"เฉลี่ย: {numeric_score / 5:.1f}/20\n\n"
+                formatted_result += f"ข้อเสนอแนะโดยรวม:\n{result.get('overall_feedback', '')}"
+                
+                # Update the idea with score and comment
+                idea.idea_score = numeric_score
+                idea.idea_score_comment = formatted_result
+                idea.update_datetime = datetime.now()
+                
+                processed_count += 1
+                success_count += 1
+                
+            except Exception as e:
+                error_msg = f"Error processing idea {idea.idea_seq}: {str(e)}"
+                errors.append(error_msg)
+                error_count += 1
+                print(error_msg)
+                continue
+        
+        # Commit all changes
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error: {str(e)}"
+            )
+        
+        return {
+            "processed_count": processed_count,
+            "success_count": success_count,
+            "error_count": error_count,
+            "errors": errors
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error in batch scoring: {str(e)}"
+        )
+
+
+@router.post("/ideas/clear-scores")
+async def clear_idea_scores(db: Session = Depends(get_db)):
+    """
+    Clear all idea scores by setting idea_score to null
+    """
+    try:
+        # Update all ideas to set idea_score to null
+        update_result = db.query(models.IdeaTank).update(
+            {"idea_score": None, "idea_score_comment": None, "update_datetime": datetime.now()}
+        )
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "cleared_count": update_result,
+            "message": f"ล้างคะแนนทั้งหมดเรียบร้อยแล้ว ({update_result} รายการ)"
+        }
+        
+    except Exception as e:
+        db.rollback()
+        return {
+            "success": False,
+            "error": str(e),
+            "message": f"เกิดข้อผิดพลาด: {str(e)}"
+        }
 
 
 @router.get("/ideas/{idea_seq}", response_model=IdeaOut)
@@ -772,3 +1005,139 @@ def create_admin_user(db: Session = Depends(get_db)):
 
 
 # Password diagnostic and fix endpoints removed - no longer needed with plain text passwords
+
+
+# Settings API Routes
+class SettingCreate(BaseModel):
+    set_code: str
+    set_value: str
+    set_description: Optional[str] = None
+
+
+class SettingOut(BaseModel):
+    set_code: str
+    set_value: str
+    set_description: Optional[str] = None
+    create_datetime: datetime
+    update_datetime: datetime
+
+
+class SettingUpdate(BaseModel):
+    set_value: str
+    set_description: Optional[str] = None
+
+
+@router.get("/settings/{set_code}", response_model=SettingOut)
+def get_setting(set_code: str, db: Session = Depends(get_db)):
+    """
+    Get a setting by set_code
+    """
+    setting = db.query(models.Setting).filter(models.Setting.set_code == set_code).first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="Setting not found")
+    return setting
+
+
+@router.post("/settings", response_model=SettingOut, status_code=status.HTTP_201_CREATED)
+def create_setting(payload: SettingCreate, db: Session = Depends(get_db)):
+    """
+    Create a new setting
+    """
+    # Check if setting already exists
+    existing_setting = db.query(models.Setting).filter(models.Setting.set_code == payload.set_code).first()
+    if existing_setting:
+        raise HTTPException(status_code=400, detail="Setting already exists")
+    
+    new_setting = models.Setting(
+        set_code=payload.set_code,
+        set_value=payload.set_value,
+        set_description=payload.set_description,
+    )
+    db.add(new_setting)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create setting")
+    db.refresh(new_setting)
+    return new_setting
+
+
+@router.put("/settings/{set_code}", response_model=SettingOut)
+def update_setting(set_code: str, payload: SettingUpdate, db: Session = Depends(get_db)):
+    """
+    Update an existing setting
+    """
+    setting = db.query(models.Setting).filter(models.Setting.set_code == set_code).first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="Setting not found")
+    
+    # Update fields
+    setting.set_value = payload.set_value
+    if payload.set_description is not None:
+        setting.set_description = payload.set_description
+    setting.update_datetime = datetime.now()
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update setting")
+    db.refresh(setting)
+    return setting
+
+
+@router.get("/settings/system-prompt")
+def get_system_prompt_setting(db: Session = Depends(get_db)):
+    """
+    Get the system prompt setting, create with default if not exists
+    """
+    setting = db.query(models.Setting).filter(models.Setting.set_code == "system-prompt").first()
+    
+    if not setting:
+        # Create default system prompt setting
+        default_prompt = """คุณมีประสบการณ์ทางด้านการพัฒนาเทคโนโลยีหรือนวัตกรรมใหม่ เคยทำงานกับ Elon musk ในโครงการ spaceX มีประสบการณ์การทำงานในธุรกิจธนาคารของประเทศไทยไม่น้อยกว่า 20ปี เคยทำงานที่ศูนย์นวัตกรรมแห่งชาติ 5ปี จบสาขาคอมพิวเตอร์และเทคโนโลยสารสนเทศ จบสาขาการงเงินการบัญชี
+/ฉันเป็นกรรมการตัดสินการประกวดนวัตกรรมเพื่อนำไปสร้างผลิตภัณฑ์ใหม่ๆ หรือปรับปรุงกระบวนการทำงานในธนาคาร โดยให้ผู้เข้าแข่งขันส่งบทความเข้ามา และฉันจะให้ Ai ช่วยตัดสินจากบทความนั้นๆ
+----------------------------------------
+ข้อมูลองค์กรของฉัน
+----------------------------------------
+ชื่อเต็ม: ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.) หรือ Bank for Agriculture and Agricultural Cooperatives (BAAC) สถานะ: รัฐวิสาหกิจในสังกัดกระทรวงการคลัง ก่อตั้ง 1 พฤศจิกายน 2509
+วิสัยทัศน์: เป็นธนาคารพัฒนาชนบทที่ยั่งยืน มุ่งเป็น Essence of Agriculture (แกนกลางภาคการเกษตร) สนับสนุนเศรษฐกิจฐานราก ยกระดับคุณภาพชีวิตเกษตรกร
+ภารกิจหลัก:ให้ความช่วยเหลือทางการเงิน แก่เกษตรกร กลุ่มเกษตรกร สหกรณ์การเกษตร สำหรับประกอบอาชีพเกษตรกรรมและอาชีพที่เกี่ยวเนื่อง/สนับสนุนอาชีพเสริม เพิ่มรายได้นอกภาคเกษตร พัฒนาคุณภาพชีวิตเกษตรกรและครอบครัว/พัฒนาความรู้ ด้านเกษตรกรรมและอาชีพอื่นๆ เพื่อเพิ่มรายได้และพัฒนาคุณภาพชีวิต/ลดบทบาทเงินกู้นอกระบบ ช่วยเกษตรกรรายย่อยเข้าถึงแหล่งเงินทุนในระบบ/ดำเนินโครงการพัฒนา ส่งเสริมและสนับสนุนการเกษตรกรรมแบบครบวงจร
+รูปแบบธุรกิจ : ธนาคารพัฒนาชนบท (Rural Development Bank)/สินเชื่อครบวงจร ครอบคลุมก่อนผลิต ระหว่างผลิต หลังผลิต /Value Chain Finance เชื่อมโยงเกษตรกรกับตลาด ตั้งแต่ผลิต แปรรูป จนจำหน่าย/Customer Centric ออกแบบผลิตภัณฑ์ตอบโจทย์บุคคล กลุ่มบุคคล ผู้ประกอบการ สหกรณ์/Digital Transformation ใช้เทคโนโลยีดิจิทัล บริหารข้อมูล พัฒนาช่องทาง Fintech/BCG Economy Model สนับสนุน Bio-Circular-Green Economy และ Green Credit/เครือข่ายกว้างขวาง 75 จังหวัด กว่า 962 สาขาทั่วประเทศ/โครงการนโยบายรัฐ ประกันรายได้เกษตรกร พักชำระหนี้ สินเชื่อดอกเบี้ยต่ำ Smart Farmer
+----------------------------------------
+ระบบที่ธนาคารมีอยู่แล้ว
+----------------------------------------
+ระบบ credit-scoring/เว็บขายสินค้าการเกษตร/ระบบ LG/ระบบ Callcenter/ระบบ VOC/ระบบ Scocial listening (zanroo)/ตู้ชำระสินเชื่อ/ระบบจัด priority การชำระสัญญาสินเชื่อ/ระบบคาดการณ์ลูกค้าผิดนัดชำระ/Dashboard ข้อมูลสินเชื่อ,เงินฝาก
+/ชำระสินเชื่อ Online ผ่าน mobile banking/ระบบโอนเงิน online/
+----------------------------------------
+หมายเหตุที่สำคัญให้อ่านเสมอ
+----------------------------------------
+- หากนวัตกรรมมีความซ้ำซ้อนกับระบบที่ธนาคารมีอยู่แล้ว จะถูกหักคะแนนตามความใกล้เคียง
+- ถ้าข้อความสั้นมากเกินไป เช่น มี 1 บรรทัด หรือน้อยกว่า 200 ตัวอักษร จะถูกหักคะแนนจากเกณฑ์ที่ 2 และ 3 อย่างมาก (เหลือต่ำกว่า 50 คะแนน)
+
+----------------------------------------
+เกณฑ์การตัดสินบทความนวัตกรรมธนาคาร (5 เกณฑ์)
+----------------------------------------
+1. ผลกระทบทางธุรกิจและมูลค่าเชิงนวัตกรรม : นวัตกรรมสร้างคุณค่าทางธุรกิจที่วัดผลได้ชัดเจน ไม่ว่าจะเป็นการเพิ่มรายได้ ลดต้นทุน หรือขยายฐานลูกค้า พร้อมทั้งมีความแตกต่างจากที่มีอยู่ในตลาดอย่างมีนัยสำคัญ
+2. ความเป็นไปได้ในการนำไปใช้จริง : มีแผนการดำเนินงานที่ชัดเจน ทรัพยากรที่ต้องใช้สมเหตุสมผล และสามารถบูรณาการเข้ากับระบบปัจจุบันของธนาคารได้โดยไม่ซับซ้อนเกินไป รวมถึงมีระยะเวลาในการพัฒนาที่เหมาะสม
+3. การแก้ปัญหาและตอบโจทย์ลูกค้า :นวัตกรรมแก้ไขปัญหาที่แท้จริงของลูกค้าหรือปรับปรุง Customer Experience อย่างเป็นรูปธรรม มีการศึกษาความต้องการของกลุ่มเป้าหมายอย่างชัดเจน และสามารถวัดความพึงพอใจหรือการยอมรับได้
+4. ความเป็นเลิศทางเทคนิคและความสามารถในการขยายขนาด :ใช้เทคโนโลยีที่เหมาะสม มีสถาปัตยกรรมที่รองรับการเติบโตในอนาคต ประสิทธิภาพสูง และสามารถปรับขนาดเพื่อรองรับผู้ใช้งานจำนวนมากได้โดยไม่ส่งผลกระทบต่อคุณภาพการให้บริการ ต้องไม่ซ้ำซ้อนกับระบบที่ธนาคารมีอยู่แล้ว ถ้าซ้ำต้องลดคะแนนให้น้อยที่สุดตามความใกล้เคียง
+5. การบริหารความเสี่ยงและการปฏิบัติตามกฎระเบียบ :คำนึงถึงความปลอดภัยทางไซเบอร์ การคุ้มครองข้อมูลส่วนบุคคล และสอดคล้องกับข้อกำหนดของ ธปท. และกฎหมายที่เกี่ยวข้อง พร้อมทั้งมีแผนบริหารความเสี่ยงที่ครอบคลุม
+"""
+        
+        new_setting = models.Setting(
+            set_code="system-prompt",
+            set_value=default_prompt,
+            set_description="System prompt for AI idea scoring"
+        )
+        db.add(new_setting)
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="Failed to create system prompt setting")
+        db.refresh(new_setting)
+        return new_setting
+    
+    return setting

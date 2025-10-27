@@ -63,6 +63,8 @@ class IdeaTank(Base):
     idea_keywords = Column(String(5000))
     idea_comment = Column(String(5000))
     idea_summary_byai = Column(Text)
+    idea_score = Column(Integer, nullable=True)
+    idea_score_comment = Column(Text, nullable=True)
     create_datetime = Column(
         TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )
@@ -87,5 +89,21 @@ class User(Base):
         TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )
     user_updatedate = Column(
+        TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
+    )
+
+
+class Setting(Base):
+    __tablename__ = quoted_name("tb_setting", True)
+    __table_args__ = {"schema": "public"}
+
+    set_code = Column(String(50), primary_key=True, nullable=False, default='100')
+    set_name = Column(String(50), nullable=True)
+    set_value = Column(Text, nullable=False)
+    set_description = Column(Text, nullable=True)
+    create_datetime = Column(
+        TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
+    )
+    update_datetime = Column(
         TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )

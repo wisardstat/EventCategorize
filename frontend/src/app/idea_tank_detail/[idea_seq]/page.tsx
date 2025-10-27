@@ -24,6 +24,8 @@ type IdeaTank = {
     idea_keywords?: string | null;
     idea_comment?: string | null;
     idea_summary_byai?: string | null;
+    idea_score?: number | null;
+    idea_score_comment?: string | null;
     create_datetime: string;
     update_datetime: string;
 };
@@ -531,6 +533,36 @@ export default function IdeaTankDetailPage() {
                             </div>
                         </div>
 
+                        {/* Score Information Card */}
+                        <div className="card mb-4">
+                            <div className="card-header pb-0">
+                                <h5> <span className="text-info">คะแนนประเมิน </span> </h5>
+                            </div>
+                            <div className="card-body">
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">คะแนน</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={idea.idea_score || "-"}
+                                            readOnly
+                                        />
+                                    </div>
+                                    
+                                    <div className="col-12">
+                                        <label className="form-label">ความคิดเห็นการประเมิน</label>
+                                        <textarea
+                                            className="form-control"
+                                            rows={20}
+                                            value={idea.idea_score_comment || "-"}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Timestamp Information Card */}
                         <div className="card mb-4">
                             <div className="card-header pb-0">
@@ -540,21 +572,21 @@ export default function IdeaTankDetailPage() {
                                 <div className="row g-3">
                                     <div className="col-md-6">
                                         <label className="form-label">วันที่สร้าง</label>
-                                        <input 
-                                            type="text" 
-                                            className="form-control" 
-                                            value={formatDate(idea.create_datetime)} 
-                                            readOnly 
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={formatDate(idea.create_datetime)}
+                                            readOnly
                                         />
                                     </div>
                                     
                                     <div className="col-md-6">
                                         <label className="form-label">วันที่อัปเดต</label>
-                                        <input 
-                                            type="text" 
-                                            className="form-control" 
-                                            value={formatDate(idea.update_datetime)} 
-                                            readOnly 
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={formatDate(idea.update_datetime)}
+                                            readOnly
                                         />
                                     </div>
                                 </div>

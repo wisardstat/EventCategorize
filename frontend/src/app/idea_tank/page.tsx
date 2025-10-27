@@ -15,6 +15,7 @@ type IdeaTank = {
     idea_owner_deposit?: string | null;
     idea_detail?: string | null;
     idea_keywords?: string | null;
+    idea_score?: number | null;
     create_datetime: string;
     update_datetime: string;
 };
@@ -53,6 +54,8 @@ export default function IdeaTankPage() {
     const [ideaCode, setIdeaCode] = useState<string>("");
     const [ideaOwnerDeposit, setIdeaOwnerDeposit] = useState<string>("");
     const [ideaKeywords, setIdeaKeywords] = useState<string>("");
+    const [minScore, setMinScore] = useState<string>("");
+    const [maxScore, setMaxScore] = useState<string>("");
 
     useEffect(() => {
         checkAuthAndLoad();
@@ -143,8 +146,15 @@ export default function IdeaTankPage() {
                 params.append('keyword', ideaKeywords);
             }
             
-            // For other filters, we'll still use client-side filtering for now
-            // In a full implementation, these would also be backend filters
+            // Add score range parameters if provided
+            if (minScore) {
+                params.append('min_score', minScore);
+            }
+            
+            if (maxScore) {
+                params.append('max_score', maxScore);
+            }
+            
             const queryString = params.toString();
             const url = `${process.env.NEXT_PUBLIC_API_URL}/ideas${queryString ? `?${queryString}` : ''}`;
             
@@ -152,7 +162,7 @@ export default function IdeaTankPage() {
             if (!res.ok) throw new Error("Failed to load ideas");
             const data: IdeaTank[] = await res.json();
             
-            // Apply client-side filters for the remaining fields
+            // Apply client-side filters for the remaining fields (except score range which is now handled by backend)
             const filtered = data.filter(idea => {
                 const matchesIdeaName = !ideaName || idea.idea_name?.toLowerCase().includes(ideaName.toLowerCase());
                 const matchesCategory = !categoryIdeaType1 || idea.category_idea_type1?.toLowerCase().includes(categoryIdeaType1.toLowerCase());
@@ -180,6 +190,8 @@ export default function IdeaTankPage() {
         setIdeaCode("");
         setIdeaOwnerDeposit("");
         setIdeaKeywords("");
+        setMinScore("");
+        setMaxScore("");
         // Trigger a new search with no filters
         try {
             setLoading(true);
@@ -250,7 +262,7 @@ export default function IdeaTankPage() {
     // Auto-filter when filter values change
     useEffect(() => {
         filterIdeas();
-    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, ideas]);
+    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, minScore, maxScore, ideas]);
 
     return (
         <>
@@ -276,6 +288,12 @@ export default function IdeaTankPage() {
                                 className="btn btn-primary"
                             >
                                 นำเข้าข้อมูลจาก Excel
+                            </a>
+                            <a
+                                href="/idea_score"
+                                className="btn btn-success"
+                            >
+                                ประเมินคะแนน AI
                             </a>
                             <button
                                 type="button"
@@ -378,6 +396,39 @@ export default function IdeaTankPage() {
                                             value={ideaKeywords}
                                             onChange={(e) => setIdeaKeywords(e.target.value)}
                                         />
+                                    </div>
+                                    
+                                    {/* ช่องค้นหาช่วงคะแนน */}
+                                    <div className="col-span-1">
+                                        <label className="form-label">ช่วงคะแนน</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                id="minScore"
+                                                className="form-control"
+                                                placeholder="ต่ำสุด"
+                                                min="0"
+                                                max="100"
+                                                value={minScore}
+                                                onChange={(e) => setMinScore(e.target.value)}
+                                            />
+                                            <span className="self-center">-</span>
+                                            <input
+                                                type="number"
+                                                id="maxScore"
+                                                className="form-control"
+                                                placeholder="สูงสุด"
+                                                min="0"
+                                                max="100"
+                                                value={maxScore}
+                                                onChange={(e) => setMaxScore(e.target.value)}
+                                            />
+                                        </div>
+                                        {/* หมายเหตุอธิบายการใช้งานช่วงคะแนน */}
+                                        <small className="text-muted d-block">
+                                            กรอกช่วงคะแนนที่ต้องการค้นหา เช่น 50 - 100 คะแนน
+                                            ถ้าช่วงเป็นค่าว่างทั้ง 2 ช่องจะแสดงทั้งหมด
+                                        </small>
                                     </div>
                                 </div>
                                
@@ -483,6 +534,7 @@ export default function IdeaTankPage() {
                                                     <th scope="col">ประเภทของนวัตกรรม</th>
                                                     <th scope="col">ชื่อความคิดสร้างสรรค์</th>
                                                     <th scope="col">keywords</th>
+                                                    <th scope="col">คะแนน</th>
                                                     <th scope="col">สถานะ</th>
                                                     <th scope="col">เจ้าของไอเดีย</th>
                                                     <th scope="col"></th>
@@ -505,6 +557,21 @@ export default function IdeaTankPage() {
                                                                
                                                             </td>
                                                             <td className="whitespace-pre-wrap">{idea.idea_keywords || "-"}</td>
+                                                            <td>
+                                                                {/* {idea.idea_score} */}
+
+                                                                {idea.idea_score !== null && idea.idea_score !== undefined ? (
+                                                                    <span className={`badge ${
+                                                                        idea.idea_score >= 80 ? 'badge-light-success' :
+                                                                        idea.idea_score >= 60 ? 'badge-light-warning' :
+                                                                        'badge-light-danger'
+                                                                    }`}>
+                                                                        {idea.idea_score}
+                                                                    </span>
+                                                                ) : (
+                                                                    "-"
+                                                                )}
+                                                            </td>
                                                             <td>
                                                                 {idea.idea_status ? (
                                                                     <span className={`badge ${

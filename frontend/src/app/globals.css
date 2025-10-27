@@ -10,7 +10,7 @@
   --secondary: #f73164;
   --success: #51bb25;
   --info: #a927f9;
-  --warning: #f8d62b;
+  --warning: #c1a311;
   --danger: #dc3545;
   --light: #f4f4f4;
   --dark: #2c323f;
@@ -590,7 +590,7 @@ textarea.form-control {
 
 .badge-light-warning {
   color: var(--warning);
-  background-color: rgba(248, 214, 43, 0.1);
+  background-color: rgba(216, 186, 33, 0.1);
 }
 
 .badge-light-info {
@@ -638,7 +638,7 @@ textarea.form-control {
 }
 
 .text-primary {
-  color: #cf961d;
+  color: #a17412;
 }
 
 .text-success {

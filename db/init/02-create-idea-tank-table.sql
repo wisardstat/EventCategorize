@@ -1,27 +1,35 @@
 -- Create idea_tank table
-CREATE TABLE IF NOT EXISTS public.idea_tank (
-    idea_seq SERIAL PRIMARY KEY,
-    idea_code VARCHAR(10),
-    category_idea_type1 VARCHAR(100),
-    idea_name VARCHAR(500),
-    idea_subject VARCHAR(1000),
-    idea_source VARCHAR(1000),
-    customer_target VARCHAR(1000),
-    idea_inno_type VARCHAR(1000),
-    idea_detail TEXT,
-    idea_finance_impact TEXT,
-    idea_nonfinance_impact TEXT,
-    idea_status VARCHAR(100),
-    idea_owner_empcode VARCHAR(100),
-    idea_owner_empname VARCHAR(100),
-    idea_owner_deposit VARCHAR(100),
-    idea_owner_contacts VARCHAR(100),
-    idea_keywords VARCHAR(100),
-    idea_comment VARCHAR(100),
-    idea_summary_byai TEXT,
-    create_datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+create table public.idea_tank (
+  idea_seq serial not null,
+  idea_code character varying(10) null default '100'::character varying,
+  category_idea_type1 character varying(100) null default '1200'::character varying,
+  idea_name character varying(500) null default '2000'::character varying,
+  idea_subject text null,
+  idea_source text null,
+  customer_target text null,
+  idea_inno_type text null,
+  idea_detail text null,
+  idea_finance_impact text null,
+  idea_nonfinance_impact text null,
+  idea_status text null,
+  idea_owner_empcode text null,
+  idea_owner_empname text null,
+  idea_owner_deposit text null,
+  idea_owner_contacts text null,
+  idea_keywords text null,
+  idea_comment text null,
+  idea_summary_byai text null,
+  create_datetime timestamp without time zone not null default CURRENT_TIMESTAMP,
+  update_datetime timestamp without time zone not null default CURRENT_TIMESTAMP,
+  idea_score bigint null,
+  idea_score_comment text null,
+  constraint idea_tank_pkey primary key (idea_seq)
+) TABLESPACE pg_default;
+
+create trigger update_idea_tank_modified_timestamp BEFORE
+update on idea_tank for EACH row
+execute FUNCTION update_modified_timestamp ();
+
 
 -- Add comments to columns for better documentation
 COMMENT ON TABLE public.idea_tank IS 'ตารางเก็บข้อมูลความคิดสร้างสรรค์ (Idea Tank)';

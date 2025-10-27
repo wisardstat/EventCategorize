@@ -21,6 +21,12 @@ high-quality code generation.
 - อธิบาย complex logic
 - ระบุ parameters และ return types
 
+
+# ----------------------------------
+# Run command Backend /ALWAYS USE (current pattern)
+# ----------------------------------
+cd backend ; ./.venv/Scripts/activate ; python -m pytest app/tests/ -v
+
 # ----------------------------------
 # Naming Conventions
 # ----------------------------------

@@ -89,6 +89,8 @@ class IdeaOut(BaseModel):
     idea_keywords: Optional[str] = None
     idea_comment: Optional[str] = None
     idea_summary_byai: Optional[str] = None
+    idea_score: Optional[int] = None
+    idea_score_comment: Optional[str] = None
     create_datetime: datetime
     update_datetime: datetime
 
