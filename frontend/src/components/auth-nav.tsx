@@ -90,14 +90,20 @@ export default function AuthNav() {
     <div className="flex items-center gap-2">
       {isLoggedIn ? (
         <>
-          <a 
-            href="/idea_tank" 
+          <a
+            href="/idea_tank"
             className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
           >
             Idea Tank
           </a>
-          <a 
-            href="/user_list" 
+          <a
+            href="/idea_score"
+            className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
+          >
+            สร้าง score
+          </a>
+          <a
+            href="/user_list"
             className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
           >
             จัดการผู้ใช้งาน
