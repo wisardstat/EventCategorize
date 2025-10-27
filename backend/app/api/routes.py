@@ -444,7 +444,7 @@ async def generate_keywords_for_ideas(db: Session = Depends(get_db)):
             (models.IdeaTank.idea_keywords.is_(None)) |
             (models.IdeaTank.idea_keywords == "") |
             (models.IdeaTank.idea_keywords == "-")
-        ).all()
+        ).limit(30).all()
         
         if not target_ideas:
             return {"message": "ไม่มีรายการที่ต้องการสร้างคีย์เวิร์ด", "processed_count": 0}

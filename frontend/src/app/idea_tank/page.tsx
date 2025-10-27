@@ -26,6 +26,7 @@ export default function IdeaTankPage() {
     const [error, setError] = useState<string | null>(null);
     const [uniqueDepartments, setUniqueDepartments] = useState<string[]>([]);
     const [authChecking, setAuthChecking] = useState(true);
+    const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
     const router = useRouter();
     
     // Calculate status counts
@@ -118,7 +119,11 @@ export default function IdeaTankPage() {
         return null;
     };
 
-    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [currentUser, setCurrentUser] = useState<{
+        user_fname?: string;
+        user_lname?: string;
+        [key: string]: unknown;
+    } | null>(null);
 
     useEffect(() => {
         setCurrentUser(getUser());
@@ -195,6 +200,8 @@ export default function IdeaTankPage() {
     // Generate Keywords for ideas lacking them
     const generateKeywords = async () => {
         try {
+            setIsGeneratingKeywords(true);
+            
             // Call backend API to generate keywords for all ideas lacking them
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/generate-keywords`, {
                 method: "POST",
@@ -235,6 +242,8 @@ export default function IdeaTankPage() {
         } catch (err) {
             console.error(err);
             alert("เกิดข้อผิดพลาดขณะสร้างคีย์เวิร์ด");
+        } finally {
+            setIsGeneratingKeywords(false);
         }
     };
 
@@ -244,7 +253,8 @@ export default function IdeaTankPage() {
     }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, ideas]);
 
     return (
-        <div className="page-body">
+        <>
+            <div className="page-body">
             <div className="container-fluid">
                 {/* Page Title */}
                 <div className="page-title mb-4">
@@ -271,9 +281,9 @@ export default function IdeaTankPage() {
                                 type="button"
                                 className="btn btn-primary"
                                 onClick={generateKeywords}
-                                disabled={loading}
+                                disabled={loading || isGeneratingKeywords}
                             >
-                                Generate Keywords
+                                {isGeneratingKeywords ? "Wait Processing..." : "Generate Keywords"}
                             </button>
                         </div>
                     </div>
@@ -540,5 +550,7 @@ export default function IdeaTankPage() {
                 </div>
             </div>
         </div>
+ 
+        </>
     );
 }
