@@ -38,6 +38,9 @@ export default function CreateQuestionPage() {
 	async function loadQuestions() {
 		setLoadingList(true);
 		try {
+		console.log("Loading questions...");
+		console.log(`${process.env.NEXT_PUBLIC_API_URL}`);
+		
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`);
 			if (!res.ok) throw new Error("Failed to load questions");
 			const data = await res.json();
