@@ -17,6 +17,7 @@ allowed_origins = settings.get_cors_allow_origins() or [
     "http://139.180.144.194",
     "http://127.0.0.1:3000",
     "http://172.30.176.1:3000",
+    "http://172.29.32.1:3000", 
     "http://baacinnolab.duckdns.org:3000",
     "http://baacinnolab.duckdns.org",
     "http://baacinno.online",

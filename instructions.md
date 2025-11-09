@@ -8,12 +8,14 @@ This document contains coding standards and instructions for AI agents
 working on this project. Follow these guidelines to ensure consistent, 
 high-quality code generation.
 
+*** Important : Use Thai language ###
 
 # ❌ DO NOT USE (deprecated)
 - เก็บ password แบบ plain text
 - ห้ามมีภาษาจีนใน code
 
 # ✅ ALWAYS USE (current pattern)
+- ให้สื่อสารกับฉันโดยใช้ภาษาไทย
 - ใช้ try-catch สำหรับทุก async operations
 - ตรวจสอบ null/undefined ก่อนเข้าถึง properties
 - มี error messages ที่ชัดเจนและเป็นประโยชน์

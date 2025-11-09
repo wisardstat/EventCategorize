@@ -163,15 +163,27 @@ export default function IdeaTankPage() {
             const data: IdeaTank[] = await res.json();
             
             // Apply client-side filters for the remaining fields (except score range which is now handled by backend)
+            console.log("=== DEBUG FILTER ===");
+            console.log("ideaStatus filter value:", ideaStatus.toLowerCase());
+            console.log("Total data from backend:", data.length);
+            
             const filtered = data.filter(idea => {
                 const matchesIdeaName = !ideaName || idea.idea_name?.toLowerCase().includes(ideaName.toLowerCase());
                 const matchesCategory = !categoryIdeaType1 || idea.category_idea_type1?.toLowerCase().includes(categoryIdeaType1.toLowerCase());
-                const matchesStatus = !ideaStatus || idea.idea_status?.toLowerCase().includes(ideaStatus.toLowerCase());
+                const matchesStatus = !ideaStatus || idea.idea_status === ideaStatus; // เปลี่ยนจาก includes() เป็น ===
                 const matchesIdeaCode = !ideaCode || idea.idea_code?.toLowerCase().includes(ideaCode.toLowerCase());
                 const matchesOwnerDeposit = !ideaOwnerDeposit || idea.idea_owner_deposit?.toLowerCase().includes(ideaOwnerDeposit.toLowerCase());
                 
+                // Log specific status filtering details
+                // if (ideaStatus) {
+                //     console.log(`Idea "${idea.idea_name}": status="${idea.idea_status}", matchesStatus=${matchesStatus}`);
+                // }
+                
                 return matchesIdeaName && matchesCategory && matchesStatus && matchesIdeaCode && matchesOwnerDeposit;
             });
+            
+            console.log("Filtered count:", filtered.length);
+            console.log("=== END DEBUG ===");
             
             setFilteredIdeas(filtered);
         } catch (err: unknown) {
@@ -262,7 +274,7 @@ export default function IdeaTankPage() {
     // Auto-filter when filter values change
     useEffect(() => {
         filterIdeas();
-    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, minScore, maxScore, ideas]);
+    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, minScore, maxScore]);
 
     return (
         <>
@@ -311,6 +323,46 @@ export default function IdeaTankPage() {
                 {/* Main Content */}
                 <div className="row">
                     <div className="col-sm-12">
+
+                        
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            {/* Total Count Card - Gray Background */}
+                            <div className="card  rounded-lg" style={{ backgroundColor: '#f8f9fa', padding: '1px' }}>
+                                <div className="card-body text-center" style={{  padding: '10px' }} >
+                                    <h2 className="mb-3"> <span style={{ fontSize:'16px'}}>สรุปจำนวนรายการ<br/>ทั้งหมด   </span>  </h2>
+                                    <div className="display-4 fw-bold text-dark">{statusCounts.total}</div>
+                                    <p className="text-muted mb-0">รายการ</p>
+                                </div>
+                            </div>
+                            
+                            {/* Passed Count Card - Green Background */}
+                            <div className="card rounded-lg" style={{ backgroundColor: '#d4edda', padding: '1px' }}>
+                                <div className="card-body text-center" style={{  padding: '10px' }} >
+                                    <h5 className="mb-3">  <span style={{ fontSize:'16px'}}> สรุปจำนวนรายการ  ที่มีสถานะ <br/>  ผ่านคัดเลือก </span>  </h5>
+                                    <div className="display-4 fw-bold text-success">{statusCounts.passed}</div>
+                                    <p className="text-muted mb-0">รายการ</p>
+                                </div>
+                            </div>
+                            
+                            {/* Not Passed Count Card - Red Background */}
+                            <div className="card rounded-lg" style={{ backgroundColor: '#f8d7da', padding: '1px' }}>
+                                <div className="card-body text-center"  style={{  padding: '10px' }} >
+                                    <h5 className=" mb-3">  <span style={{ fontSize:'16px'}}>  สรุปจำนวนรายการ ที่มีสถานะ <br/>  ไม่ผ่านคัดเลือก  </span></h5>
+                                    <div className="display-4 fw-bold text-danger">{statusCounts.notPassed}</div>
+                                    <p className="text-muted mb-0">รายการ</p>
+                                </div>
+                            </div>
+                            
+                            {/* Submitted Count Card - Purple Background */}
+                            <div className="card rounded-lg" style={{ backgroundColor: '#e2d9f3', padding: '1px' }}>
+                                <div className="card-body text-center"  style={{  padding: '10px' }} >
+                                    <h5 className=" mb-3"> <span style={{ fontSize:'16px'}}>  สรุปจำนวนรายการ ที่มีสถานะ <br/>  ส่งแนวคิด  </span></h5>
+                                    <div className="display-4 fw-bold" style={{ color: '#7721ef' }}>{statusCounts.submitted}</div>
+                                    <p className="text-muted mb-0">รายการ</p>
+                                </div>
+                            </div>
+                        </div>
                         
                         {/* Filter Card */}
                         <div className="card rounded-lg mb-4">
@@ -456,53 +508,20 @@ export default function IdeaTankPage() {
                             </div>
                         </div>
 
-                        {/* Summary Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            {/* Total Count Card - Gray Background */}
-                            <div className="card  rounded-lg" style={{ backgroundColor: '#f8f9fa', padding: '1px' }}>
-                                <div className="card-body text-center" style={{  padding: '10px' }} >
-                                    <h2 className="mb-3"> <span style={{ fontSize:'16px'}}>สรุปจำนวนรายการ<br/>ทั้งหมด   </span>  </h2>
-                                    <div className="display-4 fw-bold text-dark">{statusCounts.total}</div>
-                                    <p className="text-muted mb-0">รายการ</p>
-                                </div>
-                            </div>
-                            
-                            {/* Passed Count Card - Green Background */}
-                            <div className="card rounded-lg" style={{ backgroundColor: '#d4edda', padding: '1px' }}>
-                                <div className="card-body text-center" style={{  padding: '10px' }} >
-                                    <h5 className="mb-3">  <span style={{ fontSize:'16px'}}> สรุปจำนวนรายการ  ที่มีสถานะ <br/>  ผ่านคัดเลือก </span>  </h5>
-                                    <div className="display-4 fw-bold text-success">{statusCounts.passed}</div>
-                                    <p className="text-muted mb-0">รายการ</p>
-                                </div>
-                            </div>
-                            
-                            {/* Not Passed Count Card - Red Background */}
-                            <div className="card rounded-lg" style={{ backgroundColor: '#f8d7da', padding: '1px' }}>
-                                <div className="card-body text-center"  style={{  padding: '10px' }} >
-                                    <h5 className=" mb-3">  <span style={{ fontSize:'16px'}}>  สรุปจำนวนรายการ ที่มีสถานะ <br/>  ไม่ผ่านคัดเลือก  </span></h5>
-                                    <div className="display-4 fw-bold text-danger">{statusCounts.notPassed}</div>
-                                    <p className="text-muted mb-0">รายการ</p>
-                                </div>
-                            </div>
-                            
-                            {/* Submitted Count Card - Purple Background */}
-                            <div className="card rounded-lg" style={{ backgroundColor: '#e2d9f3', padding: '1px' }}>
-                                <div className="card-body text-center"  style={{  padding: '10px' }} >
-                                    <h5 className=" mb-3"> <span style={{ fontSize:'16px'}}>  สรุปจำนวนรายการ ที่มีสถานะ <br/>  ส่งแนวคิด  </span></h5>
-                                    <div className="display-4 fw-bold" style={{ color: '#7721ef' }}>{statusCounts.submitted}</div>
-                                    <p className="text-muted mb-0">รายการ</p>
-                                </div>
-                            </div>
-                        </div>
 
                         <div className="card rounded-lg">
                             <div className="card-header">
-                                <h5>ระบบคลังความคิดสร้างสรรค์ (Idea-Tank) </h5>
+                                <h5>ระบบคลังความคิดสร้างสรรค์ (Idea-Tank)  
+                                    <span className="ml-5">
+                                        จำนวน  {filteredIdeas.length} รายการ
+                                    </span>
+                                </h5>
                                 <p className="f-m-light mt-1">
                                     ระบบคลังความคิดสร้างสรรค์ (Idea Tank) เป็นแพลตฟอร์มที่รวบรวมและจัดการ
                                     ความคิดสร้างสรรค์จากพนักงานในองค์กร เพื่อส่งเสริมการนำนวัตกรรมใหม่ๆ มาใช้ในการพัฒนา
                                     และปรับปรุงกระบวนการทำงาน รวมถึงผลิตภัณฑ์และบริการต่างๆ ขององค์กร
                                 </p>
+                                
                             </div>
                             <div className="card-body">
                                 {authChecking ? (
