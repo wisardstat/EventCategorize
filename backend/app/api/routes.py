@@ -78,7 +78,7 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
         answer_text=payload.answer_text,
         category=category,
         create_user_name=payload.create_user_name,
-        create_user_code=payload.create_usercode,
+        create_user_code=payload.create_user_code,
         create_user_department=payload.create_user_department,
         answer_keywords=keywords,
     )
@@ -219,7 +219,7 @@ def get_random_idea(db: Session = Depends(get_db)):
         models.IdeaTank.idea_detail.isnot(None),
         models.IdeaTank.idea_detail != "",
         models.IdeaTank.idea_detail != "-"
-    ).order_by(sql_func.random).first()
+    ).order_by(sql_func.random()).first()
     
     if not idea:
         raise HTTPException(status_code=404, detail="No ideas found")
@@ -431,6 +431,17 @@ async def clear_idea_scores(db: Session = Depends(get_db)):
 @router.get("/ideas/{idea_seq}", response_model=IdeaOut)
 def get_idea(idea_seq: int, db: Session = Depends(get_db)):
     item = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    return item
+
+
+@router.get("/ideas/code/{idea_code}", response_model=IdeaOut)
+def get_idea_by_code(idea_code: str, db: Session = Depends(get_db)):
+    """
+    Get an idea by its idea_code
+    """
+    item = db.query(models.IdeaTank).filter(models.IdeaTank.idea_code == idea_code).first()
     if not item:
         raise HTTPException(status_code=404, detail="Idea not found")
     return item

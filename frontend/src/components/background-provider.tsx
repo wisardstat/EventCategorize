@@ -11,7 +11,7 @@ export default function BackgroundProvider({ children }: BackgroundProviderProps
   const pathname = usePathname();
 
   // Check if current page should have black background
-  const blackBackgroundPages = ["index","create-question", "answer_list", "answer_analytic"];
+  const blackBackgroundPages = ["index","create-question", "answer_list", "answer_analytic","present-answer"];
   
   // Debug logs
   console.log("pathname:", pathname);

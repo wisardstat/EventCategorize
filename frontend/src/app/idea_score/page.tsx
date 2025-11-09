@@ -42,6 +42,9 @@ export default function IdeaScorePage() {
     const [selectedLimit, setSelectedLimit] = useState<string>("all");
     const [clearScores, setClearScores] = useState<boolean>(false);
     const [batchProcessing, setBatchProcessing] = useState<boolean>(false);
+    
+    // Idea code input state
+    const [ideaCode, setIdeaCode] = useState<string>("");
 
     useEffect(() => {
         checkAuthAndLoad();
@@ -163,12 +166,20 @@ export default function IdeaScorePage() {
     const getRandomIdea = async () => {
         setLoadingRandomIdea(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/random`);
-            if (!res.ok) throw new Error("Failed to get random idea");
+            let res;
+            if (ideaCode.trim()) {
+                // If idea_code is provided, get specific idea by code
+                res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/code/${ideaCode.trim()}`);
+                if (!res.ok) throw new Error("Failed to get idea by code");
+            } else {
+                // Otherwise get random idea
+                res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/random`);
+                if (!res.ok) throw new Error("Failed to get random idea");
+            }
             const data: IdeaTank = await res.json();
             setExampleIdea(data);
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Error getting random idea";
+            const message = err instanceof Error ? err.message : "Error getting idea";
             alert(`เกิดข้อผิดพลาด: ${message}`);
         } finally {
             setLoadingRandomIdea(false);
@@ -375,26 +386,36 @@ export default function IdeaScorePage() {
 
                         {/* Example Idea Card */}
                         <div className="card mb-4">
-                            <div className="card-header d-flex justify-content-between align-items-center">
-                                <h5 className="mb-0">ตัวอย่างความคิดสร้างสรรค์</h5>
-                                <div className="ms-auto">
-                                    <button
-                                        onClick={getRandomIdea}
-                                        className="btn btn-primary btn-sm d-flex align-items-center gap-2"
-                                        disabled={loadingRandomIdea}
-                                    >
-                                        {loadingRandomIdea ? (
-                                            <>
-                                                <FaSpinner className="animate-spin" />
-                                                กำลังสุ่ม...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FaRandom />
-                                                สุ่มไอเดีย
-                                            </>
-                                        )}
-                                    </button>
+                            <div className="card-header">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <h5 className="mb-0 mr-5">ตัวอย่างความคิดสร้างสรรค์</h5>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <input
+                                            type="text"
+                                            className="form-control form-control-sm"
+                                            placeholder="idea_code"
+                                            value={ideaCode}
+                                            onChange={(e) => setIdeaCode(e.target.value)}
+                                            style={{ width: "120px" }}
+                                        />
+                                        <button
+                                            onClick={getRandomIdea}
+                                            className="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                                            disabled={loadingRandomIdea}
+                                        >
+                                            {loadingRandomIdea ? (
+                                                <>
+                                                    <FaSpinner className="animate-spin" />
+                                                    {ideaCode.trim() ? "กำลังโหลด..." : "กำลังสุ่ม..."}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FaRandom />
+                                                    {ideaCode.trim() ? "เลือก" : "สุ่มไอเดีย"}
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="card-body">
@@ -415,7 +436,7 @@ export default function IdeaScorePage() {
                                                 className="form-control"
                                                 rows={8}
                                                 value={exampleIdea.idea_detail || "-"}
-                                                readOnly
+                                                 
                                             />
                                         </div>
                                         {exampleIdea.idea_owner_deposit && (
@@ -443,7 +464,7 @@ export default function IdeaScorePage() {
                                     </div>
                                 ) : (
                                     <div className="text-center py-4">
-                                        <p className="text-muted">กรุณาคลิกปุ่ม "สุ่มไอเดีย" เพื่อเลือกตัวอย่างความคิดสร้างสรรค์</p>
+                                        <p className="text-muted">กรุณาคลิกปุ่ม "สุ่มไอเดีย" หรือกรอก idea_code แล้วกด "เลือก" เพื่อเลือกตัวอย่างความคิดสร้างสรรค์</p>
                                     </div>
                                 )}
                             </div>
