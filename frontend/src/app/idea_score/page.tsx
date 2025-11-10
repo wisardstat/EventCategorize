@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaSpinner, FaRandom } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { canSaveEvaluation, getCurrentUser } from "@/utils/permissions";
 
 type IdeaTank = {
     idea_seq: number;
@@ -65,6 +66,12 @@ export default function IdeaScorePage() {
                 localStorage.removeItem("user");
                 localStorage.removeItem("token");
                 router.push("/login");
+                return;
+            }
+
+            // Check if user has permission to access this page
+            if (!canSaveEvaluation()) {
+                router.push("/idea_tank");
                 return;
             }
 

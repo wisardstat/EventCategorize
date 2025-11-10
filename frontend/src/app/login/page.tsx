@@ -8,6 +8,7 @@ interface User {
   user_fname: string;
   user_lname: string;
   user_login: string;
+  user_role?: string;
   token: string;
 }
 

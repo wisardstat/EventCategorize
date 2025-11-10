@@ -91,7 +91,7 @@ class User(Base):
     user_updatedate = Column(
         TIMESTAMP(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )
-    user_role = Column(String(50), nullable=True, default='100')
+    user_role = Column(String(50), nullable=True, default='user')
 
 
 class Setting(Base):

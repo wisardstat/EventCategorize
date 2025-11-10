@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { canImportExcel } from "@/utils/permissions";
 
 interface ImportResult {
   message: string;
@@ -10,11 +12,34 @@ interface ImportResult {
 }
 
 export default function IdeaTankImportPage() {
+  const router = useRouter();
+  const [authChecking, setAuthChecking] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check authentication and permissions on page load
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      // Check if user has permission to access this page
+      if (!canImportExcel()) {
+        router.push("/idea_tank");
+        return;
+      }
+
+      setAuthChecking(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -83,6 +108,15 @@ export default function IdeaTankImportPage() {
     link.click();
     document.body.removeChild(link);
   };
+
+  // Show loading spinner while checking authentication
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-8">

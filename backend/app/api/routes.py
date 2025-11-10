@@ -9,7 +9,7 @@ from sqlalchemy.sql import func as sql_func
 
 from app.db.database import get_db
 from app.db import models
-from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut, IdeaCreate, IdeaOut, UserCreate, UserOut, UserLogin, UserResponse
+from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut, IdeaCreate, IdeaOut, UserCreate, UserOut, UserLogin, UserResponse, UserUpdate
 from pydantic import BaseModel
 from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
@@ -799,6 +799,7 @@ def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
         "user_fname": user.user_fname,
         "user_lname": user.user_lname,
         "user_login": user.user_login,
+        "user_role": user.user_role or "user",
         "token": access_token
     }
 
@@ -911,7 +912,7 @@ def get_user(user_code: str, db: Session = Depends(get_db), current_user: models
 
 
 @router.put("/users/{user_code}", response_model=UserOut)
-def update_user(user_code: str, user_data: UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def update_user(user_code: str, user_data: UserUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     user = db.query(models.User).filter(models.User.user_code == user_code).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -934,8 +935,8 @@ def update_user(user_code: str, user_data: UserCreate, db: Session = Depends(get
     user.user_login = user_data.user_login
     user.user_role = user_data.user_role
     
-    # Only update password if provided
-    if user_data.user_password:
+    # Only update password if provided and not empty
+    if user_data.user_password is not None and user_data.user_password.strip() != "":
         # Validate the password
         if not validate_password_hash(user_data.user_password):
             raise HTTPException(
@@ -1004,7 +1005,8 @@ def create_admin_user(db: Session = Depends(get_db)):
         user_fname="System",
         user_lname="Administrator",
         user_login=admin_login,
-        user_password=admin_password  # Store plain text password
+        user_password=admin_password,  # Store plain text password
+        user_role="admin"  # Set admin role for the admin user
     )
     
     db.add(admin_user)

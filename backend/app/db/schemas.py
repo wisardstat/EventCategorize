@@ -104,7 +104,7 @@ class UserCreate(BaseModel):
     user_lname: str = Field(..., min_length=1, max_length=100)
     user_login: str = Field(..., min_length=1, max_length=50)
     user_password: str = Field(..., min_length=1)
-    user_role: str = Field(default="100", max_length=50)
+    user_role: str = Field(default="user", max_length=50)
 
 
 class UserOut(BaseModel):
@@ -125,11 +125,21 @@ class UserLogin(BaseModel):
     user_password: str = Field(..., min_length=1)
 
 
+class UserUpdate(BaseModel):
+    user_code: str = Field(..., min_length=1, max_length=50)
+    user_fname: str = Field(..., min_length=1, max_length=100)
+    user_lname: str = Field(..., min_length=1, max_length=100)
+    user_login: str = Field(..., min_length=1, max_length=50)
+    user_password: Optional[str] = Field(None, min_length=1)
+    user_role: str = Field(default="user", max_length=50)
+
+
 class UserResponse(BaseModel):
     user_code: str
     user_fname: str
     user_lname: str
     user_login: str
+    user_role: str
     token: str
 
     class Config:
