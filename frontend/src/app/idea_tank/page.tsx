@@ -301,12 +301,6 @@ export default function IdeaTankPage() {
                             >
                                 นำเข้าข้อมูลจาก Excel
                             </a>
-                            <a
-                                href="/idea_score"
-                                className="btn btn-success"
-                            >
-                                ประเมินคะแนน AI
-                            </a>
                             <button
                                 type="button"
                                 className="btn btn-primary"

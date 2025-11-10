@@ -9,6 +9,7 @@ interface UserFormData {
   user_lname: string;
   user_login: string;
   user_password: string;
+  user_role: string;
 }
 
 export default function UserCreatePage() {
@@ -18,6 +19,7 @@ export default function UserCreatePage() {
     user_lname: "",
     user_login: "",
     user_password: "",
+    user_role: "",
   });
   const [loading, setLoading] = useState(false);
   const [generatingCode, setGeneratingCode] = useState(false);
@@ -93,7 +95,6 @@ export default function UserCreatePage() {
       }
 
       setSuccess("สร้างผู้ใช้งานสำเร็จ");
-      
       // Reset form
       setFormData({
         user_code: "",
@@ -101,7 +102,9 @@ export default function UserCreatePage() {
         user_lname: "",
         user_login: "",
         user_password: "",
+        user_role: "",
       });
+      
 
       // Redirect to user list after 2 seconds
       setTimeout(() => {

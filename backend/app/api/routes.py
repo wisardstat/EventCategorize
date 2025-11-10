@@ -880,7 +880,8 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         user_fname=user_data.user_fname,
         user_lname=user_data.user_lname,
         user_login=user_data.user_login,
-        user_password=user_data.user_password  # Store plain text password
+        user_password=user_data.user_password,  # Store plain text password
+        user_role=user_data.user_role
     )
     
     db.add(new_user)
@@ -931,6 +932,7 @@ def update_user(user_code: str, user_data: UserCreate, db: Session = Depends(get
     user.user_fname = user_data.user_fname
     user.user_lname = user_data.user_lname
     user.user_login = user_data.user_login
+    user.user_role = user_data.user_role
     
     # Only update password if provided
     if user_data.user_password:

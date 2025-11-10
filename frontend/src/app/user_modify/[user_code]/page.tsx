@@ -9,6 +9,7 @@ interface UserFormData {
   user_lname: string;
   user_login: string;
   user_password: string;
+  user_role: string;
 }
 
 interface UserData {
@@ -18,6 +19,7 @@ interface UserData {
   user_login: string;
   user_createdate: string;
   user_updatedate: string;
+  user_role: string;
 }
 
 export default function UserModifyPage() {
@@ -27,6 +29,7 @@ export default function UserModifyPage() {
     user_lname: "",
     user_login: "",
     user_password: "",
+    user_role: "100",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +74,7 @@ export default function UserModifyPage() {
         user_lname: data.user_lname,
         user_login: data.user_login,
         user_password: "", // Don't pre-fill password
+        user_role: data.user_role || "100",
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error loading user data";
@@ -80,7 +84,7 @@ export default function UserModifyPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -287,6 +291,23 @@ export default function UserModifyPage() {
                         placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน"
                       />
                       <small className="form-text text-muted">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน</small>
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="user_role" className="form-label">สิทธิ์ผู้ใช้งาน *</label>
+                      <select
+                        className="form-control"
+                        id="user_role"
+                        name="user_role"
+                        value={formData.user_role}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="user">User</option>
+                        <option value="superuser">Supper User</option>
+                        <option value="superuser_md">Supper User(MD)</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                      <small className="form-text text-muted">เลือกสิทธิ์ผู้ใช้งาน</small>
                     </div>
                   </div>
 

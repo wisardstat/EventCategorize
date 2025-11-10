@@ -10,6 +10,7 @@ interface User {
   user_login: string;
   user_createdate: string;
   user_updatedate: string;
+  user_role: string;
 }
 
 export default function UserListPage() {
@@ -165,6 +166,7 @@ export default function UserListPage() {
                           <th scope="col">ชื่อ</th>
                           <th scope="col">นามสกุล</th>
                           <th scope="col">ชื่อผู้ใช้งาน (Login)</th>
+                          <th scope="col">สิทธิ์ผู้ใช้งาน</th>
                           <th scope="col">วันที่สร้าง</th>
                           <th scope="col">วันที่อัปเดต</th>
                           <th scope="col">จัดการ</th>
@@ -173,7 +175,7 @@ export default function UserListPage() {
                       <tbody>
                         {users.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="text-center py-4">
+                            <td colSpan={8} className="text-center py-4">
                               ไม่มีข้อมูลผู้ใช้งาน
                             </td>
                           </tr>
@@ -184,6 +186,8 @@ export default function UserListPage() {
                               <td>{user.user_fname}</td>
                               <td>{user.user_lname}</td>
                               <td>{user.user_login}</td>
+                              <td>{user.user_role}                                
+                              </td>
                               <td>{new Date(user.user_createdate).toLocaleDateString('th-TH')}</td>
                               <td>{new Date(user.user_updatedate).toLocaleDateString('th-TH')}</td>
                               <td>

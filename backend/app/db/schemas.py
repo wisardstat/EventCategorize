@@ -104,6 +104,7 @@ class UserCreate(BaseModel):
     user_lname: str = Field(..., min_length=1, max_length=100)
     user_login: str = Field(..., min_length=1, max_length=50)
     user_password: str = Field(..., min_length=1)
+    user_role: str = Field(default="100", max_length=50)
 
 
 class UserOut(BaseModel):
@@ -113,6 +114,7 @@ class UserOut(BaseModel):
     user_login: str
     user_createdate: datetime
     user_updatedate: datetime
+    user_role: str
 
     class Config:
         from_attributes = True
