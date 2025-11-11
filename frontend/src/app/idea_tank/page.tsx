@@ -12,6 +12,7 @@ type IdeaTank = {
     idea_inno_type?: string | null;
     idea_name?: string | null;
     idea_status?: string | null;
+    idea_status_md?: string | null;
     idea_owner_empname?: string | null;
     idea_owner_deposit?: string | null;
     idea_detail?: string | null;
@@ -57,6 +58,7 @@ export default function IdeaTankPage() {
     const [ideaKeywords, setIdeaKeywords] = useState<string>("");
     const [minScore, setMinScore] = useState<string>("");
     const [maxScore, setMaxScore] = useState<string>("");
+    const [ideaStatusMd, setIdeaStatusMd] = useState<string>("");
 
     useEffect(() => {
         checkAuthAndLoad();
@@ -174,13 +176,14 @@ export default function IdeaTankPage() {
                 const matchesStatus = !ideaStatus || idea.idea_status === ideaStatus; // เปลี่ยนจาก includes() เป็น ===
                 const matchesIdeaCode = !ideaCode || idea.idea_code?.toLowerCase().includes(ideaCode.toLowerCase());
                 const matchesOwnerDeposit = !ideaOwnerDeposit || idea.idea_owner_deposit?.toLowerCase().includes(ideaOwnerDeposit.toLowerCase());
+                const matchesStatusMd = !ideaStatusMd || idea.idea_status_md === ideaStatusMd;
                 
                 // Log specific status filtering details
                 // if (ideaStatus) {
                 //     console.log(`Idea "${idea.idea_name}": status="${idea.idea_status}", matchesStatus=${matchesStatus}`);
                 // }
                 
-                return matchesIdeaName && matchesCategory && matchesStatus && matchesIdeaCode && matchesOwnerDeposit;
+                return matchesIdeaName && matchesCategory && matchesStatus && matchesIdeaCode && matchesOwnerDeposit && matchesStatusMd;
             });
             
             console.log("Filtered count:", filtered.length);
@@ -205,6 +208,7 @@ export default function IdeaTankPage() {
         setIdeaKeywords("");
         setMinScore("");
         setMaxScore("");
+        setIdeaStatusMd("");
         // Trigger a new search with no filters
         try {
             setLoading(true);
@@ -275,7 +279,7 @@ export default function IdeaTankPage() {
     // Auto-filter when filter values change
     useEffect(() => {
         filterIdeas();
-    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, minScore, maxScore]);
+    }, [ideaName, categoryIdeaType1, ideaStatus, ideaCode, ideaOwnerDeposit, ideaKeywords, minScore, maxScore, ideaStatusMd]);
 
     return (
         <>
@@ -297,9 +301,7 @@ export default function IdeaTankPage() {
                         </div>
                         <div className="md:col-span-1 flex justify-end gap-2">
                             {/* นำเข้าข้อมูลจาก Excel button - Only admin and superuser can see */}
-                            {canImportExcel() && (
-                                <a
-                                    href="/idea_tank_import"
+                            {canImportExcel() && ( <a  href="/idea_tank_import"
                                     className="btn btn-primary"
                                 >
                                     นำเข้าข้อมูลจาก Excel
@@ -398,7 +400,7 @@ export default function IdeaTankPage() {
                                         />
                                     </div>
                                     <div className="col-span-1">
-                                        <label htmlFor="ideaStatus" className="form-label">สถานะ</label>
+                                        <label htmlFor="ideaStatus" className="form-label">สถานะประเมินโดย วพ.</label>
                                         <select
                                             id="ideaStatus"
                                             className="form-select"
@@ -407,6 +409,20 @@ export default function IdeaTankPage() {
                                         >
                                             <option value="">ทั้งหมด</option>
                                             <option value="ส่งแนวคิด">ส่งแนวคิด</option>
+                                            <option value="ผ่านคัดเลือก">ผ่านคัดเลือก</option>
+                                            <option value="ไม่ผ่านคัดเลือก">ไม่ผ่านคัดเลือก</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                        <label htmlFor="ideaStatusMd" className="form-label">สถานะการประเมินโดยกรรมการ</label>
+                                        <select
+                                            id="ideaStatusMd"
+                                            className="form-select"
+                                            value={ideaStatusMd}
+                                            onChange={(e) => setIdeaStatusMd(e.target.value)}
+                                        >
+                                            <option value="">ทั้งหมด</option>
                                             <option value="ผ่านคัดเลือก">ผ่านคัดเลือก</option>
                                             <option value="ไม่ผ่านคัดเลือก">ไม่ผ่านคัดเลือก</option>
                                         </select>
@@ -556,7 +572,8 @@ export default function IdeaTankPage() {
                                                     <th scope="col">ชื่อความคิดสร้างสรรค์</th>
                                                     <th scope="col">keywords</th>
                                                     <th scope="col">คะแนน</th>
-                                                    <th scope="col">สถานะ</th>
+                                                    <th scope="col">สถานะประเมิน (วพ.)</th>
+                                                    <th scope="col">สถานะประเมิน (กรรมการ)</th>
                                                     <th scope="col">เจ้าของไอเดีย</th>
                                                     <th scope="col"></th>
                                                 </tr>
@@ -564,7 +581,7 @@ export default function IdeaTankPage() {
                                             <tbody>
                                                 {filteredIdeas.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={8} className="text-center py-4">
+                                                        <td colSpan={9} className="text-center py-4">
                                                             {ideas.length === 0 ? "ไม่มีข้อมูล" : "ไม่พบข้อมูลที่ตรงกับเงื่อนไข"}
                                                         </td>
                                                     </tr>
@@ -601,6 +618,20 @@ export default function IdeaTankPage() {
                                                                         'badge-light-info'
                                                                     }`}>
                                                                         {idea.idea_status}
+                                                                    </span>
+                                                                ) : (
+                                                                    "-"
+                                                                )}
+                                                            </td>
+                                                            <td>
+                                                                {idea.idea_status_md ? (
+                                                                    <span className={`badge ${
+                                                                        idea.idea_status_md === 'ผ่านคัดเลือก' ? 'badge-light-primary' :
+                                                                        idea.idea_status_md === 'ไม่ผ่านคัดเลือก' ? 'badge-light-danger' :
+                                                                        idea.idea_status_md === 'ส่งแนวคิด' ? 'badge-light-info' :
+                                                                        'badge-light-secondary'
+                                                                    }`}>
+                                                                        {idea.idea_status_md}
                                                                     </span>
                                                                 ) : (
                                                                     "-"

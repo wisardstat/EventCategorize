@@ -150,34 +150,37 @@ export default function AuthNav() {
           )}
           
           {/* สร้างผู้ใช้งาน Menu - Only admin can access */}
-          {canAccessUserCreate() && (
+          
+          {
+          /* canAccessUserCreate() && (
             <a
               href="/user_create"
               className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
             >
               สร้างผู้ใช้งาน
             </a>
-          )}
+          )  */ 
+          }
           
           {/* วิเคราะห์คำตอบ Menu - Only admin and superuser can access */}
-          {canAccessAnswerAnalytic() && (
+          { /* canAccessAnswerAnalytic() && (
             <a
               href="/answer_analytic"
               className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
             >
               วิเคราะห์คำตอบ
             </a>
-          )}
+          )*/ }
           
           {/* รายการคำตอบ Menu - Only admin and superuser can access */}
-          {canAccessAnswerList() && (
+          { /* canAccessAnswerList() && (
             <a
               href="/answer_list"
               className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
             >
               รายการคำตอบ
             </a>
-          )}
+          )*/ }
           
           {/* สร้างคำถาม Menu - Only admin and superuser can access */}
           {canAccessCreateQuestion() && (
@@ -185,19 +188,19 @@ export default function AuthNav() {
               href="/create-question"
               className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
             >
-              สร้างคำถาม
+              สร้างโจทย์
             </a>
           )}
           
           {/* นำเสนอคำตอบ Menu - Only admin and superuser can access */}
-          {canAccessPresentAnswer() && (
+          { /* canAccessPresentAnswer() && (
             <a
               href="/present-answer"
               className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
             >
               นำเสนอคำตอบ
             </a>
-          )}
+          )*/ }
           
           <div className="flex items-center gap-2 ml-2">
             {currentUser && (

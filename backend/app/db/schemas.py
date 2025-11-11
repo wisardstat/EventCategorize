@@ -60,6 +60,8 @@ class IdeaCreate(BaseModel):
     idea_finance_impact: Optional[str] = None
     idea_nonfinance_impact: Optional[str] = None
     idea_status: Optional[str] = Field(None, max_length=100)
+    idea_status_md: Optional[str] = Field(None, max_length=100)
+    idea_status_md_remark: Optional[str] = None
     idea_owner_empcode: Optional[str] = Field(None, max_length=100)
     idea_owner_empname: Optional[str] = Field(None, max_length=100)
     idea_owner_deposit: Optional[str] = Field(None, max_length=100)
@@ -82,6 +84,8 @@ class IdeaOut(BaseModel):
     idea_finance_impact: Optional[str] = None
     idea_nonfinance_impact: Optional[str] = None
     idea_status: Optional[str] = None
+    idea_status_md: Optional[str] = None
+    idea_status_md_remark: Optional[str] = None
     idea_owner_empcode: Optional[str] = None
     idea_owner_empname: Optional[str] = None
     idea_owner_deposit: Optional[str] = None

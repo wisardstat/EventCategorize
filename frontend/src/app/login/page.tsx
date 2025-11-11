@@ -42,6 +42,9 @@ export default function LoginPage() {
       // Store user data in localStorage
       localStorage.setItem("user", JSON.stringify(data));
       localStorage.setItem("token", data.token);
+      if (data.user_role) {
+        localStorage.setItem("user_role", data.user_role);
+      }
       
       // Dispatch custom event to notify AuthNav of authentication change
       window.dispatchEvent(new Event('auth-change'));

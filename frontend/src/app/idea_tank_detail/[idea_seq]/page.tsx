@@ -17,6 +17,8 @@ type IdeaTank = {
     idea_finance_impact?: string | null;
     idea_nonfinance_impact?: string | null;
     idea_status?: string | null;
+    idea_status_md?: string | null;
+    idea_status_md_remark?: string | null;
     idea_owner_empcode?: string | null;
     idea_owner_empname?: string | null;
     idea_owner_deposit?: string | null;
@@ -46,6 +48,12 @@ export default function IdeaTankDetailPage() {
     const [ideaStatus, setIdeaStatus] = useState<string>("");
     const [ideaComment, setIdeaComment] = useState<string>("");
     const [saving, setSaving] = useState(false);
+    
+    // Committee evaluation modal state
+    const [showCommitteeModal, setShowCommitteeModal] = useState(false);
+    const [ideaStatusMd, setIdeaStatusMd] = useState<string>("");
+    const [committeeReason, setCommitteeReason] = useState<string>("");
+    const [savingCommittee, setSavingCommittee] = useState(false);
 
     useEffect(() => {
         checkAuthAndLoadIdea();
@@ -187,6 +195,51 @@ export default function IdeaTankDetailPage() {
         setIdeaComment("");
     };
 
+    const handleOpenCommitteeModal = () => {
+        if (idea) {
+            setIdeaStatusMd(idea.idea_status_md || "");
+            setCommitteeReason(idea.idea_status_md_remark || "");
+            setShowCommitteeModal(true);
+        }
+    };
+
+    const handleCloseCommitteeModal = () => {
+        setShowCommitteeModal(false);
+        setIdeaStatusMd("");
+        setCommitteeReason("");
+    };
+
+    const handleSaveCommitteeEvaluation = async () => {
+        if (!idea) return;
+        
+        setSavingCommittee(true);
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${idea_seq}/committee-evaluation`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idea_status_md: ideaStatusMd,
+                    committee_reason: committeeReason,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save committee evaluation");
+            }
+
+            const updatedIdea: IdeaTank = await response.json();
+            setIdea(updatedIdea);
+            setShowCommitteeModal(false);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Error saving committee evaluation";
+            alert(`เกิดข้อผิดพลาด: ${message}`);
+        } finally {
+            setSavingCommittee(false);
+        }
+    };
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString("th-TH", {
             year: "numeric",
@@ -261,20 +314,35 @@ export default function IdeaTankDetailPage() {
                         <div className="md:col-span-1">
                            <h3 className="mb-0 " > <span className="text-primary"> รายละเอียดความคิดสร้างสรรค์ </span></h3>
                         </div>
+
+
                         <div className="md:col-span-1 flex justify-end ">
                             {/* {currentUser && (
                                 <div className="text-white d-flex align-items-center">
                                     ผู้ใช้งาน: {currentUser.user_fname} {currentUser.user_lname}
                                 </div>
-                            )} */}
+                            )} */
+                            }
+
+                            {currentUser && (currentUser.user_role === 'admin' || currentUser.user_role === 'superuser') && (
+                                <button
+                                    onClick={handleOpenModal}
+                                    className="btn btn-primary me-2"
+                                >
+                                   บันทึกผลการประเมินโดย วพ.
+                                </button>
+                            )}
+                            
+                             {currentUser && (currentUser.user_role === 'admin' || currentUser.user_role === 'superuser_md') && (
                             <button
-                                onClick={handleOpenModal}
+                                onClick={handleOpenCommitteeModal}
                                 className="btn btn-primary"
                             >
-                               บันทึกผลการพิจารณา
+                               บันทึกผลการประเมินโดยกรรมการ
                             </button>
-                            
+                            )}
                         </div>
+                        
                     </div>
 
                 </div>
@@ -316,12 +384,26 @@ export default function IdeaTankDetailPage() {
                                         <label className="form-label text-hilight">สถานะ</label>
                                         <input
                                             type="text"
-                                            className={`form-control bg-green-500 ${
+                                            className={`form-control ${
                                                 idea.idea_status === 'ผ่านคัดเลือก' ? 'bg-green-100' :
                                                 idea.idea_status === 'ไม่ผ่านคัดเลือก' ? 'bg-red-100' :
                                                 'bg-gray-100'
                                             }`}
                                             value={idea.idea_status || "-"}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="col-span-1">
+                                        <label className="form-label text-hilight">สถานะประเมินโดยกรรมการ</label>
+                                        <input
+                                            type="text"
+                                            className={`form-control ${
+                                                idea.idea_status_md === 'ผ่านคัดเลือก' ? 'bg-green-100' :
+                                                idea.idea_status_md === 'ไม่ผ่านคัดเลือก' ? 'bg-red-100' :
+                                                idea.idea_status_md === 'ส่งแนวคิด' ? 'bg-blue-100' :
+                                                'bg-gray-100'
+                                            }`}
+                                            value={idea.idea_status_md || "-"}
                                             readOnly
                                         />
                                     </div>
@@ -513,20 +595,40 @@ export default function IdeaTankDetailPage() {
                             </div>
                         </div>
 
+                        {/* Committee Evaluation Comments Card */}
+                        <div className="card mb-4">
+                            <div className="card-header pb-0 ">
+                                <h5>ความคิดเห็นการประเมินโดยกรรมการ</h5>
+                            </div>
+                            <div className="card-body">
+                                <div className="row g-3">
+                                    <div className="col-12">
+                                        <label className="form-label">เหตุผลในการประเมินโดยกรรมการ</label>
+                                        <textarea
+                                            className="form-control"
+                                            rows={4}
+                                            value={idea.idea_status_md_remark || "-"}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Comments Card */}
                         <div className="card mb-4">
                             <div className="card-header pb-0">
-                                <h5>ความคิดเห็น</h5>
+                                <h5>ความคิดเห็นการประเมินโดย วพ.</h5>
                             </div>
                             <div className="card-body">
                                 <div className="row g-3">
                                     <div className="col-12">
                                         <label className="form-label">ความคิดเห็นเพิ่มเติม</label>
-                                        <textarea 
-                                            className="form-control" 
+                                        <textarea
+                                            className="form-control"
                                             rows={4}
-                                            value={idea.idea_comment || "-"} 
-                                            readOnly 
+                                            value={idea.idea_comment || "-"}
+                                            readOnly
                                         />
                                     </div>
                                 </div>
@@ -666,6 +768,93 @@ export default function IdeaTankDetailPage() {
                                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                                     >
                                         {saving ? (
+                                            <>
+                                                <FaSpinner className="animate-spin" />
+                                                กำลังบันทึก...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSave />
+                                                บันทึกผล
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Committee Evaluation Modal */}
+                {showCommitteeModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        {/* Backdrop */}
+                        <div
+                            className="fixed inset-0 bg-black/50"
+                            onClick={handleCloseCommitteeModal}
+                        ></div>
+                        
+                        {/* Modal Content */}
+                        <div className="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h5 className="text-xl font-semibold">บันทึกผลการประเมินโดยกรรมการ</h5>
+                                    <button
+                                        onClick={handleCloseCommitteeModal}
+                                        className="text-gray-400 hover:text-gray-600"
+                                    >
+                                        <FaTimes />
+                                    </button>
+                                </div>
+                                
+                                {/* Modal Body */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label htmlFor="ideaStatusMd" className="block text-sm font-medium text-gray-700 mb-1">
+                                            สถานะ
+                                        </label>
+                                        <select
+                                            id="ideaStatusMd"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            value={ideaStatusMd}
+                                            onChange={(e) => setIdeaStatusMd(e.target.value)}
+                                        >
+                                            <option value="">เลือกสถานะ</option>                                            
+                                            <option value="ผ่านคัดเลือก">ผ่านคัดเลือก</option>
+                                            <option value="ไม่ผ่านคัดเลือก">ไม่ผ่านคัดเลือก</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="committeeReason" className="block text-sm font-medium text-gray-700 mb-1">
+                                            เหตุผลในการประเมิน
+                                        </label>
+                                        <textarea
+                                            id="committeeReason"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            rows={4}
+                                            value={committeeReason}
+                                            onChange={(e) => setCommitteeReason(e.target.value)}
+                                            placeholder="กรอกเหตุผลในการประเมิน..."
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {/* Modal Footer */}
+                                <div className="flex justify-end space-x-3 mt-6">
+                                    <button
+                                        onClick={handleCloseCommitteeModal}
+                                        className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center gap-2"
+                                    >
+                                        <FaTimes />
+                                        ยกเลิก
+                                    </button>
+                                    <button
+                                        onClick={handleSaveCommitteeEvaluation}
+                                        disabled={savingCommittee || !ideaStatusMd}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                                    >
+                                        {savingCommittee ? (
                                             <>
                                                 <FaSpinner className="animate-spin" />
                                                 กำลังบันทึก...

@@ -466,6 +466,40 @@ def update_idea(idea_seq: int, payload: IdeaCreate, db: Session = Depends(get_db
     return idea
 
 
+class CommitteeEvaluationRequest(BaseModel):
+    idea_status_md: Optional[str] = None
+    committee_reason: Optional[str] = None
+
+
+@router.put("/ideas/{idea_seq}/committee-evaluation", response_model=IdeaOut)
+def update_committee_evaluation(idea_seq: int, payload: CommitteeEvaluationRequest, db: Session = Depends(get_db)):
+    """
+    Update committee evaluation for an idea
+    Updates the idea_status_md field and saves committee reason to idea_status_md_remark
+    """
+    idea = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    # Update committee status
+    if payload.idea_status_md is not None:
+        idea.idea_status_md = payload.idea_status_md
+    
+    # Save committee reason to idea_status_md_remark field
+    if payload.committee_reason is not None:
+        idea.idea_status_md_remark = payload.committee_reason
+    
+    idea.update_datetime = datetime.now()
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update committee evaluation")
+    db.refresh(idea)
+    return idea
+
+
 class IdeaUpdate(BaseModel):
     idea_keywords: Optional[str] = None
     # Add other fields that can be partially updated

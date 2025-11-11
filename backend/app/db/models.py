@@ -56,6 +56,8 @@ class IdeaTank(Base):
     idea_finance_impact = Column(Text)
     idea_nonfinance_impact = Column(Text)
     idea_status = Column(String(5000))
+    idea_status_md = Column(String(5000))
+    idea_status_md_remark = Column(Text)
     idea_owner_empcode = Column(String(5000))
     idea_owner_empname = Column(String(5000))
     idea_owner_deposit = Column(String(5000))
