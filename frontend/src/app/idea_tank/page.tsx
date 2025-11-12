@@ -301,11 +301,7 @@ export default function IdeaTankPage() {
                         </div>
                         <div className="md:col-span-1 flex justify-end gap-2">
                             {/* นำเข้าข้อมูลจาก Excel button - Only admin and superuser can see */}
-                            {canImportExcel() && ( <a  href="/idea_tank_import"
-                                    className="btn btn-primary"
-                                >
-                                    นำเข้าข้อมูลจาก Excel
-                                </a>
+                            {canImportExcel() && (<a href="/idea_tank_import"  className="btn btn-primary" > นำเข้าข้อมูลจาก Excel </a>
                             )}
                             
                             {/* Generate Keywords button - Only admin and superuser can see */}

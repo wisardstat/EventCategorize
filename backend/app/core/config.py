@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     postgres_password: str = ""
     postgres_port: int = 5432
     
+    # MSSQL Configuration
+    mssql_user: str = ""
+    mssql_password: str = ""
+    mssql_host: str = ""
+    mssql_dbname: str = ""
+    mssql_port: int = 1433
+    mssql_driver: str = "ODBC Driver 17 for SQL Server"
+    
     # OpenAI Configuration
     openai_api_key: str = ""
     
@@ -36,7 +44,7 @@ class Settings(BaseSettings):
     allow_origins: str = ""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file="d:/MyProject/EventCategorize/backend/.env",
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",  # tolerate unknown/malformed env keys
@@ -44,9 +52,23 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_uri(self) -> str:
-        # Priority: DATABASE_URL > Supabase URL construction > Legacy PostgreSQL
-        if self.database_url:
-            return self.database_url
+        # Priority: MSSQL > DATABASE_URL > Supabase URL construction > Legacy PostgreSQL
+        # If MSSQL is configured, use MSSQL connection
+        if self.mssql_user and self.mssql_password and self.mssql_host and self.mssql_dbname:
+            # Create ODBC connection string for MSSQL
+            connection_string = (
+                f"DRIVER={{{self.mssql_driver}}};"
+                f"SERVER={self.mssql_host},{self.mssql_port};"
+                f"DATABASE={self.mssql_dbname};"
+                f"UID={self.mssql_user};"
+                f"PWD={self.mssql_password};"
+                f"TrustServerCertificate=yes;"
+                f"Encrypt=yes;"
+            )
+            # URL encode the connection string for SQLAlchemy
+            from urllib.parse import quote_plus
+            encoded_connection_string = quote_plus(connection_string)
+            return f"mssql+pyodbc:///?odbc_connect={encoded_connection_string}"
         
         # If Supabase is configured, construct URL from Supabase settings
         if self.supabase_url and self.supabase_key:
