@@ -467,7 +467,7 @@ export default function IdeaTankDetailPage() {
                                         <div className="relative">
                                             <textarea
                                                 className="form-control"
-                                                rows={15}
+                                                rows={10}
                                                 value={idea.idea_detail || "-"}
                                                 readOnly
                                             />                                           
@@ -496,11 +496,11 @@ export default function IdeaTankDetailPage() {
                                         </div>
                                     </div>
 
-                                    <div className="col-12">
-                                        <label className="form-label">สรุปโดย AI</label>
+                                    <div className="col-12 ">
+                                        <label className="form-label text-hilight">สรุปโดย AI</label>
                                         <textarea 
                                             className="form-control" 
-                                            rows={10}
+                                            rows={20}
                                             value={idea.idea_summary_byai || "-"} 
                                             readOnly 
                                         />

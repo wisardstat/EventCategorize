@@ -67,7 +67,7 @@ class IdeaCreate(BaseModel):
     idea_owner_deposit: Optional[str] = Field(None, max_length=100)
     idea_owner_contacts: Optional[str] = Field(None, max_length=100)
     idea_keywords: Optional[str] = Field(None, max_length=100)
-    idea_comment: Optional[str] = Field(None, max_length=100)
+    idea_comment: Optional[str] = Field(None, max_length=5000)
     idea_summary_byai: Optional[str] = None
 
 

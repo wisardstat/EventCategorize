@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     allow_origins: str = ""
 
     model_config = SettingsConfigDict(
-        env_file="d:/MyProject/EventCategorize/backend/.env",
+        env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",  # tolerate unknown/malformed env keys

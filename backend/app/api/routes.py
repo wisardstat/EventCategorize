@@ -454,13 +454,21 @@ def update_idea(idea_seq: int, payload: IdeaCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Idea not found")
     
     # Update all fields
-    for field, value in payload.dict(exclude_unset=True).items():
+    update_data = payload.dict(exclude_unset=True)
+    print(f"Update data for idea {idea_seq}: {update_data}")
+    
+    for field, value in update_data.items():
         setattr(idea, field, value)
+        print(f"Set {field} = {value}")
+    
+    idea.update_datetime = datetime.now()
     
     try:
         db.commit()
-    except Exception:
+        print(f"Successfully updated idea {idea_seq}")
+    except Exception as e:
         db.rollback()
+        print(f"Failed to update idea {idea_seq}. Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update idea")
     db.refresh(idea)
     return idea
@@ -484,17 +492,21 @@ def update_committee_evaluation(idea_seq: int, payload: CommitteeEvaluationReque
     # Update committee status
     if payload.idea_status_md is not None:
         idea.idea_status_md = payload.idea_status_md
+        print(f"Set idea_status_md = {payload.idea_status_md}")
     
     # Save committee reason to idea_status_md_remark field
     if payload.committee_reason is not None:
         idea.idea_status_md_remark = payload.committee_reason
+        print(f"Set idea_status_md_remark = {payload.committee_reason}")
     
     idea.update_datetime = datetime.now()
     
     try:
         db.commit()
-    except Exception:
+        print(f"Successfully updated committee evaluation for idea {idea_seq}")
+    except Exception as e:
         db.rollback()
+        print(f"Failed to update committee evaluation for idea {idea_seq}. Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update committee evaluation")
     db.refresh(idea)
     return idea
@@ -512,15 +524,20 @@ def partial_update_idea(idea_seq: int, payload: IdeaUpdate, db: Session = Depend
     
     # Update only provided fields
     update_data = payload.dict(exclude_unset=True)
+    print(f"Update data for idea {idea_seq}: {update_data}")
+    
     for field, value in update_data.items():
         setattr(idea, field, value)
+        print(f"Set {field} = {value}")
     
     idea.update_datetime = datetime.now()
     
     try:
         db.commit()
-    except Exception:
+        print(f"Successfully updated idea {idea_seq}")
+    except Exception as e:
         db.rollback()
+        print(f"Failed to update idea {idea_seq}. Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update idea")
     db.refresh(idea)
     return idea
