@@ -3,39 +3,41 @@
 -- NOTE: Password is stored as plain text (no encryption)
 
 -- Create a function to generate a new user
-CREATE OR REPLACE FUNCTION create_new_user(
-    p_user_code VARCHAR(50),
-    p_user_fname VARCHAR(100),
-    p_user_lname VARCHAR(100),
-    p_user_login VARCHAR(50),
-    p_user_password VARCHAR(255)
+CREATE OR ALTER PROCEDURE create_new_user(
+    @p_user_code VARCHAR(50),
+    @p_user_fname VARCHAR(100),
+    @p_user_lname VARCHAR(100),
+    @p_user_login VARCHAR(50),
+    @p_user_password VARCHAR(255)
 )
-RETURNS BOOLEAN AS $$
-DECLARE
-    v_user_exists INTEGER;
+AS
 BEGIN
-    -- Check if user_login already exists
-    SELECT COUNT(*) INTO v_user_exists 
-    FROM public.idea_users 
-    WHERE user_login = p_user_login;
+    DECLARE @v_user_exists INT;
     
-    IF v_user_exists > 0 THEN
-        RAISE NOTICE 'User with login % already exists. Skipping creation.', p_user_login;
-        RETURN FALSE;
-    END IF;
+    -- Check if user_login already exists
+    SELECT @v_user_exists = COUNT(*)
+    FROM dbo.idea_users
+    WHERE user_login = @p_user_login;
+    
+    IF @v_user_exists > 0
+    BEGIN
+        PRINT 'User with login ' + @p_user_login + ' already exists. Skipping creation.';
+        RETURN;
+    END
     
     -- Check if user_code already exists
-    SELECT COUNT(*) INTO v_user_exists 
-    FROM public.idea_users 
-    WHERE user_code = p_user_code;
+    SELECT @v_user_exists = COUNT(*)
+    FROM dbo.idea_users
+    WHERE user_code = @p_user_code;
     
-    IF v_user_exists > 0 THEN
-        RAISE NOTICE 'User with code % already exists. Skipping creation.', p_user_code;
-        RETURN FALSE;
-    END IF;
+    IF @v_user_exists > 0
+    BEGIN
+        PRINT 'User with code ' + @p_user_code + ' already exists. Skipping creation.';
+        RETURN;
+    END
     
     -- Insert the new user with plain text password
-    INSERT INTO public.idea_users (
+    INSERT INTO dbo.idea_users (
         user_code,
         user_fname,
         user_lname,
@@ -44,76 +46,70 @@ BEGIN
         user_createdate,
         user_updatedate
     ) VALUES (
-        p_user_code,
-        p_user_fname,
-        p_user_lname,
-        p_user_login,
-        p_user_password,  -- Plain text password
-        CURRENT_TIMESTAMP,
-        CURRENT_TIMESTAMP
+        @p_user_code,
+        @p_user_fname,
+        @p_user_lname,
+        @p_user_login,
+        @p_user_password,  -- Plain text password
+        GETDATE(),
+        GETDATE()
     );
     
-    RAISE NOTICE 'User % created successfully!', p_user_login;
-    RAISE NOTICE 'User details:';
-    RAISE NOTICE 'Code: %', p_user_code;
-    RAISE NOTICE 'Name: % %', p_user_fname, p_user_lname;
-    RAISE NOTICE 'Login: %', p_user_login;
-    RAISE NOTICE 'WARNING: Password is stored as plain text!';
-    
-    RETURN TRUE;
+    PRINT 'User ' + @p_user_login + ' created successfully!';
+    PRINT 'User details:';
+    PRINT 'Code: ' + @p_user_code;
+    PRINT 'Name: ' + @p_user_fname + ' ' + @p_user_lname;
+    PRINT 'Login: ' + @p_user_login;
+    PRINT 'WARNING: Password is stored as plain text!';
 END;
-$$ LANGUAGE plpgsql;
 
 -- Example usage: Create a sample user
 -- Uncomment and modify the section below to create a specific user
 
-DO $$
-BEGIN
-    -- Example: Create a test user
-    -- PERFORM create_new_user(
-    --     'TEST001',
-    --     'Test',
-    --     'User',
-    --     'testuser',
-    --     'testpassword'
-    -- );
-    
-    RAISE NOTICE 'To create a new user, use the function: create_new_user(user_code, user_fname, user_lname, user_login, user_password)';
-    RAISE NOTICE 'Example: PERFORM create_new_user(''USER001'', ''John'', ''Doe'', ''johndoe'', ''password123'');';
-END $$;
+-- Example: Create a test user
+-- EXEC create_new_user
+--     @p_user_code = 'TEST001',
+--     @p_user_fname = 'Test',
+--     @p_user_lname = 'User',
+--     @p_user_login = 'testuser',
+--     @p_user_password = 'testpassword';
+
+PRINT 'To create a new user, use the procedure: create_new_user';
+PRINT 'Example: EXEC create_new_user @p_user_code = ''USER001'', @p_user_fname = ''John'', @p_user_lname = ''Doe'', @p_user_login = ''johndoe'', @p_user_password = ''password123''';
 
 -- View all existing users
-SELECT 
+SELECT
     user_code,
     user_fname,
     user_lname,
     user_login,
     user_createdate,
     user_updatedate
-FROM public.idea_users 
+FROM dbo.idea_users
 ORDER BY user_createdate DESC;
 
--- Function to delete a user (if needed)
-CREATE OR REPLACE FUNCTION delete_user(p_user_login VARCHAR(50))
-RETURNS BOOLEAN AS $$
-DECLARE
-    v_user_exists INTEGER;
+-- Procedure to delete a user (if needed)
+CREATE OR ALTER PROCEDURE delete_user(
+    @p_user_login VARCHAR(50)
+)
+AS
 BEGIN
-    -- Check if user exists
-    SELECT COUNT(*) INTO v_user_exists 
-    FROM public.idea_users 
-    WHERE user_login = p_user_login;
+    DECLARE @v_user_exists INT;
     
-    IF v_user_exists = 0 THEN
-        RAISE NOTICE 'User with login % does not exist.', p_user_login;
-        RETURN FALSE;
-    END IF;
+    -- Check if user exists
+    SELECT @v_user_exists = COUNT(*)
+    FROM dbo.idea_users
+    WHERE user_login = @p_user_login;
+    
+    IF @v_user_exists = 0
+    BEGIN
+        PRINT 'User with login ' + @p_user_login + ' does not exist.';
+        RETURN;
+    END
     
     -- Delete the user
-    DELETE FROM public.idea_users 
-    WHERE user_login = p_user_login;
+    DELETE FROM dbo.idea_users
+    WHERE user_login = @p_user_login;
     
-    RAISE NOTICE 'User % deleted successfully.', p_user_login;
-    RETURN TRUE;
+    PRINT 'User ' + @p_user_login + ' deleted successfully.';
 END;
-$$ LANGUAGE plpgsql;
