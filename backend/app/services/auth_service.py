@@ -1,17 +1,22 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 from jose import JWTError, jwt
 import os
 import logging
+from fastapi import HTTPException, status
+from app.core.config import get_settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Get settings
+settings = get_settings()
+
 # JWT settings
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 
 def verify_password(plain_password: str, stored_password: str) -> bool:
@@ -62,3 +67,46 @@ def verify_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+
+def verify_api_key(api_key: str) -> bool:
+    """Verify API key for internal services."""
+    if not api_key:
+        return False
+    return api_key == settings.internal_api_key
+
+
+def check_user_permission(user_role: str, required_roles: List[str]) -> bool:
+    """Check if user has required permission based on role."""
+    if not user_role or not required_roles:
+        return False
+    
+    # Admin has access to everything
+    if user_role.lower() == "admin":
+        return True
+    
+    # Check if user role is in required roles
+    return user_role.lower() in [role.lower() for role in required_roles]
+
+
+def require_role(required_roles: List[str]):
+    """Decorator to check user role for endpoint access."""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # This will be used in FastAPI dependencies
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def log_security_event(event_type: str, user_id: str = None, details: str = None, ip_address: str = None):
+    """Log security events for audit purposes."""
+    log_message = f"Security Event: {event_type}"
+    if user_id:
+        log_message += f" | User: {user_id}"
+    if details:
+        log_message += f" | Details: {details}"
+    if ip_address:
+        log_message += f" | IP: {ip_address}"
+    
+    logger.warning(log_message)

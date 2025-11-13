@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { canImportExcel, canGenerateKeywords } from "@/utils/permissions";
+import { getWithAuth, postWithAuth } from "@/utils/api";
 
 type IdeaTank = {
     idea_seq: number;
@@ -73,22 +74,13 @@ export default function IdeaTankPage() {
         }
 
         try {
-            // Verify token by making a simple API call
-            const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
-            if (!authRes.ok) {
-                localStorage.removeItem("user");
-                localStorage.removeItem("token");
-                router.push("/login");
-                return;
-            }
-
             // Load ideas data
             setLoading(true);
             setError(null);
             // Include keyword in the API request if provided
             const params = new URLSearchParams();
             // For initial load, we don't have keyword filters yet, so we load all data
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`);
+            const res = await getWithAuth(`/ideas`);
             if (!res.ok) throw new Error("Failed to load ideas");
             const data: IdeaTank[] = await res.json();
             setIdeas(data);
@@ -159,9 +151,9 @@ export default function IdeaTankPage() {
             }
             
             const queryString = params.toString();
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/ideas${queryString ? `?${queryString}` : ''}`;
+            const endpoint = `/ideas${queryString ? `?${queryString}` : ''}`;
             
-            const res = await fetch(url);
+            const res = await getWithAuth(endpoint);
             if (!res.ok) throw new Error("Failed to load ideas");
             const data: IdeaTank[] = await res.json();
             
@@ -213,7 +205,7 @@ export default function IdeaTankPage() {
         try {
             setLoading(true);
             setError(null);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`);
+            const res = await getWithAuth(`/ideas`);
             if (!res.ok) throw new Error("Failed to load ideas");
             const data: IdeaTank[] = await res.json();
             setIdeas(data);
@@ -232,12 +224,7 @@ export default function IdeaTankPage() {
             setIsGeneratingKeywords(true);
             
             // Call backend API to generate keywords for all ideas lacking them
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/generate-keywords`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+            const response = await postWithAuth(`/ideas/generate-keywords`);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -254,7 +241,7 @@ export default function IdeaTankPage() {
             // Refresh ideas after updates
             // Include keyword in the API request if provided
             const keywordParam = ideaKeywords ? `?keyword=${encodeURIComponent(ideaKeywords)}` : '';
-            const refreshedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas${keywordParam}`);
+            const refreshedRes = await getWithAuth(`/ideas${keywordParam}`);
             if (refreshedRes.ok) {
                 const refreshedData: IdeaTank[] = await refreshedRes.json();
                 setIdeas(refreshedData);

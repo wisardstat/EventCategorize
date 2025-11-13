@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getWithAuth, postWithAuth } from "@/utils/api";
 
 interface UserFormData {
   user_code: string;
@@ -39,20 +40,8 @@ export default function UserCreatePage() {
     setGeneratingCode(true);
     setError(null);
     
-    const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/generate-code`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate user code");
-      }
-
-      const data = await response.json();
+      const data = await getWithAuth("/users/generate-code").then(res => res.json());
       setFormData(prev => ({
         ...prev,
         user_code: data.user_code
@@ -78,22 +67,9 @@ export default function UserCreatePage() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to create user");
-      }
-
+      const response = await postWithAuth("/auth/register", formData);
+      
       setSuccess("สร้างผู้ใช้งานสำเร็จ");
       // Reset form
       setFormData({

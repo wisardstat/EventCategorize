@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { postWithoutAuth } from "@/utils/api";
 
 interface User {
   user_code: string;
@@ -25,19 +26,19 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_login, user_password }),
-      });
+      console.log("Attempting login with:", { user_login, user_password: "***" });
+      const response = await postWithoutAuth(`/auth/login`, { user_login, user_password });
 
+      console.log("Login response status:", response.status);
+      
       if (!response.ok) {
-        throw new Error("Invalid username or password");
+        const errorData = await response.json().catch(() => ({}));
+        console.log("Login error response:", errorData);
+        throw new Error(errorData.detail || "Invalid username or password");
       }
 
       const data: User = await response.json();
+      console.log("Login successful, received data:", data);
       
       // Store user data in localStorage
       localStorage.setItem("user", JSON.stringify(data));

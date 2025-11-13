@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getWithAuth, postWithAuth, deleteWithAuth } from "@/utils/api";
 
 type Question = {
 	question_id: string;
@@ -20,14 +21,7 @@ export default function CreateQuestionPage() {
 	async function handleDelete(questionId: string) {
 		if (!confirm("Are you sure you want to delete this question and its answers?")) return;
 		try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`, { method: "DELETE" });
-			if (!res.ok) {
-            const data = (await res.json().catch(() => ({}))) as unknown;
-            const detail = (data && typeof data === "object" && "detail" in (data as Record<string, unknown>))
-                ? (data as Record<string, unknown>).detail as string
-                : "Failed to delete question";
-            throw new Error(detail);
-			}
+  await deleteWithAuth(`/questions/${questionId}`);
 			await loadQuestions();
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Delete failed";
@@ -41,9 +35,7 @@ export default function CreateQuestionPage() {
 		console.log("Loading questions...");
 		console.log(`${process.env.NEXT_PUBLIC_API_URL}`);
 		
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`);
-			if (!res.ok) throw new Error("Failed to load questions");
-			const data = await res.json();
+ const data = await getWithAuth(`/questions`).then(res => res.json());
 			setQuestions(data);
     } catch (err) {
         console.error(err);
@@ -62,15 +54,10 @@ export default function CreateQuestionPage() {
 		setMessage(null);
 		console.log("title:", title, "description:", description);
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ "question_title": title, "question_description": description }),
-			});
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data?.detail || "Failed to save question");
-			}
+  await postWithAuth(`/questions`, {
+   "question_title": title,
+   "question_description": description
+  });
 			setMessage("Saved successfully");
 			setTitle("");
 			setDescription("");

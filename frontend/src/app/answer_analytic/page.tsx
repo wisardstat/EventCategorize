@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getWithAuth } from "@/utils/api";
 
 type Question = {
     question_id: string;
@@ -19,9 +20,7 @@ export default function AnswerAnalyticIndexPage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`);
-                if (!res.ok) throw new Error("Failed to load questions");
-                const data: Question[] = await res.json();
+                const data: Question[] = await getWithAuth(`/questions`).then(res => res.json());
                 setQuestions(data);
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : "Error loading questions";

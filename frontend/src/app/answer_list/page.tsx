@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getWithAuth } from "@/utils/api";
 
 type Answer = {
     answer_id: number;
@@ -23,9 +24,7 @@ export default function AnswerListPage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/answers`);
-                if (!res.ok) throw new Error("Failed to load answers");
-                const data: Answer[] = await res.json();
+                const data: Answer[] = await getWithAuth(`/answers`).then(res => res.json());
                 setAnswers(data);
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : "Error loading answers";

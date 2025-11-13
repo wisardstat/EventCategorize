@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getWithAuth, deleteWithAuth } from "@/utils/api";
 
 interface User {
   user_code: string;
@@ -24,30 +25,8 @@ export default function UserListPage() {
   }, []);
 
   const checkAuthAndLoadUsers = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem("user");
-          localStorage.removeItem("token");
-          router.push("/login");
-          return;
-        }
-        throw new Error("Failed to load users");
-      }
-
-      const data: User[] = await response.json();
+      const data: User[] = await getWithAuth("/users").then(res => res.json());
       setUsers(data);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error loading users";
@@ -62,19 +41,8 @@ export default function UserListPage() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${user_code}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
-
+      await deleteWithAuth(`/users/${user_code}`);
       // Refresh the user list
       checkAuthAndLoadUsers();
     } catch (err: unknown) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { getWithAuth, postWithAuth } from "@/utils/api";
 
 export default function PresentAnswerPage() {
 	const params = useParams<{ questionId: string }>();
@@ -37,9 +38,7 @@ export default function PresentAnswerPage() {
 			setLoading(true);
 			setError(null);
 			try {
-				const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`);
-				if (!res.ok) throw new Error("Failed to load question");
-				const data = await res.json();
+				const data = await getWithAuth(`/questions/${questionId}`).then(res => res.json());
 				setQuestion(data);
 			} catch (err: unknown) {
 				const message = err instanceof Error ? err.message : "Error loading question";
@@ -59,9 +58,7 @@ export default function PresentAnswerPage() {
 		if (!questionId) return;
 		setLoadingAnswers(true);
 		try {
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`);
-			if (!res.ok) throw new Error("Failed to load answers");
-			const data = await res.json();
+			const data = await getWithAuth(`/questions/${questionId}/answers`).then(res => res.json());
 			setAnswers(data);
 		} catch (e) {
 			console.error(e);
@@ -80,21 +77,13 @@ export default function PresentAnswerPage() {
 		setSaving(true);
 		setMessage(null);
 		try {
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/answers`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					question_id: questionId,
-					answer_text: answerText,
-					create_user_name: createUserName,
-					create_user_code: createUserCode,
-					create_user_department: createUserDepartment,
-				}),
+			await postWithAuth(`/answers`, {
+				question_id: questionId,
+				answer_text: answerText,
+				create_user_name: createUserName,
+				create_user_code: createUserCode,
+				create_user_department: createUserDepartment,
 			});
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data?.detail || "Failed to save answer");
-			}
 			setMessage("Saved successfully");
 			setAnswerText("");
 			setCreateUserCode("");

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft, FaSpinner, FaRandom } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { canSaveEvaluation, getCurrentUser } from "@/utils/permissions";
+import { getWithAuth, postWithAuth, putWithAuth } from "@/utils/api";
 
 type IdeaTank = {
     idea_seq: number;
@@ -61,7 +62,7 @@ export default function IdeaScorePage() {
 
         try {
             // Verify token by making a simple API call
-            const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
+            const authRes = await getWithAuth(`/health`);
             if (!authRes.ok) {
                 localStorage.removeItem("user");
                 localStorage.removeItem("token");
@@ -93,9 +94,7 @@ export default function IdeaScorePage() {
 
     const loadSystemPrompt = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/system-prompt`);
-            if (!res.ok) throw new Error("Failed to load system prompt");
-            const data = await res.json();
+            const data = await getWithAuth(`/settings/system-prompt`).then(res => res.json());
             setSystemPrompt(data.set_value);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Error loading system prompt";
@@ -142,21 +141,10 @@ export default function IdeaScorePage() {
 
         setSavingSystemPrompt(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/system-prompt`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    set_value: systemPrompt,
-                    set_description: "System prompt for AI idea scoring"
-                }),
+            await putWithAuth(`/settings/system-prompt`, {
+                set_value: systemPrompt,
+                set_description: "System prompt for AI idea scoring"
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to save system prompt");
-            }
-
             alert("บันทึกเกณฑ์การให้คะแนนเรียบร้อยแล้ว");
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Error saving system prompt";
@@ -176,15 +164,13 @@ export default function IdeaScorePage() {
             let res;
             if (ideaCode.trim()) {
                 // If idea_code is provided, get specific idea by code
-                res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/code/${ideaCode.trim()}`);
-                if (!res.ok) throw new Error("Failed to get idea by code");
+                const data: IdeaTank = await getWithAuth(`/ideas/code/${ideaCode.trim()}`).then(res => res.json());
+                setExampleIdea(data);
             } else {
                 // Otherwise get random idea
-                res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/random`);
-                if (!res.ok) throw new Error("Failed to get random idea");
+                const data: IdeaTank = await getWithAuth(`/ideas/random`).then(res => res.json());
+                setExampleIdea(data);
             }
-            const data: IdeaTank = await res.json();
-            setExampleIdea(data);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Error getting idea";
             alert(`เกิดข้อผิดพลาด: ${message}`);
@@ -206,23 +192,11 @@ export default function IdeaScorePage() {
 
         setScoring(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/score`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    system_prompt: systemPrompt,
-                    idea_name: exampleIdea.idea_name,
-                    idea_detail: exampleIdea.idea_detail,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to score idea");
-            }
-
-            const data: ScoreResponse = await response.json();
+            const data: ScoreResponse = await postWithAuth(`/ideas/score`, {
+                system_prompt: systemPrompt,
+                idea_name: exampleIdea.idea_name,
+                idea_detail: exampleIdea.idea_detail,
+            }).then(res => res.json());
             
             // Format the result for display
             let formattedResult = "=== ผลการประเมินความคิดสร้างสรรค์ ===\n\n";
@@ -267,23 +241,11 @@ export default function IdeaScorePage() {
                 return;
             }
             
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/batch-score`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    system_prompt: systemPrompt,
-                    limit: limit,
-                    clear_scores: clearScores
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to batch score ideas");
-            }
-
-            const data = await response.json();
+            const data = await postWithAuth(`/ideas/batch-score`, {
+                system_prompt: systemPrompt,
+                limit: limit,
+                clear_scores: clearScores
+            }).then(res => res.json());
             
             // Show completion alert with results
             let alertMessage = `ประมวลผลเสร็จสิ้น!\n\n`;

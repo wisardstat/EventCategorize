@@ -60,9 +60,7 @@ export default function AnswerAnalyticPage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`);
-                if (!res.ok) throw new Error("Failed to load answers");
-                const data: Answer[] = await res.json();
+                const data: Answer[] = await getWithAuth(`/questions/${questionId}/answers`).then(res => res.json());
                 setAnswers(data);
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : "Error loading answers";
@@ -86,9 +84,7 @@ export default function AnswerAnalyticPage() {
         if (!questionId) return;
         const id = setInterval(async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`);
-                if (!res.ok) return;
-                const data: Answer[] = await res.json();
+                const data: Answer[] = await getWithAuth(`/questions/${questionId}/answers`).then(res => res.json());
                 setAnswers(data);
             } catch {
                 // ignore polling errors

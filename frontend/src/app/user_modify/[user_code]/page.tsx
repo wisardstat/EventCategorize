@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { getWithAuth, putWithAuth } from "@/utils/api";
 
 interface UserFormData {
   user_code: string;
@@ -44,30 +45,8 @@ export default function UserModifyPage() {
   }, [user_code]);
 
   const loadUserData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${user_code}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem("user");
-          localStorage.removeItem("token");
-          router.push("/login");
-          return;
-        }
-        throw new Error("Failed to load user data");
-      }
-
-      const data: UserData = await response.json();
+      const data: UserData = await getWithAuth(`/users/${user_code}`).then(res => res.json());
       setFormData({
         user_code: data.user_code,
         user_fname: data.user_fname,
@@ -105,22 +84,8 @@ export default function UserModifyPage() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${user_code}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to update user");
-      }
-
+      await putWithAuth(`/users/${user_code}`, formData);
       setSuccess("อัปเดตผู้ใช้งานสำเร็จ");
 
       // Redirect to user list after 2 seconds

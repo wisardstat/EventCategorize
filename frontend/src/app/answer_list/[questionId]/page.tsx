@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { getWithAuth } from "@/utils/api";
 
 type Answer = {
     answer_id: number;
@@ -39,8 +40,8 @@ export default function AnswerListByQuestionPage() {
             setError(null);
             try {
                 const [qRes, aRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}`),
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/answers`),
+                    getWithAuth(`/questions/${questionId}`),
+                    getWithAuth(`/questions/${questionId}/answers`),
                 ]);
                 if (!qRes.ok) throw new Error("Failed to load question");
                 if (!aRes.ok) throw new Error("Failed to load answers");

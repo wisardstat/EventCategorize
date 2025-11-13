@@ -22,6 +22,15 @@ class Settings(BaseSettings):
 
     # CORS: comma-separated list or JSON array in .env (env key: ALLOW_ORIGINS)
     allow_origins: str = ""
+    
+    # JWT Configuration
+    secret_key: str = "your-secret-key-here-change-in-production"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    
+    # API Keys for external services
+    api_key_header: str = "X-API-Key"
+    internal_api_key: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

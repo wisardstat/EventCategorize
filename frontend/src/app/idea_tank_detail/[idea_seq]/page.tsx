@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FaArrowLeft, FaSpinner, FaSave, FaTimes } from "react-icons/fa";
+import { getWithAuth, postWithAuth, putWithAuth } from "@/utils/api";
 
 type IdeaTank = {
     idea_seq: number;
@@ -61,29 +62,12 @@ export default function IdeaTankDetailPage() {
 
     const checkAuthAndLoadIdea = async () => {
         setAuthChecking(true);
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
         try {
-            // Verify token by making a simple API call
-            const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
-            if (!authRes.ok) {
-                localStorage.removeItem("user");
-                localStorage.removeItem("token");
-                router.push("/login");
-                return;
-            }
-
             // Load idea data
             if (idea_seq) {
                 setLoading(true);
                 setError(null);
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${idea_seq}`);
-                if (!res.ok) throw new Error("Failed to load idea details");
-                const data: IdeaTank = await res.json();
+                const data: IdeaTank = await getWithAuth(`/ideas/${idea_seq}`).then(res => res.json());
                 setIdea(data);
             }
         } catch (err: unknown) {
@@ -127,18 +111,7 @@ export default function IdeaTankDetailPage() {
 
         setSummarizing(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${idea_seq}/summarize`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to summarize idea");
-            }
-
-            const updatedIdea: IdeaTank = await response.json();
+            const updatedIdea: IdeaTank = await postWithAuth(`/ideas/${idea_seq}/summarize`, {}).then(res => res.json());
             setIdea(updatedIdea);
             //  alert("AI สรุปและจัดรูปแบบข้อความเรียบร้อยแล้ว");
         } catch (err: unknown) {
@@ -154,22 +127,10 @@ export default function IdeaTankDetailPage() {
         
         setSaving(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${idea_seq}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    idea_status: ideaStatus,
-                    idea_comment: ideaComment,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to save evaluation");
-            }
-
-            const updatedIdea: IdeaTank = await response.json();
+            const updatedIdea: IdeaTank = await putWithAuth(`/ideas/${idea_seq}`, {
+                idea_status: ideaStatus,
+                idea_comment: ideaComment,
+            }).then(res => res.json());
             setIdea(updatedIdea);
             setShowModal(false);
            // alert("บันทึกผลการพิจารณาเรียบร้อยแล้ว");
@@ -214,22 +175,10 @@ export default function IdeaTankDetailPage() {
         
         setSavingCommittee(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${idea_seq}/committee-evaluation`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    idea_status_md: ideaStatusMd,
-                    committee_reason: committeeReason,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to save committee evaluation");
-            }
-
-            const updatedIdea: IdeaTank = await response.json();
+            const updatedIdea: IdeaTank = await putWithAuth(`/ideas/${idea_seq}/committee-evaluation`, {
+                idea_status_md: ideaStatusMd,
+                committee_reason: committeeReason,
+            }).then(res => res.json());
             setIdea(updatedIdea);
             setShowCommitteeModal(false);
         } catch (err: unknown) {

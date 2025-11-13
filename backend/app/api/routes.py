@@ -5,7 +5,6 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from sqlalchemy.sql import func as sql_func
 
 from app.db.database import get_db
 from app.db import models
@@ -15,6 +14,7 @@ from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
 from app.services.openai_service import openai_service
 from app.services.auth_service import verify_password, get_password_hash, create_access_token, verify_token, validate_password_hash
+from app.services.authorization_service import require_permission, require_role, verify_api_key_dependency, AuthorizationService
 from sqlalchemy import desc
 from datetime import timedelta
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -25,19 +25,54 @@ security = HTTPBearer()
 router = APIRouter()
 
 
+# Authentication dependency
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
+    token = credentials.credentials
+    payload = verify_token(token)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user_login: str = payload.get("sub")
+    if user_login is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = db.query(models.User).filter(models.User.user_login == user_login).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return user
+
+
 @router.get("/health")
 def health_check():
     return {"status": "ok"}
 
 
 @router.post("/questions", response_model=QuestionOut, status_code=status.HTTP_201_CREATED)
-def create_question(payload: QuestionCreate, db: Session = Depends(get_db)):
+def create_question(
+    payload: QuestionCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("create:questions"))
+):
     new_question = models.Question(
         question_id=str(uuid.uuid4()),
         question_title=payload.question_title,
         question_description=payload.question_description,
         question_categories=None,
         qrcode_url=None,
+        created_by=current_user.get("user_login")
     )
     db.add(new_question)
     try:
@@ -50,7 +85,7 @@ def create_question(payload: QuestionCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/questions", response_model=list[QuestionOut])
-def list_questions(db: Session = Depends(get_db)):
+def list_questions(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     items = (
         db.query(models.Question)
         .order_by(desc(models.Question.created_at))
@@ -60,7 +95,7 @@ def list_questions(db: Session = Depends(get_db)):
 
 
 @router.get("/questions/{question_id}", response_model=QuestionOut)
-def get_question(question_id: str, db: Session = Depends(get_db)):
+def get_question(question_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     item = db.query(models.Question).filter(models.Question.question_id == question_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -68,7 +103,7 @@ def get_question(question_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/answers", response_model=AnswerOut, status_code=status.HTTP_201_CREATED)
-def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
+def create_answer(payload: AnswerCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     print("payload: ", payload)    
     category = classify_category(payload.answer_text)
     keywords = extract_keywords(payload.answer_text)
@@ -93,7 +128,7 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/questions/{question_id}/answers", response_model=list[AnswerOut])
-def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
+def list_answers_for_question(question_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     items = (
         db.query(models.Answer)
         .filter(models.Answer.question_id == question_id)
@@ -104,7 +139,7 @@ def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/answers", response_model=list[AnswerOut])
-def list_all_answers(db: Session = Depends(get_db)):
+def list_all_answers(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     items = (
         db.query(models.Answer)
         .order_by(desc(models.Answer.created_at))
@@ -114,7 +149,11 @@ def list_all_answers(db: Session = Depends(get_db)):
 
 
 @router.delete("/questions/{question_id}")
-def delete_question_and_answers(question_id: str, db: Session = Depends(get_db)):
+def delete_question_and_answers(
+    question_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("delete:questions"))
+):
     # Ensure question exists
     question = (
         db.query(models.Question)
@@ -123,6 +162,15 @@ def delete_question_and_answers(question_id: str, db: Session = Depends(get_db))
     )
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
+    
+    # Check if user has permission to delete this question
+    # Admin can delete any question, others can only delete their own
+    user_role = current_user.get("payload", {}).get("role", "user")
+    if user_role != "admin" and question.created_by != current_user.get("user_login"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete your own questions"
+        )
     
     # Delete related answers first, then the question
     try:
@@ -180,7 +228,7 @@ def list_all_ideas(
     keyword: Optional[str] = None,
     min_score: Optional[int] = None,
     max_score: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     query = db.query(models.IdeaTank)
     
@@ -210,7 +258,7 @@ def list_all_ideas(
 
 
 @router.get("/ideas/random", response_model=IdeaOut)
-def get_random_idea(db: Session = Depends(get_db)):
+def get_random_idea(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
     Get a random idea from the idea tank
     """
@@ -219,7 +267,7 @@ def get_random_idea(db: Session = Depends(get_db)):
         models.IdeaTank.idea_detail.isnot(None),
         models.IdeaTank.idea_detail != "",
         models.IdeaTank.idea_detail != "-"
-    ).order_by(sql_func.random()).first()
+    ).order_by(func.random()).first()
     
     if not idea:
         raise HTTPException(status_code=404, detail="No ideas found")
@@ -429,7 +477,7 @@ async def clear_idea_scores(db: Session = Depends(get_db)):
 
 
 @router.get("/ideas/{idea_seq}", response_model=IdeaOut)
-def get_idea(idea_seq: int, db: Session = Depends(get_db)):
+def get_idea(idea_seq: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     item = db.query(models.IdeaTank).filter(models.IdeaTank.idea_seq == idea_seq).first()
     if not item:
         raise HTTPException(status_code=404, detail="Idea not found")
@@ -437,7 +485,7 @@ def get_idea(idea_seq: int, db: Session = Depends(get_db)):
 
 
 @router.get("/ideas/code/{idea_code}", response_model=IdeaOut)
-def get_idea_by_code(idea_code: str, db: Session = Depends(get_db)):
+def get_idea_by_code(idea_code: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
     Get an idea by its idea_code
     """
@@ -709,7 +757,7 @@ class ExtractKeywordsRequest(BaseModel):
     text: str
 
 @router.post("/extract-keywords")
-def extract_keywords_endpoint(request: ExtractKeywordsRequest):
+def extract_keywords_endpoint(request: ExtractKeywordsRequest, current_user: models.User = Depends(get_current_user)):
     """
     Extract keywords from text using AI
     Returns comma-separated keywords: "keyword1,keyword2,keyword3"
@@ -795,50 +843,37 @@ async def generate_keywords_for_ideas(db: Session = Depends(get_db)):
         )
 
 
-# Authentication dependency
-def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
-    token = credentials.credentials
-    payload = verify_token(token)
-    if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
+
+# User Authentication Routes
+@router.post("/auth/login", response_model=UserResponse, tags=["auth"])
+def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
+    print(f"Login attempt for user: {user_credentials.user_login}")
     
-    user_login: str = payload.get("sub")
-    if user_login is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    user = db.query(models.User).filter(models.User.user_login == user_credentials.user_login).first()
     
-    user = db.query(models.User).filter(models.User.user_login == user_login).first()
-    if user is None:
+    if not user:
+        print(f"User not found: {user_credentials.user_login}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    return user
+    print(f"User found: {user.user_login}")
+    print(f"Input password: {user_credentials.user_password}")
+    print(f"Stored password: {user.user_password}")
+    print(f"Password verification result: {verify_password(user_credentials.user_password, user.user_password)}")
 
-
-# User Authentication Routes
-@router.post("/auth/login", response_model=UserResponse)
-def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.user_login == user_credentials.user_login).first()
-
-    print('user_login :',models.User.user_login)
-    print('user_password :',user.user_password)
-
-    if not user or not verify_password(user_credentials.user_password, user.user_password):
+    if not verify_password(user_credentials.user_password, user.user_password):
+        print(f"Password verification failed for user: {user_credentials.user_login}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    print(f"Login successful for user: {user_credentials.user_login}")
     
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
@@ -892,7 +927,7 @@ def generate_user_code_endpoint(db: Session = Depends(get_db), current_user: mod
     return {"user_code": user_code}
 
 
-@router.post("/auth/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/auth/register", response_model=UserOut, status_code=status.HTTP_201_CREATED, tags=["auth"])
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     # Check if user_login already exists
     print('# Check if user_login already exists')
@@ -949,7 +984,10 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 # User Management Routes
 @router.get("/users", response_model=list[UserOut])
-def list_users(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("read:users"))
+):
     users = db.query(models.User).order_by(desc(models.User.user_createdate)).all()
     return users
 
@@ -963,7 +1001,12 @@ def get_user(user_code: str, db: Session = Depends(get_db), current_user: models
 
 
 @router.put("/users/{user_code}", response_model=UserOut)
-def update_user(user_code: str, user_data: UserUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def update_user(
+    user_code: str,
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("update:users"))
+):
     user = db.query(models.User).filter(models.User.user_code == user_code).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -984,7 +1027,11 @@ def update_user(user_code: str, user_data: UserUpdate, db: Session = Depends(get
     user.user_fname = user_data.user_fname
     user.user_lname = user_data.user_lname
     user.user_login = user_data.user_login
-    user.user_role = user_data.user_role
+    
+    # Only admin can change user roles
+    current_user_role = current_user.get("payload", {}).get("role", "user")
+    if current_user_role == "admin" and user_data.user_role:
+        user.user_role = user_data.user_role
     
     # Only update password if provided and not empty
     if user_data.user_password is not None and user_data.user_password.strip() != "":
@@ -1008,13 +1055,17 @@ def update_user(user_code: str, user_data: UserUpdate, db: Session = Depends(get
 
 
 @router.delete("/users/{user_code}")
-def delete_user(user_code: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def delete_user(
+    user_code: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("delete:users"))
+):
     user = db.query(models.User).filter(models.User.user_code == user_code).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     # Prevent self-deletion
-    if user.user_code == current_user.user_code:
+    if user.user_code == current_user.get("user_login"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete your own account"
@@ -1031,8 +1082,12 @@ def delete_user(user_code: str, db: Session = Depends(get_db), current_user: mod
 
 
 @router.post("/users/create-admin")
-def create_admin_user(db: Session = Depends(get_db)):
-    """Create a default admin user if it doesn't exist"""
+def create_admin_user(
+    db: Session = Depends(get_db),
+    api_key: str = None,
+    current_user: dict = Depends(require_role("super_admin"))
+):
+    """Create a default admin user if it doesn't exist - requires super admin role"""
     admin_login = "admin"
     admin_code = "ADMIN001"
     
@@ -1105,9 +1160,13 @@ def get_setting(set_code: str, db: Session = Depends(get_db)):
 
 
 @router.post("/settings", response_model=SettingOut, status_code=status.HTTP_201_CREATED)
-def create_setting(payload: SettingCreate, db: Session = Depends(get_db)):
+def create_setting(
+    payload: SettingCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("manage:settings"))
+):
     """
-    Create a new setting
+    Create a new setting - requires admin permission
     """
     # Check if setting already exists
     existing_setting = db.query(models.Setting).filter(models.Setting.set_code == payload.set_code).first()
@@ -1130,9 +1189,14 @@ def create_setting(payload: SettingCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/settings/{set_code}", response_model=SettingOut)
-def update_setting(set_code: str, payload: SettingUpdate, db: Session = Depends(get_db)):
+def update_setting(
+    set_code: str,
+    payload: SettingUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("manage:settings"))
+):
     """
-    Update an existing setting
+    Update an existing setting - requires admin permission
     """
     setting = db.query(models.Setting).filter(models.Setting.set_code == set_code).first()
     if not setting:
@@ -1154,7 +1218,7 @@ def update_setting(set_code: str, payload: SettingUpdate, db: Session = Depends(
 
 
 @router.get("/settings/system-prompt")
-def get_system_prompt_setting(db: Session = Depends(get_db)):
+def get_system_prompt_setting(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
     Get the system prompt setting, create with default if not exists
     """

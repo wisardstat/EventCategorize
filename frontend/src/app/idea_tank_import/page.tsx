@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { canImportExcel } from "@/utils/permissions";
+import { postWithAuthFormData } from "@/utils/api";
 
 interface ImportResult {
   message: string;
@@ -69,17 +70,7 @@ export default function IdeaTankImportPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/bulk-import`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "การอัปโหลดล้มเหลว");
-      }
-
-      const result: ImportResult = await response.json();
+      const result: ImportResult = await postWithAuthFormData(`/ideas/bulk-import`, formData).then(res => res.json());
       setImportResult(result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการอัปโหลด";
