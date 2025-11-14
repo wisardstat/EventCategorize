@@ -874,11 +874,13 @@ def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
         )
     
     print(f"Login successful for user: {user_credentials.user_login}")
+    print(f"User role from database: {user.user_role}")
     
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
-        data={"sub": user.user_login}, expires_delta=access_token_expires
+        data={"sub": user.user_login, "role": user.user_role}, expires_delta=access_token_expires
     )
+    print(f"Token created with role: {user.user_role}")
     
     return {
         "user_code": user.user_code,
@@ -1123,6 +1125,53 @@ def create_admin_user(
         raise HTTPException(status_code=500, detail="Failed to create admin user")
     
     return {"message": "Admin user created successfully", "login": admin_login, "password": "admin123"}
+
+
+@router.post("/users/fix-admin-role")
+@router.post("/users/fix-admin-role-alt")  # Alternative endpoint in case the first one doesn't work
+def fix_admin_role(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Fix admin user role - allows current admin user to fix their own role"""
+    print(f"fix_admin_role called by user: {current_user.user_login}")
+    
+    # Only allow admin login to fix their role
+    if current_user.user_login != "admin":
+        print(f"Access denied for user: {current_user.user_login}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admin user can use this endpoint"
+        )
+    
+    # Find the admin user
+    admin_user = db.query(models.User).filter(models.User.user_login == "admin").first()
+    if not admin_user:
+        print("Admin user not found in database")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Admin user not found"
+        )
+    
+    print(f"Found admin user with current role: {admin_user.user_role}")
+    
+    # Update the admin role
+    admin_user.user_role = "admin"
+    admin_user.user_updatedate = datetime.now()
+    
+    try:
+        db.commit()
+        db.refresh(admin_user)
+        print(f"Admin role fixed successfully. New role: {admin_user.user_role}")
+        return {
+            "message": "Admin role fixed successfully",
+            "user_login": admin_user.user_login,
+            "user_role": admin_user.user_role
+        }
+    except Exception as e:
+        db.rollback()
+        print(f"Failed to fix admin role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fix admin role: {str(e)}")
 
 
 # Password diagnostic and fix endpoints removed - no longer needed with plain text passwords

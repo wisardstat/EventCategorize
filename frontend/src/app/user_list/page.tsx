@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getWithAuth, deleteWithAuth } from "@/utils/api";
+import { canAccessUserList, getCurrentUser } from "@/utils/permissions";
 
 interface User {
   user_code: string;
@@ -25,12 +26,121 @@ export default function UserListPage() {
   }, []);
 
   const checkAuthAndLoadUsers = async () => {
+    // Check if user has permission to access user list
+    if (!canAccessUserList()) {
+      const currentUser = getCurrentUser();
+      if (currentUser?.user_login === 'admin') {
+        // Special case: admin user but permission issue - allow access with warning
+        setError("⚠️ ตรวจพบปัญหาสิทธิ์การเข้าถึง แต่อนุญาตให้เข้าถึงชั่วคราวเพื่อแก้ไขปัญหา");
+      } else {
+        setError("คุณไม่มีสิทธิ์เข้าถึงหน้าจัดการผู้ใช้งาน");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
-      const data: User[] = await getWithAuth("/users").then(res => res.json());
+      // Debug: Check if token exists
+      const token = localStorage.getItem('token');
+      const currentUser = getCurrentUser();
+      console.log('=== DEBUG INFO ===');
+      console.log('Token exists:', !!token);
+      console.log('Token value:', token ? token.substring(0, 20) + '...' : 'null');
+      console.log('Current user:', currentUser);
+      console.log('Current user role:', currentUser?.user_role);
+      
+      const response = await getWithAuth("/users");
+      console.log('>>> Fetch /users response:', response);
+      console.log('Response status:', response.status);
+      console.log('Response statusText:', response.statusText);
+      if (!response.ok) {
+        // Handle HTTP errors
+        if (response.status === 403) {
+
+          const currentUser = getCurrentUser();
+          if (currentUser?.user_login === 'admin') {
+            setError("⚠️ Admin user มีปัญหาสิทธิ์การเข้าถึง กรุณาใช้ปุ่ม 'แก้ไขสิทธิ์ Admin' ด้านล่าง");
+          } else {
+            setError("คุณไม่มีสิทธิ์เข้าถึงข้อมูลผู้ใช้งาน");
+          }
+
+        } else if (response.status === 401) {
+          setError("กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
+        } else {
+          setError(`เกิดข้อผิดพลาด: ${response.status} ${response.statusText}`);
+        }
+
+        return;
+      }
+      
+      const data: User[] = await response.json();
+      
+      // Validate that the response is an array
+      if (!Array.isArray(data)) {
+        setError("ข้อมูลผู้ใช้งานไม่ถูกต้อง");
+        return;
+      }
+      
       setUsers(data);
+      // Clear error if successful
+      setError(null);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error loading users";
       setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fixAdminRole = async () => {
+    const currentUser = getCurrentUser();
+    console.log('********************************')
+    console.log('********************************')
+    console.log('Attempting to fix admin role for user:', currentUser);
+    console.log('Attempting to fix admin role for currentUser.user_login:', currentUser?.user_login);
+    console.log('********************************')
+    console.log('********************************')
+    if (!currentUser || currentUser.user_login !== 'admin') {
+      setError("เฉพาะ Admin เท่านั้นที่สามารถแก้ไขสิทธิ์ได้");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("กำลังแก้ไขสิทธิ์ Admin...");
+      
+      // Try to call the fix-admin-role endpoint
+      console.log('>>> Attempting to call /users/fix-admin-role...');
+      let response = await getWithAuth("/users/fix-admin-role");
+      console.log('>>> Fetch /users/fix-admin-role response:', response);
+      
+      // If the first endpoint fails with 404, try the alternative
+      if (!response.ok && response.status === 404) {
+        console.log('>>> First endpoint returned 404, trying alternative endpoint...');
+        setError("กำลังลองวิธีการแก้ไขอื่น...");
+        response = await getWithAuth("/users/fix-admin-role-alt");
+        console.log('>>> Fetch /users/fix-admin-role-alt response:', response);
+      }
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('>>> Admin role fix result:', result);
+        setError(`✅ ${result.message} กรุณาเข้าสู่ระบบใหม่อีกครั้ง`);
+        // Clear localStorage and redirect to login
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_role');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        console.error('>>> Failed to fix admin role:', response.status, response.statusText);
+        setError(`❌ ไม่สามารถแก้ไขสิทธิ์ Admin ได้ (Status: ${response.status}) กรุณาติดต่อผู้ดูแลระบบ`);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error fixing admin role";
+      console.error('>>> Error fixing admin role:', err);
+      setError(`❌ เกิดข้อผิดพลาด: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -84,6 +194,15 @@ export default function UserListPage() {
               {/* Middle column - can be used for additional controls */}
             </div>
             <div className="md:col-span-1 flex justify-end gap-2">
+              {error && error.includes('Admin') && (
+                <button
+                  onClick={fixAdminRole}
+                  disabled={loading}
+                  className="btn btn-danger"
+                >
+                  {loading ? 'กำลังแก้ไข...' : 'แก้ไขสิทธิ์ Admin'}
+                </button>
+              )}
               <a
                 href="/user_create"
                 className="btn btn-primary"

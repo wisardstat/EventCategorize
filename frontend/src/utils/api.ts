@@ -35,6 +35,12 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}): Promi
     headers,
   };
 
+  console.log('=== API REQUEST DEBUG ===');
+  console.log('URL:', url);
+  console.log('Method:', config.method);
+  console.log('Headers:', headers);
+  console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'null');
+
   try {
     const response = await fetch(url, config);
 

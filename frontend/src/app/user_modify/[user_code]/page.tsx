@@ -205,19 +205,7 @@ export default function UserModifyPage() {
                         readOnly
                       />
                     </div>
-                    <div className="col-md-6">
-                      <label htmlFor="user_login" className="form-label">ชื่อผู้ใช้งาน (Login) *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="user_login"
-                        name="user_login"
-                        value={formData.user_login}
-                        onChange={handleChange}
-                        required
-                        placeholder="ชื่อผู้ใช้งานสำหรับ login"
-                      />
-                    </div>
+                    
                     <div className="col-md-6">
                       <label htmlFor="user_fname" className="form-label">ชื่อ *</label>
                       <input
@@ -245,19 +233,6 @@ export default function UserModifyPage() {
                       />
                     </div>
                     <div className="col-md-6">
-                      <label htmlFor="user_password" className="form-label">รหัสผ่าน</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        id="user_password"
-                        name="user_password"
-                        value={formData.user_password}
-                        onChange={handleChange}
-                        placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน"
-                      />
-                      <small className="form-text text-muted">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน</small>
-                    </div>
-                    <div className="col-md-6">
                       <label htmlFor="user_role" className="form-label">สิทธิ์ผู้ใช้งาน *</label>
                       <select
                         className="form-control"
@@ -274,6 +249,33 @@ export default function UserModifyPage() {
                       </select>
                       <small className="form-text text-muted">เลือกสิทธิ์ผู้ใช้งาน</small>
                     </div>
+                    <div className="col-md-6">
+                      <label htmlFor="user_login" className="form-label">ชื่อผู้ใช้งาน (Login) *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="user_login"
+                        name="user_login"
+                        value={formData.user_login}
+                        onChange={handleChange}
+                        required
+                        placeholder="ชื่อผู้ใช้งานสำหรับ login"
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="user_password" className="form-label">รหัสผ่าน</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="user_password"
+                        name="user_password"
+                        value={formData.user_password}
+                        onChange={handleChange}
+                        placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน"
+                      />
+                      <small className="form-text text-muted">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน</small>
+                    </div>
+                    
                   </div>
 
                   <div className="row mt-4">

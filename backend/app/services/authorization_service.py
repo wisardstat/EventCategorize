@@ -28,8 +28,8 @@ class AuthorizationService:
     # Permission mappings
     ROLE_PERMISSIONS = {
         "user": ["read:own_data", "create:answers", "read:questions"],
-        "moderator": ["user", "read:all_data", "update:answers", "delete:own_content"],
-        "admin": ["moderator", "create:users", "update:users", "delete:users", "manage:settings"],
+        "moderator": ["user", "read:all_data", "update:answers", "delete:own_content", "read:users"],
+        "admin": ["moderator", "create:users", "update:users", "delete:users", "manage:settings", "read:users"],
         "super_admin": ["admin", "manage:system", "read:logs", "manage:api_keys"]
     }
     
