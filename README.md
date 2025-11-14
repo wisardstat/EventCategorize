@@ -24,7 +24,10 @@ Create and activate venv, install dependencies (already set up by scripts in thi
 ```bash
 cd backend
 ./.venv/Scripts/activate  # Windows PowerShell
+
 uvicorn app.main:app --reload --port 8000
+# Linux
+source env/bin/activate
 ```
 
 Health check: `http://localhost:8000/health`

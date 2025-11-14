@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import * as echarts from "echarts";
 import "echarts-wordcloud";
 import { QRCodeCanvas } from "qrcode.react";
+import { getWithAuth } from "@/utils/api";
 
 // Change these values to adjust the WordCloud font size range (min, max)
 const WORDCLOUD_SIZE_RANGE: [number, number] = [24, 48];
