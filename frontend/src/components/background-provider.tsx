@@ -11,7 +11,7 @@ export default function BackgroundProvider({ children }: BackgroundProviderProps
   const pathname = usePathname();
 
   // Check if current page should have black background
-  const blackBackgroundPages = ["index","create-question", "answer_list", "answer_analytic","present-answer"];
+  const blackBackgroundPages = ["index","create-question", "answer_list", "answer_analytic","present-answer", "answer_evaluation"];
   
   // Debug logs
   console.log("pathname:", pathname);
@@ -32,7 +32,7 @@ export default function BackgroundProvider({ children }: BackgroundProviderProps
     const bodyElement = document.body;
     
     const backgroundStyle = shouldHaveBlackBackground
-      ? 'linear-gradient(135deg, #220f45ff, #020004ff)'
+      ? 'linear-gradient(135deg, #073a22 0%,    #000000 100%)'
       : '#F5F5F7';
     
     const textColor = shouldHaveBlackBackground ? '#e0e0e0' : 'inherit';

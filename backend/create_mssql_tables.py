@@ -18,13 +18,19 @@ def create_mssql_tables():
         CREATE TABLE [dbo].[Answer](
             [answer_id] [int] IDENTITY(1,1) NOT NULL,
             [question_id] [varchar](255) NOT NULL,
+            [answer_title] [text] NULL,
+            [answer_painpoint] [text] NULL,
             [answer_text] [text] NOT NULL,
+            [answer_outcome] [text] NULL,
             [category] [varchar](255) NOT NULL,
             [create_user_name] [varchar](255) NULL,
             [create_user_department] [varchar](255) NULL,
             [answer_keywords] [text] NULL,
             [create_user_code] [varchar](100) NULL,
             [created_at] [datetime2](6) NULL,
+            [model_scores_criterion] [varchar](1000) NULL,
+            [model_overall_score] [int] NULL,
+            [model_overall_feedback] [text] NULL,
             CONSTRAINT [PK__Answer__33724318BBC18F78] PRIMARY KEY CLUSTERED 
             (
                 [answer_id] ASC
@@ -101,7 +107,7 @@ def create_mssql_tables():
             [question_description] [varchar](max) NULL,
             [question_categories] [nvarchar](max) NULL,
             [qrcode_url] [varchar](500) NULL,
-            [created_at] [datetime2](6) NULL,
+            [created_at] [datetime2](6) NOT NULL CONSTRAINT [DF_Question_created_at] DEFAULT (GETDATE()),
             CONSTRAINT [PK__Question__2EC21549A0D0D8A0] PRIMARY KEY CLUSTERED 
             (
                 [question_id] ASC

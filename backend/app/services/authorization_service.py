@@ -29,7 +29,16 @@ class AuthorizationService:
     ROLE_PERMISSIONS = {
         "user": ["read:own_data", "create:answers", "read:questions"],
         "moderator": ["user", "read:all_data", "update:answers", "delete:own_content", "read:users"],
-        "admin": ["moderator", "create:users", "update:users", "delete:users", "manage:settings", "read:users"],
+        "admin": [
+            "moderator",
+            "create:questions",
+            "delete:questions",
+            "create:users",
+            "update:users",
+            "delete:users",
+            "manage:settings",
+            "read:users",
+        ],
         "super_admin": ["admin", "manage:system", "read:logs", "manage:api_keys"]
     }
     

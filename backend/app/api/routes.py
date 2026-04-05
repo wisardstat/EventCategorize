@@ -1,4 +1,6 @@
 import uuid
+import logging
+import json
 from datetime import datetime
 from typing import List, Optional
 
@@ -8,8 +10,20 @@ from sqlalchemy import func
 
 from app.db.database import get_db
 from app.db import models
-from app.db.schemas import QuestionCreate, QuestionOut, AnswerCreate, AnswerOut, IdeaCreate, IdeaOut, UserCreate, UserOut, UserLogin, UserResponse, UserUpdate
-from pydantic import BaseModel
+from app.db.schemas import (
+    QuestionCreate,
+    QuestionOut,
+    AnswerCreate,
+    AnswerOut,
+    AnswerModelEvaluationUpdate,
+    IdeaCreate,
+    IdeaOut,
+    UserCreate,
+    UserOut,
+    UserLogin,
+    UserResponse,
+    UserUpdate,
+)
 from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
 from app.services.openai_service import openai_service
@@ -23,6 +37,56 @@ from fastapi import Security
 security = HTTPBearer()
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def to_question_out(question: models.Question) -> QuestionOut:
+    """Convert ORM Question to response schema with safety fallback for bad historical rows."""
+    created_at = question.created_at
+    if created_at is None:
+        logger.error(
+            "Question record has NULL created_at; applying fallback datetime. question_id=%s",
+            question.question_id,
+        )
+        created_at = datetime.utcnow()
+
+    return QuestionOut(
+        question_id=question.question_id,
+        question_title=question.question_title,
+        question_description=question.question_description,
+        question_categories=None,
+        qrcode_url=question.qrcode_url,
+        created_at=created_at,
+    )
+
+
+def to_answer_out(answer: models.Answer) -> AnswerOut:
+    """Convert ORM Answer to response schema with safety fallback for bad historical rows."""
+    created_at = answer.created_at
+    if created_at is None:
+        logger.error(
+            "Answer record has NULL created_at; applying fallback datetime. answer_id=%s",
+            answer.answer_id,
+        )
+        created_at = datetime.utcnow()
+
+    return AnswerOut(
+        answer_id=answer.answer_id,
+        question_id=answer.question_id,
+        answer_title=answer.answer_title,
+        answer_painpoint=answer.answer_painpoint,
+        answer_text=answer.answer_text,
+        answer_outcome=answer.answer_outcome,
+        category=answer.category,
+        create_user_name=answer.create_user_name,
+        create_user_code=answer.create_user_code,
+        create_user_department=answer.create_user_department,
+        answer_keywords=answer.answer_keywords,
+        model_scores_criterion=answer.model_scores_criterion,
+        model_overall_score=answer.model_overall_score,
+        model_overall_feedback=answer.model_overall_feedback,
+        created_at=created_at,
+    )
 
 
 # Authentication dependency
@@ -72,7 +136,6 @@ def create_question(
         question_description=payload.question_description,
         question_categories=None,
         qrcode_url=None,
-        created_by=current_user.get("user_login")
     )
     db.add(new_question)
     try:
@@ -81,7 +144,7 @@ def create_question(
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create question")
     db.refresh(new_question)
-    return new_question
+    return to_question_out(new_question)
 
 
 @router.get("/questions", response_model=list[QuestionOut])
@@ -91,7 +154,7 @@ def list_questions(db: Session = Depends(get_db), current_user: models.User = De
         .order_by(desc(models.Question.created_at))
         .all()
     )
-    return items
+    return [to_question_out(item) for item in items]
 
 
 @router.get("/questions/{question_id}", response_model=QuestionOut)
@@ -99,7 +162,7 @@ def get_question(question_id: str, db: Session = Depends(get_db), current_user: 
     item = db.query(models.Question).filter(models.Question.question_id == question_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Question not found")
-    return item
+    return to_question_out(item)
 
 
 @router.post("/answers", response_model=AnswerOut, status_code=status.HTTP_201_CREATED)
@@ -110,12 +173,16 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db), current_
     print("Return category: ", category)
     new_answer = models.Answer(
         question_id=payload.question_id,
+        answer_title=payload.answer_title,
+        answer_painpoint=payload.answer_painpoint,
         answer_text=payload.answer_text,
+        answer_outcome=payload.answer_outcome,
         category=category,
         create_user_name=payload.create_user_name,
         create_user_code=payload.create_user_code,
         create_user_department=payload.create_user_department,
         answer_keywords=keywords,
+        created_at=datetime.utcnow(),
     )
     db.add(new_answer)
     try:
@@ -124,7 +191,65 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db), current_
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create answer")
     db.refresh(new_answer)
-    return new_answer
+    return to_answer_out(new_answer)
+
+
+@router.get("/answers/{answer_id}", response_model=AnswerOut)
+def get_answer(answer_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    item = db.query(models.Answer).filter(models.Answer.answer_id == answer_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Answer not found")
+    return to_answer_out(item)
+
+
+@router.put("/answers/{answer_id}/model-evaluation", response_model=AnswerOut)
+def update_answer_model_evaluation(
+    answer_id: int,
+    payload: AnswerModelEvaluationUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    answer = db.query(models.Answer).filter(models.Answer.answer_id == answer_id).first()
+    if not answer:
+        raise HTTPException(status_code=404, detail="Answer not found")
+
+    compact_scores = []
+    for item in payload.scores:
+        if not isinstance(item, dict):
+            continue
+        criterion = str(item.get("criterion", "")).strip()
+        if not criterion:
+            continue
+        try:
+            score_value = int(round(float(item.get("score", 0))))
+        except (TypeError, ValueError):
+            score_value = 0
+        compact_scores.append(
+            {
+                "criterion": criterion,
+                "score": score_value,
+            }
+        )
+
+    compact_scores_json = json.dumps(compact_scores, ensure_ascii=False, separators=(",", ":"))
+    if len(compact_scores_json) > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="model_scores_criterion length exceeds 1000 characters",
+        )
+
+    answer.model_scores_criterion = compact_scores_json
+    answer.model_overall_score = int(round(payload.overall_score))
+    answer.model_overall_feedback = payload.overall_feedback
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update model evaluation")
+
+    db.refresh(answer)
+    return to_answer_out(answer)
 
 
 @router.get("/questions/{question_id}/answers", response_model=list[AnswerOut])
@@ -135,7 +260,7 @@ def list_answers_for_question(question_id: str, db: Session = Depends(get_db), c
         .order_by(desc(models.Answer.created_at))
        .all()
     )
-    return items
+    return [to_answer_out(item) for item in items]
 
 
 @router.get("/answers", response_model=list[AnswerOut])
@@ -145,7 +270,7 @@ def list_all_answers(db: Session = Depends(get_db), current_user: models.User = 
         .order_by(desc(models.Answer.created_at))
         .all()
     )
-    return items
+    return [to_answer_out(item) for item in items]
 
 
 @router.delete("/questions/{question_id}")
@@ -162,15 +287,6 @@ def delete_question_and_answers(
     )
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
-    
-    # Check if user has permission to delete this question
-    # Admin can delete any question, others can only delete their own
-    user_role = current_user.get("payload", {}).get("role", "user")
-    if user_role != "admin" and question.created_by != current_user.get("user_login"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only delete your own questions"
-        )
     
     # Delete related answers first, then the question
     try:

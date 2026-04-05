@@ -18,27 +18,44 @@ export default function CreateQuestionPage() {
 	const [questions, setQuestions] = useState<Question[]>([]);
 	const [loadingList, setLoadingList] = useState(false);
 
+	async function getApiErrorMessage(response: Response, fallback: string) {
+		try {
+			const data = await response.json();
+			if (typeof data?.detail === "string" && data.detail.trim()) {
+				return data.detail;
+			}
+		} catch {
+			// Ignore parse errors and use fallback.
+		}
+		return fallback;
+	}
+
 	async function handleDelete(questionId: string) {
 		if (!confirm("Are you sure you want to delete this question and its answers?")) return;
 		try {
-  await deleteWithAuth(`/questions/${questionId}`);
+			const response = await deleteWithAuth(`/questions/${questionId}`);
+			if (!response.ok) {
+				const errorMessage = await getApiErrorMessage(response, "Delete failed");
+				throw new Error(errorMessage);
+			}
 			await loadQuestions();
-    } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Delete failed";
-        alert(message);
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Delete failed";
+			alert(message);
 		}
 	}
 
 	async function loadQuestions() {
 		setLoadingList(true);
 		try {
-		console.log("Loading questions...");
-		console.log(`${process.env.NEXT_PUBLIC_API_URL}`);
-		
- const data = await getWithAuth(`/questions`).then(res => res.json());
+			const response = await getWithAuth(`/questions`);
+			if (!response.ok) {
+				throw new Error(await getApiErrorMessage(response, "Error loading questions"));
+			}
+			const data = await response.json();
 			setQuestions(data);
-    } catch (err) {
-        console.error(err);
+		} catch (err) {
+			console.error(err);
 		} finally {
 			setLoadingList(false);
 		}
@@ -53,18 +70,21 @@ export default function CreateQuestionPage() {
 		setLoading(true);
 		setMessage(null);
 		console.log("title:", title, "description:", description);
-    try {
-  await postWithAuth(`/questions`, {
-   "question_title": title,
-   "question_description": description
-  });
+		try {
+			const response = await postWithAuth(`/questions`, {
+				question_title: title,
+				question_description: description
+			});
+			if (!response.ok) {
+				throw new Error(await getApiErrorMessage(response, "Error occurred"));
+			}
 			setMessage("Saved successfully");
 			setTitle("");
 			setDescription("");
 			await loadQuestions();
-    } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Error occurred";
-        setMessage(message);
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Error occurred";
+			setMessage(message);
 		} finally {
 			setLoading(false);
 		}

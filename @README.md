@@ -33,7 +33,7 @@ source emenv/bin/activate
 uvicorn app.main:app --reload --port 8000  # http://localhost:8000
 
 nohup uvicorn app.main:app --reload --port 8000 > fastapi.log 2>&1 &
-nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > fastapi.log 2>&1 &
+nohup uvicorn app.main:app --host 0.0.0.0 --port 80 > fastapi_20251202.log 2>&1 &
 
 tail -f fastapi.log
 pkill -f "uvicorn app.main:app"

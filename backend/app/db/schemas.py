@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -23,7 +23,10 @@ class QuestionOut(BaseModel):
 
 class AnswerCreate(BaseModel):
     question_id: str
+    answer_title: Optional[str] = None
+    answer_painpoint: Optional[str] = None
     answer_text: str = Field(..., min_length=1)
+    answer_outcome: Optional[str] = None
     category: Optional[str] = "General"
     create_user_name: Optional[str] = None
     create_user_code: Optional[str] = None
@@ -33,16 +36,28 @@ class AnswerCreate(BaseModel):
 class AnswerOut(BaseModel):
     answer_id: int
     question_id: str
+    answer_title: Optional[str] = None
+    answer_painpoint: Optional[str] = None
     answer_text: str
+    answer_outcome: Optional[str] = None
     category: str
     create_user_name: Optional[str] = None
     create_user_code: Optional[str] = None
     create_user_department: Optional[str] = None
     answer_keywords: Optional[str] = None
+    model_scores_criterion: Optional[str] = None
+    model_overall_score: Optional[int] = None
+    model_overall_feedback: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class AnswerModelEvaluationUpdate(BaseModel):
+    scores: list[dict[str, Any]]
+    overall_score: float
+    overall_feedback: str
 
 
 

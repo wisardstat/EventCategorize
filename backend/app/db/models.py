@@ -27,12 +27,18 @@ class Answer(Base):
     answer_id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     # Plain text field; no ForeignKey relation
     question_id = Column(String(255), nullable=False)
+    answer_title = Column(Text)
+    answer_painpoint = Column(Text)
     answer_text = Column(Text, nullable=False)
+    answer_outcome = Column(Text)
     category = Column(String(255), nullable=False)
     create_user_name = Column(String(255))
     create_user_code = Column(String(100))
     create_user_department = Column(String(255))
     answer_keywords = Column(Text)
+    model_scores_criterion = Column(String(1000), nullable=True)
+    model_overall_score = Column(Integer, nullable=True)
+    model_overall_feedback = Column(Text, nullable=True)
     created_at = Column(
         DateTime, nullable=False, server_default=text("GETDATE()")
     )
