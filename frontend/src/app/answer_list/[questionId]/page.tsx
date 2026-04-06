@@ -125,13 +125,23 @@ export default function AnswerListByQuestionPage() {
     }, [answers]);
 
     const filteredAnswers = useMemo(() => {
-        return answers.filter((a) => {
-            const c = (a.category || "").trim() || "Unknown";
-            const d = (a.create_user_department || "").trim() || "Unknown";
-            const catOk = selectedCategory === "__ALL__" || c === selectedCategory;
-            const deptOk = selectedDept === "__ALL__" || d === selectedDept;
-            return catOk && deptOk;
-        });
+        return answers
+            .filter((a) => {
+                const c = (a.category || "").trim() || "Unknown";
+                const d = (a.create_user_department || "").trim() || "Unknown";
+                const catOk = selectedCategory === "__ALL__" || c === selectedCategory;
+                const deptOk = selectedDept === "__ALL__" || d === selectedDept;
+                return catOk && deptOk;
+            })
+            .sort((a, b) => {
+                const scoreA = a.model_overall_score ?? Number.NEGATIVE_INFINITY;
+                const scoreB = b.model_overall_score ?? Number.NEGATIVE_INFINITY;
+                if (scoreB !== scoreA) return scoreB - scoreA;
+
+                const timeA = new Date(a.created_at).getTime();
+                const timeB = new Date(b.created_at).getTime();
+                return timeB - timeA;
+            });
     }, [answers, selectedCategory, selectedDept]);
 
     return (
