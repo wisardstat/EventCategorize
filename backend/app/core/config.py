@@ -1,6 +1,7 @@
 from functools import lru_cache
 import json
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +39,16 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",  # tolerate unknown/malformed env keys
     )
+
+    @field_validator("mssql_port", mode="before")
+    @classmethod
+    def normalize_mssql_port(cls, value):
+        """Accept empty MSSQL_PORT and fall back to the default port."""
+        if value is None:
+            return 1433
+        if isinstance(value, str) and not value.strip():
+            return 1433
+        return value
 
     @property
     def sqlalchemy_database_uri(self) -> str:
