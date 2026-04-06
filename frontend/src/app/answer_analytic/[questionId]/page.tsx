@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import * as echarts from "echarts";
 import "echarts-wordcloud";
 import { QRCodeCanvas } from "qrcode.react";
-import { getWithAuth } from "@/utils/api";
+import { getPublic } from "@/utils/api";
 
 // Change these values to adjust the WordCloud font size range (min, max)
 const WORDCLOUD_SIZE_RANGE: [number, number] = [24, 48];
@@ -67,7 +67,7 @@ export default function AnswerAnalyticPage() {
             setLoading(true);
             setError(null);
             try {
-                const data: Answer[] = await getWithAuth(`/questions/${questionId}/answers`).then(res => res.json());
+                const data: Answer[] = await getPublic(`/questions/${questionId}/answers`).then(res => res.json());
                 setAnswers(data);
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : "Error loading answers";
@@ -84,7 +84,7 @@ export default function AnswerAnalyticPage() {
         if (!questionId) return;
         const id = setInterval(async () => {
             try {
-                const data: Answer[] = await getWithAuth(`/questions/${questionId}/answers`).then(res => res.json());
+                const data: Answer[] = await getPublic(`/questions/${questionId}/answers`).then(res => res.json());
                 setAnswers(data);
             } catch {
                 // ignore polling errors

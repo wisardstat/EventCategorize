@@ -158,7 +158,7 @@ def list_questions(db: Session = Depends(get_db), current_user: models.User = De
 
 
 @router.get("/questions/{question_id}", response_model=QuestionOut)
-def get_question(question_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def get_question(question_id: str, db: Session = Depends(get_db)):
     item = db.query(models.Question).filter(models.Question.question_id == question_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -166,7 +166,7 @@ def get_question(question_id: str, db: Session = Depends(get_db), current_user: 
 
 
 @router.post("/answers", response_model=AnswerOut, status_code=status.HTTP_201_CREATED)
-def create_answer(payload: AnswerCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def create_answer(payload: AnswerCreate, db: Session = Depends(get_db)):
     print("payload: ", payload)    
     category = classify_category(payload.answer_text)
     keywords = extract_keywords(payload.answer_text)
@@ -195,7 +195,7 @@ def create_answer(payload: AnswerCreate, db: Session = Depends(get_db), current_
 
 
 @router.get("/answers/{answer_id}", response_model=AnswerOut)
-def get_answer(answer_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def get_answer(answer_id: int, db: Session = Depends(get_db)):
     item = db.query(models.Answer).filter(models.Answer.answer_id == answer_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Answer not found")
@@ -207,7 +207,6 @@ def update_answer_model_evaluation(
     answer_id: int,
     payload: AnswerModelEvaluationUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
 ):
     answer = db.query(models.Answer).filter(models.Answer.answer_id == answer_id).first()
     if not answer:
@@ -253,7 +252,7 @@ def update_answer_model_evaluation(
 
 
 @router.get("/questions/{question_id}/answers", response_model=list[AnswerOut])
-def list_answers_for_question(question_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def list_answers_for_question(question_id: str, db: Session = Depends(get_db)):
     items = (
         db.query(models.Answer)
         .filter(models.Answer.question_id == question_id)
@@ -1383,7 +1382,7 @@ def update_setting(
 
 
 @router.get("/settings/system-prompt")
-def get_system_prompt_setting(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def get_system_prompt_setting(db: Session = Depends(get_db)):
     """
     Get the system prompt setting, create with default if not exists
     """

@@ -2,6 +2,32 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+// Generic fetch function without authentication
+const fetchPublic = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+  const url = `${API_BASE_URL}${endpoint}`;
+
+  const defaultHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const headers: Record<string, string> = {
+    ...defaultHeaders,
+    ...(options.headers as Record<string, string> || {}),
+  };
+
+  // Handle FormData - remove Content-Type header to let browser set it automatically
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type'];
+  }
+
+  const config: RequestInit = {
+    ...options,
+    headers,
+  };
+
+  return fetch(url, config);
+};
+
 // Generic fetch function with authentication
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
   const token = localStorage.getItem('token');
@@ -64,32 +90,43 @@ export const getWithAuth = (endpoint: string) => {
   return fetchWithAuth(endpoint, { method: 'GET' });
 };
 
+// GET request without authentication
+export const getPublic = (endpoint: string) => {
+  return fetchPublic(endpoint, { method: 'GET' });
+};
+
 // POST request with authentication
-export const postWithAuth = (endpoint: string, data?: any) => {
+export const postWithAuth = (endpoint: string, data?: unknown) => {
   return fetchWithAuth(endpoint, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
   });
 };
 
-// POST request without authentication (for login)
-export const postWithoutAuth = (endpoint: string, data?: any) => {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const config: RequestInit = {
+// POST request without authentication
+export const postPublic = (endpoint: string, data?: unknown) => {
+  return fetchPublic(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: data ? JSON.stringify(data) : undefined,
-  };
+  });
+};
 
-  return fetch(url, config);
+// POST request without authentication (for login)
+export const postWithoutAuth = (endpoint: string, data?: unknown) => {
+  return postPublic(endpoint, data);
 };
 
 // PUT request with authentication
-export const putWithAuth = (endpoint: string, data?: any) => {
+export const putWithAuth = (endpoint: string, data?: unknown) => {
   return fetchWithAuth(endpoint, {
+    method: 'PUT',
+    body: data ? JSON.stringify(data) : undefined,
+  });
+};
+
+// PUT request without authentication
+export const putPublic = (endpoint: string, data?: unknown) => {
+  return fetchPublic(endpoint, {
     method: 'PUT',
     body: data ? JSON.stringify(data) : undefined,
   });

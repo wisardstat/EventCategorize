@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getWithAuth, postWithAuth, putWithAuth } from "@/utils/api";
+import { getPublic, postPublic, putPublic } from "@/utils/api";
 
 type Question = {
     question_id: string;
@@ -64,7 +64,7 @@ export default function PresentAnswerPage() {
             setLoading(true);
             setError(null);
             try {
-                const data = await getWithAuth(`/questions/${questionId}`).then((res) => res.json());
+                const data = await getPublic(`/questions/${questionId}`).then((res) => res.json());
                 setQuestion(data);
             } catch (err: unknown) {
                 const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการโหลดคำถาม";
@@ -86,7 +86,7 @@ export default function PresentAnswerPage() {
         let createdAnswerId: number | null = null;
 
         try {
-            const createRes = await postWithAuth("/answers", {
+            const createRes = await postPublic("/answers", {
                 question_id: questionId,
                 answer_title: answerTitle,
                 answer_painpoint: answerPainpoint,
@@ -105,7 +105,7 @@ export default function PresentAnswerPage() {
             const createdAnswer: CreatedAnswer = await createRes.json();
             createdAnswerId = createdAnswer.answer_id;
 
-            const settingRes = await getWithAuth("/settings/system-prompt");
+            const settingRes = await getPublic("/settings/system-prompt");
             if (!settingRes.ok) {
                 const msg = await readErrorMessage(settingRes, "โหลด system prompt ไม่สำเร็จ");
                 throw new Error(msg);
@@ -122,7 +122,7 @@ export default function PresentAnswerPage() {
                 `ผลลัพธ์ที่คาดหวัง:\n${answerOutcome}`,
             ].join("\n\n");
 
-            const scoreRes = await postWithAuth("/ideas/score", {
+            const scoreRes = await postPublic("/ideas/score", {
                 system_prompt: systemPrompt,
                 idea_name: answerTitle,
                 idea_detail: ideaDetail,
@@ -133,7 +133,7 @@ export default function PresentAnswerPage() {
             }
             const scoreData: ScoreResponse = await scoreRes.json();
 
-            const updateRes = await putWithAuth(`/answers/${createdAnswer.answer_id}/model-evaluation`, {
+            const updateRes = await putPublic(`/answers/${createdAnswer.answer_id}/model-evaluation`, {
                 scores: scoreData.scores,
                 overall_score: scoreData.overall_score,
                 overall_feedback: scoreData.overall_feedback,

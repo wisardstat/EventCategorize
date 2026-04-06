@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { getWithAuth } from "@/utils/api";
+import { getPublic } from "@/utils/api";
 
 type AnswerDetail = {
     answer_id: number;
@@ -74,7 +74,7 @@ export default function AnswerEvaluationPage() {
             setError(null);
 
             try {
-                const res = await getWithAuth(`/answers/${answerId}`);
+                const res = await getPublic(`/answers/${answerId}`);
                 if (!res.ok) {
                     throw new Error("Failed to load evaluation result");
                 }
