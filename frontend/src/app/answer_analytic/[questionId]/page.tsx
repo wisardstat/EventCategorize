@@ -28,7 +28,13 @@ export default function AnswerAnalyticPage() {
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [qrUrl, setQrUrl] = useState("");
+    const qrUrl = useMemo(() => {
+        const runtimeOrigin = typeof window !== "undefined" ? window.location.origin : "";
+        const configuredHost = process.env.NEXT_PUBLIC_HOST_URL || "";
+        const baseUrl = (runtimeOrigin || configuredHost).replace(/\/$/, "");
+        if (!baseUrl || !questionId) return "";
+        return `${baseUrl}/present-answer/${questionId}`;
+    }, [questionId]);
 
     const categoryCounts = useMemo(() => {
         const countBy: Record<string, number> = {};
@@ -73,13 +79,6 @@ export default function AnswerAnalyticPage() {
         load();
     }, [questionId]);
 
-    useEffect(() => {
-        const base = process.env.NEXT_PUBLIC_HOST_URL || (typeof window !== "undefined" ? window.location.origin : "");
-        if (base && questionId) {
-            setQrUrl(`${base}/present-answer/${questionId}`);
-        }
-    }, [questionId]);
-
     // Auto refresh answers every 10 seconds
     useEffect(() => {
         if (!questionId) return;
@@ -113,7 +112,7 @@ export default function AnswerAnalyticPage() {
                             <div className="space-y-2">
                                 <p className="text-sm opacity-80">สแกนเพื่อไปยังหน้าตอบคำถาม</p>
                                 <div className="inline-block rounded-md border border-black/10 dark:border-white/20 bg-white p-3 dark:bg-white">
-                                    <QRCodeCanvas value={qrUrl || `${process.env.NEXT_PUBLIC_HOST_URL}/present-answer/${questionId}`} size={160} includeMargin />
+                                    <QRCodeCanvas value={qrUrl || `${(process.env.NEXT_PUBLIC_HOST_URL || "").replace(/\/$/, "")}/present-answer/${questionId}`} size={160} includeMargin />
                                 </div>
                             </div>
                         </section>

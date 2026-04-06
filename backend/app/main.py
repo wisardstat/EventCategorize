@@ -22,8 +22,8 @@ settings = get_settings()
 allowed_origins = settings.get_cors_allow_origins() or [
     # Fallback to previous defaults if ALLOW_ORIGINS is not set
     "http://localhost:3000",
-    "http://139.180.144.194:3000",
-    "http://139.180.144.194",
+    "http://45.77.245.143:3000",
+    "http://45.77.245.143",
     "http://127.0.0.1:3000",
     "http://172.30.176.1:3000",
     "http://172.29.32.1:3000", 

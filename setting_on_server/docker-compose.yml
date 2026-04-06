@@ -11,7 +11,7 @@ services:
       openai_api_key: ${OPENAI_API_KEY:-}
     ports: ["8000:8000"]
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://139.180.144.194:8000/health"]
+      test: ["CMD", "wget", "-qO-", "http://backend:8000/health"]
       interval: 10s
       timeout: 3s
       retries: 5
