@@ -12,7 +12,9 @@ type Answer = {
     answer_painpoint?: string | null;
     answer_text: string;
     answer_outcome?: string | null;
+    model_scores_criterion?: string | null;
     model_overall_score?: number | null;
+    model_overall_feedback?: string | null;
     category: string;
     create_user_code?: string | null;
     answer_keywords?: string | null;
@@ -67,13 +69,21 @@ export default function AnswerListByQuestionPage() {
 
     function handleExport() {
         const headers = [
-            "create_user_code",
+            "answer_id",
+            "question_id",
+            "answer_title",
+            "answer_painpoint",
+            "answer_text",
+            "answer_outcome",
+            "category",
             "create_user_name",
             "create_user_department",
-            "answer_text",
-            "category",
             "answer_keywords",
+            "create_user_code",
             "created_at",
+            "model_scores_criterion",
+            "model_overall_score",
+            "model_overall_feedback",
         ];
 
         const csvEscape = (val: unknown) => {
@@ -83,13 +93,21 @@ export default function AnswerListByQuestionPage() {
 
         const rows = answers.map((a) =>
             [
-                csvEscape(a.create_user_code),
+                csvEscape(a.answer_id),
+                csvEscape(a.question_id),
+                csvEscape(a.answer_title),
+                csvEscape(a.answer_painpoint),
+                csvEscape(a.answer_text),
+                csvEscape(a.answer_outcome),
+                csvEscape(a.category),
                 csvEscape(a.create_user_name),
                 csvEscape(a.create_user_department),
-                csvEscape(a.answer_text),
-                csvEscape(a.category),
                 csvEscape(a.answer_keywords),
+                csvEscape(a.create_user_code),
                 csvEscape(new Date(a.created_at).toISOString()),
+                csvEscape(a.model_scores_criterion),
+                csvEscape(a.model_overall_score),
+                csvEscape(a.model_overall_feedback),
             ].join(",")
         );
 
