@@ -109,6 +109,14 @@ export default function AuthNav() {
     <div className="flex items-center gap-2">
       {isLoggedIn ? (
         <>
+          {/* IdeaTank 2026 Menu */}
+          <a
+            href="/project_submission_list"
+            className="inline-flex items-center rounded-full bg-white/10 hover:bg-white/15 px-4 py-2 text-sm font-semibold text-white transition"
+          >
+            IdeaTank 2026
+          </a>
+
           {/* Idea Tank Menu - All roles can access */}
           {canAccessIdeaTank() && (
             <a

@@ -11,7 +11,18 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname();
   console.log("pathname >> ", pathname);
-  
+
+  // Full-bleed public pages: no app header/nav, no width constraint
+  const isFullBleedPage = pathname.startsWith('/project_submission');
+
+  if (isFullBleedPage) {
+    return (
+      <BackgroundProvider>
+        {children}
+      </BackgroundProvider>
+    );
+  }
+
   return (
     <>
       {/* Hide header on login page */}

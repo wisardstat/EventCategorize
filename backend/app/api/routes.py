@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from app.db.database import get_db
 from app.db import models
@@ -23,7 +23,15 @@ from app.db.schemas import (
     UserLogin,
     UserResponse,
     UserUpdate,
+    ProjectSubmissionStep1In,
+    ProjectSubmissionStep2In,
+    ProjectSubmissionOut,
+    ProjectSubmissionListResponse,
 )
+from sqlalchemy.orm import joinedload
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+import pandas as pd
 from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
 from app.services.openai_service import openai_service
@@ -1321,6 +1329,228 @@ def get_setting(set_code: str, db: Session = Depends(get_db)):
     if not setting:
         raise HTTPException(status_code=404, detail="Setting not found")
     return setting
+
+
+# Project Submission (IDEA Tank 2026) API Routes
+SUBMISSION_TYPE_NAME_TH = {
+    "INDIVIDUAL": "ประเภทบุคคล",
+    "TEAM": "ประเภททีม",
+}
+
+
+def _validate_members(submission_type: str, members: list) -> None:
+    count = len(members)
+    if submission_type == "INDIVIDUAL" and count != 1:
+        raise HTTPException(status_code=400, detail="ประเภทบุคคลต้องมีสมาชิก 1 คน")
+    if submission_type == "TEAM" and not (3 <= count <= 5):
+        raise HTTPException(status_code=400, detail="ประเภททีมต้องมีสมาชิก 3-5 คน")
+
+
+def _replace_members(db: Session, project_id: int, members: list) -> None:
+    db.query(models.ProjectSubmissionMember).filter(
+        models.ProjectSubmissionMember.ProjectId == project_id
+    ).delete(synchronize_session=False)
+    for seq, member in enumerate(members, start=1):
+        db.add(
+            models.ProjectSubmissionMember(
+                ProjectId=project_id,
+                MemberSeq=seq,
+                EmpCode=member.EmpCode,
+                FullNameTh=member.FullNameTh,
+                PositionName=member.PositionName,
+                OrgName=member.OrgName,
+                MobileNo=member.MobileNo,
+                IsTeamLeader=member.IsTeamLeader,
+                IsMainContact=member.IsMainContact,
+            )
+        )
+
+
+def _get_submission_or_404(db: Session, project_id: int) -> models.ProjectSubmission:
+    submission = (
+        db.query(models.ProjectSubmission)
+        .options(joinedload(models.ProjectSubmission.members))
+        .filter(models.ProjectSubmission.ProjectId == project_id)
+        .first()
+    )
+    if not submission:
+        raise HTTPException(status_code=404, detail="Project submission not found")
+    return submission
+
+
+@router.post("/project-submissions", response_model=ProjectSubmissionOut, status_code=status.HTTP_201_CREATED)
+def create_project_submission(payload: ProjectSubmissionStep1In, db: Session = Depends(get_db)):
+    _validate_members(payload.SubmissionTypeCode, payload.Members)
+
+    new_submission = models.ProjectSubmission(
+        SubmissionTypeCode=payload.SubmissionTypeCode,
+        SubmissionTypeNameTh=SUBMISSION_TYPE_NAME_TH[payload.SubmissionTypeCode],
+        TeamName=payload.TeamName,
+        CreatedByEmpCode=payload.Members[0].EmpCode,
+    )
+    db.add(new_submission)
+    try:
+        db.flush()
+        _replace_members(db, new_submission.ProjectId, payload.Members)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create project submission")
+
+    return _get_submission_or_404(db, new_submission.ProjectId)
+
+
+@router.put("/project-submissions/{project_id}/step1", response_model=ProjectSubmissionOut)
+def update_project_submission_step1(project_id: int, payload: ProjectSubmissionStep1In, db: Session = Depends(get_db)):
+    _validate_members(payload.SubmissionTypeCode, payload.Members)
+    submission = _get_submission_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ไม่สามารถแก้ไขผลงานที่ส่งแล้วได้")
+
+    submission.SubmissionTypeCode = payload.SubmissionTypeCode
+    submission.SubmissionTypeNameTh = SUBMISSION_TYPE_NAME_TH[payload.SubmissionTypeCode]
+    submission.TeamName = payload.TeamName
+    submission.CreatedByEmpCode = payload.Members[0].EmpCode
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        _replace_members(db, project_id, payload.Members)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update project submission")
+
+    return _get_submission_or_404(db, project_id)
+
+
+def _apply_step2_fields(submission: models.ProjectSubmission, payload: ProjectSubmissionStep2In) -> None:
+    for field, value in payload.model_dump().items():
+        setattr(submission, field, value)
+
+
+@router.put("/project-submissions/{project_id}/step2", response_model=ProjectSubmissionOut)
+def save_project_submission_step2(project_id: int, payload: ProjectSubmissionStep2In, db: Session = Depends(get_db)):
+    submission = _get_submission_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ไม่สามารถแก้ไขผลงานที่ส่งแล้วได้")
+
+    _apply_step2_fields(submission, payload)
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save project submission draft")
+
+    return _get_submission_or_404(db, project_id)
+
+
+@router.post("/project-submissions/{project_id}/submit", response_model=ProjectSubmissionOut)
+def submit_project_submission(project_id: int, payload: ProjectSubmissionStep2In, db: Session = Depends(get_db)):
+    submission = _get_submission_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ผลงานนี้ถูกส่งไปแล้ว")
+
+    if not payload.ChallengeNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกโจทย์นวัตกรรม")
+    if not payload.InnovationTypeNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกประเภทนวัตกรรม")
+    idea_sources = [
+        payload.IdeaSourceCoPs, payload.IdeaSourceLR, payload.IdeaSourceResearch,
+        payload.IdeaSourceExperience, payload.IdeaSourceStudyVisit, payload.IdeaSourceKnowledgeExchange,
+        payload.IdeaSourceInnovationDatabase, payload.IdeaSourceMarketStudy, payload.IdeaSourceVOS,
+        payload.IdeaSourceOther,
+    ]
+    if not any(idea_sources):
+        raise HTTPException(status_code=400, detail="กรุณาเลือกแหล่งที่มาของแนวคิดอย่างน้อย 1 ข้อ")
+    if not payload.TargetCustomerHtml or not payload.TargetCustomerHtml.strip():
+        raise HTTPException(status_code=400, detail="กรุณาระบุกลุ่มเป้าหมาย")
+    if not payload.IdeaConceptHtml or not payload.IdeaConceptHtml.strip():
+        raise HTTPException(status_code=400, detail="กรุณาระบุแนวคิดนวัตกรรม")
+    if not payload.ExpectedBenefitHtml or not payload.ExpectedBenefitHtml.strip():
+        raise HTTPException(status_code=400, detail="กรุณาระบุประโยชน์ที่คาดว่าจะได้รับ")
+
+    _apply_step2_fields(submission, payload)
+    submission.StatusCode = "SUBMITTED"
+    submission.SubmittedAt = datetime.now()
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to submit project submission")
+
+    return _get_submission_or_404(db, project_id)
+
+
+@router.get("/project-submissions/export")
+def export_project_submissions(
+    team_name: Optional[str] = None,
+    innovation_type_no: Optional[int] = None,
+    challenge_no: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    sql = "SELECT * FROM dbo.vProjectSubmissionExport WHERE StatusCode = 'SUBMITTED'"
+    params: dict = {}
+    if team_name:
+        sql += " AND TeamName LIKE :team_name"
+        params["team_name"] = f"%{team_name}%"
+    if innovation_type_no is not None:
+        sql += " AND InnovationTypeNo = :innovation_type_no"
+        params["innovation_type_no"] = innovation_type_no
+    if challenge_no is not None:
+        sql += " AND ChallengeNo = :challenge_no"
+        params["challenge_no"] = challenge_no
+    sql += " ORDER BY ProjectId DESC"
+
+    df = pd.read_sql(text(sql), db.bind, params=params)
+
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="ProjectSubmissions")
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=project_submissions_export.xlsx"},
+    )
+
+
+@router.get("/project-submissions", response_model=ProjectSubmissionListResponse)
+def list_project_submissions(
+    page: int = 1,
+    page_size: int = 10,
+    team_name: Optional[str] = None,
+    innovation_type_no: Optional[int] = None,
+    challenge_no: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    query = db.query(models.ProjectSubmission).filter(models.ProjectSubmission.StatusCode == "SUBMITTED")
+    if team_name:
+        query = query.filter(models.ProjectSubmission.TeamName.ilike(f"%{team_name}%"))
+    if innovation_type_no is not None:
+        query = query.filter(models.ProjectSubmission.InnovationTypeNo == innovation_type_no)
+    if challenge_no is not None:
+        query = query.filter(models.ProjectSubmission.ChallengeNo == challenge_no)
+
+    total = query.count()
+    items = (
+        query.order_by(models.ProjectSubmission.CreatedAt.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return ProjectSubmissionListResponse(items=items, total=total, page=page, page_size=page_size)
+
+
+@router.get("/project-submissions/{project_id}", response_model=ProjectSubmissionOut)
+def get_project_submission(project_id: int, db: Session = Depends(get_db)):
+    return _get_submission_or_404(db, project_id)
 
 
 @router.post("/settings", response_model=SettingOut, status_code=status.HTTP_201_CREATED)

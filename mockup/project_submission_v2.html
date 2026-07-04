@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDEA Tank 2026 - ส่งผลงานประกวด (แบบ B: Cosmic Card)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0d1c;
+    --bg-alt: #0f1226;
+    --panel: #141833;
+    --panel-2: #171b3a;
+    --border: #262b52;
+    --border-hover: #3a3f75;
+    --text: #f1f2fa;
+    --text-dim: #9296bd;
+    --text-faint: #62678f;
+    --neon1: #ff8a5c;   /* orange */
+    --neon2: #7c6bff;   /* violet */
+    --neon3: #34d0ff;   /* cyan */
+    --neon-grad: linear-gradient(90deg, var(--neon1), var(--neon2) 55%, var(--neon3));
+    --brand-green: #22c55e;      /* bank brand green - ใช้เน้นจุดที่ถูกเลือก/active */
+    --brand-green-light: #4ade80;
+    --brand-green-dark: #15803d;
+    --green-grad: linear-gradient(135deg, var(--brand-green-light), var(--brand-green-dark));
+    --danger:#ff5d7a;
+    --success:#31e0b0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Kanit',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  /* hero header with wallpaper */
+  .hero{
+    position:relative;
+    height:230px;
+    overflow:hidden;
+    background:#05060f;
+    border-bottom:1px solid var(--border);
+  }
+  .hero img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%;
+    opacity:.65;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,6,15,.15) 0%, rgba(5,6,15,.55) 55%, var(--bg) 100%);
+  }
+  .hero-content{
+    position:relative; z-index:2; max-width:980px; margin:0 auto; height:100%;
+    display:flex; flex-direction:column; justify-content:flex-end; padding:0 24px 26px;
+  }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:500;
+    color:var(--neon3); background:rgba(52,208,255,.12); border:1px solid rgba(52,208,255,.3);
+    padding:6px 14px; border-radius:100px; width:fit-content; margin-bottom:12px;
+    letter-spacing:.4px;
+  }
+  .hero-content h1{
+    margin:0; font-size:30px; font-weight:700;
+    background:var(--neon-grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-content p{ margin:6px 0 0; color:var(--text-dim); font-size:14.5px; max-width:560px;}
+
+  .page{ max-width:980px; margin:0 auto; padding:30px 24px 100px; }
+
+  /* Stepper - horizontal track style */
+  .stepper{
+    display:flex; align-items:stretch; gap:0; margin-bottom:28px;
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;
+  }
+  .step-item{
+    flex:1; display:flex; align-items:center; gap:12px; padding:18px 22px; position:relative;
+    border-right:1px solid var(--border);
+  }
+  .step-item:last-child{ border-right:none; }
+  .step-dot{
+    width:32px;height:32px;border-radius:9px; display:flex;align-items:center;justify-content:center;
+    font-size:14px; font-weight:700; background:var(--bg-alt); color:var(--text-faint); border:1px solid var(--border); flex-shrink:0;
+  }
+  .step-item.active{ background:linear-gradient(180deg, rgba(34,197,94,.14), transparent); }
+  .step-item.active .step-dot{ background:var(--green-grad); color:#062013; border-color:transparent; box-shadow:0 0 0 4px rgba(34,197,94,.16);}
+  .step-item.active::before{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--green-grad);
+  }
+  .step-item.done .step-dot{ background:rgba(49,224,176,.15); color:var(--success); border-color:rgba(49,224,176,.4);}
+  .step-title{ font-size:14.5px; font-weight:600; color:var(--text);}
+  .step-sub{ font-size:12px; color:var(--text-faint);}
+  .step-item.active .step-sub{ color:var(--text-dim); }
+
+  /* Card */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:26px 28px;
+    margin-bottom:20px;
+    position:relative;
+  }
+  .card-head{
+    display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);
+  }
+  .card-head .idx{
+    width:30px;height:30px;border-radius:9px; background:var(--panel-2); border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center; font-size:13px; font-weight:700; color:var(--neon3); flex-shrink:0;
+  }
+  .card-head h3{ margin:0; font-size:16px; font-weight:600;}
+  .hint{ font-size:13px; color:var(--text-faint); margin:-10px 0 16px; line-height:1.6;}
+
+  label.field-label{ display:block; font-size:13.5px; font-weight:500; margin-bottom:8px; color:var(--text-dim);}
+  label.field-label .req{ color:var(--neon1); margin-left:3px;}
+
+  input[type=text], input[type=tel], textarea{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); color:var(--text);
+    padding:12px 15px; border-radius:var(--radius-sm); font-family:'Kanit'; font-size:14px; transition:.2s;
+  }
+  input::placeholder, textarea::placeholder{ color:var(--text-faint);}
+  input:focus, textarea:focus{
+    outline:none; border-color:var(--neon2); box-shadow:0 0 0 3px rgba(124,107,255,.18);
+  }
+
+  /* type cards */
+  .type-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .type-card{
+    border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; cursor:pointer;
+    background:var(--bg-alt); transition:.2s; position:relative; overflow:hidden;
+  }
+  .type-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--border); transition:.2s;
+  }
+  .type-card:hover{ border-color:var(--border-hover); }
+  .type-card.selected{ border-color:var(--brand-green); background:var(--panel-2); box-shadow:0 0 0 3px rgba(34,197,94,.14); }
+  .type-card.selected::before{ background:var(--green-grad); }
+  .type-card .row-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+  .type-card .ico{ font-size:22px; }
+  .type-card .radio-dot{
+    width:18px;height:18px;border-radius:50%; border:1.5px solid var(--border); flex-shrink:0;
+  }
+  .type-card.selected .radio-dot{ border-color:var(--brand-green); background:radial-gradient(circle, var(--brand-green) 40%, transparent 44%);}
+  .type-card .ttl{ font-size:15px; font-weight:600; margin-bottom:3px;}
+  .type-card .desc{ font-size:12px; color:var(--text-faint); line-height:1.5;}
+
+  /* member table */
+  .member-box{ border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-alt); padding:18px 20px; margin-top:18px;}
+  .member-box-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .member-box-head h4{ margin:0; font-size:14px; font-weight:600;}
+  .pill{ font-size:12px; padding:5px 12px; border-radius:100px; border:1px solid var(--border); color:var(--text-dim); background:var(--panel-2);}
+  table.member-table{ width:100%; border-collapse:collapse; font-size:13px;}
+  table.member-table thead th{ text-align:left; padding:8px 9px; color:var(--text-faint); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; border-bottom:1px solid var(--border);}
+  table.member-table tbody td{ padding:8px 9px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle;}
+  table.member-table input{ padding:8px 11px; font-size:13px; border-radius:7px;}
+  .badge-leader{ font-size:10.5px; padding:3px 9px; border-radius:6px; background:rgba(255,138,92,.14); color:var(--neon1); border:1px solid rgba(255,138,92,.35); white-space:nowrap;}
+  .icon-btn{
+    width:32px;height:32px;border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text-faint);
+    cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:13px; transition:.15s;
+  }
+  .icon-btn:hover{ background:rgba(255,93,122,.14); color:var(--danger); border-color:rgba(255,93,122,.4);}
+  .btn-add-member{
+    margin-top:12px; width:100%; padding:11px; border-radius:var(--radius-sm); border:1px dashed var(--border);
+    background:transparent; color:var(--text-faint); font-family:'Kanit'; font-size:13.5px; cursor:pointer; transition:.2s;
+  }
+  .btn-add-member:hover{ border-color:var(--neon2); color:var(--text); }
+  .btn-add-member:disabled{ opacity:.35; cursor:not-allowed;}
+
+  /* option lists */
+  .opt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .opt-row{
+    display:flex; align-items:flex-start; gap:10px; padding:13px 14px; border:1px solid var(--border);
+    border-radius:var(--radius-sm); background:var(--bg-alt); transition:.15s; cursor:pointer;
+  }
+  .opt-row:hover{ border-color:var(--border-hover);}
+  .opt-row.checked{ border-color:var(--brand-green); background:linear-gradient(180deg, rgba(34,197,94,.12), transparent); }
+  .opt-row input[type=checkbox], .opt-row input[type=radio]{ width:17px;height:17px; margin-top:2px; accent-color:var(--brand-green); flex-shrink:0;}
+  .opt-row .opt-body{ flex:1; }
+  .opt-row .opt-title{ font-size:13.5px; }
+  .opt-row input.opt-detail{ margin-top:9px; padding:8px 11px; font-size:12.5px; display:none;}
+  .opt-row.checked input.opt-detail{ display:block;}
+  .opt-list-single{ display:flex; flex-direction:column; gap:10px;}
+
+  .cap-group-title{
+    font-size:12px; font-weight:600; color:var(--neon3); text-transform:uppercase; letter-spacing:.6px;
+    margin:22px 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .cap-group-title:first-child{ margin-top:0;}
+  .cap-group-title::after{ content:""; flex:1; height:1px; background:var(--border);}
+
+  /* rich text */
+  .rte{ border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--bg-alt);}
+  .rte-toolbar{ display:flex; flex-wrap:wrap; gap:3px; padding:7px 9px; border-bottom:1px solid var(--border); background:var(--panel-2);}
+  .rte-toolbar button{ width:28px;height:28px; border-radius:6px; border:none; background:transparent; color:var(--text-faint); cursor:pointer; font-size:12.5px; font-family:'Kanit';}
+  .rte-toolbar button:hover{ background:var(--border); color:var(--text);}
+  .rte-toolbar .sep{ width:1px; background:var(--border); margin:3px 3px;}
+  .rte-body{ min-height:120px; padding:13px 15px; font-size:14px; line-height:1.7; outline:none;}
+  .rte-body:empty::before{ content:attr(data-placeholder); color:var(--text-faint);}
+
+  .wizard-nav{ display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:14px;}
+  .btn{
+    font-family:'Kanit'; font-size:14.5px; font-weight:600; padding:13px 26px; border-radius:var(--radius-sm);
+    border:none; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{ background:var(--neon-grad); color:#0b0d1c;}
+  .btn-primary:hover{ filter:brightness(1.1); transform:translateY(-1px);}
+  .btn-ghost{ background:var(--panel-2); color:var(--text); border:1px solid var(--border);}
+  .btn-ghost:hover{ border-color:var(--border-hover);}
+  .btn-submit{ background:linear-gradient(90deg, var(--success), var(--neon3)); color:#04241d;}
+  .btn-submit:hover{ filter:brightness(1.08);}
+
+  #step2{ display:none; }
+
+  .summary-table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:6px;}
+  .summary-table th{ text-align:left; padding:8px 9px; color:var(--text-faint); font-weight:600; font-size:11px; text-transform:uppercase; border-bottom:1px solid var(--border);}
+  .summary-table td{ padding:9px 9px; border-bottom:1px solid rgba(255,255,255,.04); color:var(--text-dim);}
+
+  @media(max-width:640px){
+    .type-grid, .opt-grid{ grid-template-columns:1fr;}
+    .card{ padding:20px 16px;}
+    .step-sub{ display:none;}
+    .hero{ height:170px;}
+    .hero-content h1{ font-size:22px;}
+  }
+
+  /* Floating section nav */
+  .side-nav{
+    position:fixed; right:26px; top:50%; transform:translateY(-50%) translateX(12px);
+    display:flex; flex-direction:column; align-items:center;
+    background:var(--panel); border:1px solid var(--border); border-radius:100px;
+    padding:14px 9px; z-index:60;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    box-shadow:0 10px 34px rgba(0,0,0,.35);
+  }
+  .side-nav.visible{ opacity:1; pointer-events:auto; transform:translateY(-50%) translateX(0); }
+  .side-nav-item{ position:relative; display:flex; flex-direction:column; align-items:center; }
+  .side-nav-item:not(:last-child)::after{
+    content:""; display:block; width:2px; height:12px; background:var(--border); margin:1px 0;
+  }
+  .side-nav-dot{
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--text-faint);
+    background:var(--bg-alt); border:1px solid var(--border);
+    cursor:pointer; transition:.2s;
+  }
+  .side-nav-dot:hover{ border-color:var(--border-hover); color:var(--text); }
+  .side-nav-dot.active{
+    background:var(--green-grad); color:#062013; border-color:transparent;
+    box-shadow:0 0 0 4px rgba(34,197,94,.18);
+  }
+  .side-nav-tooltip{
+    position:absolute; right:42px; top:50%; transform:translateY(-50%) translateX(4px);
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text-dim);
+    padding:7px 13px; border-radius:8px; font-size:12.5px; line-height:1.4;
+    white-space:nowrap; max-width:260px; text-overflow:ellipsis; overflow:hidden;
+    opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease;
+  }
+  .side-nav-item:hover .side-nav-tooltip{ opacity:1; transform:translateY(-50%) translateX(0); }
+
+  @media(max-width:900px){
+    .side-nav{ right:10px; padding:10px 6px; }
+    .side-nav-dot{ width:24px; height:24px; font-size:11px; }
+    .side-nav-tooltip{ display:none; }
+  }
+
+  /* Click sparkle burst */
+  .sparkle-particle{
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    user-select:none; will-change:transform,opacity; line-height:1;
+  }
+
+  /* Shooting star intro (on load) */
+  .shooting-star{
+    position:fixed; top:0; left:0; height:2px; border-radius:2px;
+    background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.95) 70%, #ffffff);
+    transform-origin:left center;
+    pointer-events:none; z-index:70;
+  }
+  .shooting-star::after{
+    content:""; position:absolute; right:-2px; top:50%; width:4px; height:4px; border-radius:50%;
+    background:#ffffff; transform:translateY(-50%);
+    box-shadow:0 0 10px 3px rgba(255,255,255,.85), 0 0 20px 7px var(--glow, rgba(124,107,255,.4));
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <img src="image/space_dark.png" alt="">
+    <div class="hero-content">
+      <span class="hero-eyebrow">● HACKATHON 2026</span>
+      <h1>IDEA Tank 2026</h1>
+      <p>ส่งผลงานนวัตกรรมของคุณ เพื่อร่วมประกวดและเปลี่ยนไอเดียให้เป็นจริง</p>
+    </div>
+  </div>
+
+  <div class="side-nav" id="sideNav"></div>
+
+<div class="page">
+
+  <div class="stepper">
+    <div class="step-item active" id="stepIndicator1">
+      <div class="step-dot">1</div>
+      <div>
+        <div class="step-title">รายชื่อทีม</div>
+        <div class="step-sub">ตั้งชื่อและเลือกประเภทผู้ส่งประกวด</div>
+      </div>
+    </div>
+    <div class="step-item" id="stepIndicator2">
+      <div class="step-dot">2</div>
+      <div>
+        <div class="step-title">รายละเอียดโครงการ</div>
+        <div class="step-sub">ข้อมูลแนวคิดและนวัตกรรม</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STEP 1 ============ -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-head"><div class="idx">1</div><h3>ชื่อทีม และประเภทการประกวด</h3></div>
+
+      <label class="field-label">ชื่อทีม / ชื่อผลงาน<span class="req">*</span></label>
+      <input type="text" id="teamName" placeholder="เช่น ทีมนวัตกรรมสร้างสรรค์">
+
+      <label class="field-label" style="margin-top:20px;">ส่งในนาม<span class="req">*</span></label>
+      <div class="type-grid">
+        <div class="type-card selected" id="cardIndividual" onclick="selectType('INDIVIDUAL')">
+          <div class="row-top"><span class="ico">🧑‍💼</span><span class="radio-dot"></span></div>
+          <div class="ttl">ประเภทบุคคล</div>
+          <div class="desc">ส่งผลงานในนามตนเอง 1 คน ไม่ต้องเพิ่มสมาชิกทีม</div>
+        </div>
+        <div class="type-card" id="cardTeam" onclick="selectType('TEAM')">
+          <div class="row-top"><span class="ico">👥</span><span class="radio-dot"></span></div>
+          <div class="ttl">ประเภททีม</div>
+          <div class="desc">รวมทีมสมาชิก 3-5 ท่าน ทำงานร่วมกัน</div>
+        </div>
+      </div>
+
+      <div class="member-box" id="memberBox">
+        <div class="member-box-head">
+          <h4>รายชื่อสมาชิกในทีม</h4>
+          <span class="pill" id="memberCountPill">จำนวนสมาชิก 3-5 ท่าน</span>
+        </div>
+        <table class="member-table">
+          <thead>
+            <tr>
+              <th style="width:16%">รหัสพนักงาน*</th>
+              <th style="width:20%">รายชื่อ</th>
+              <th style="width:16%">ตำแหน่ง</th>
+              <th style="width:20%">สังกัด</th>
+              <th style="width:16%">เบอร์ติดต่อ</th>
+              <th style="width:8%">หัวหน้าทีม</th>
+              <th style="width:4%"></th>
+            </tr>
+          </thead>
+          <tbody id="memberTbody">
+            <tr>
+              <td><input type="text" value="5801207" style="width:90px"></td>
+              <td>พงศกรณ์ พิสัยสวัสดิ์</td>
+              <td>ผู้บริหารทีม 10</td>
+              <td>สำนักวิจัยและพัฒนานวัตกรรม</td>
+              <td><input type="tel" placeholder="เบอร์ติดต่อ"></td>
+              <td style="text-align:center"><span class="badge-leader">หัวหน้าทีม</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder="ค้นหารหัส..." style="width:90px"></td>
+              <td colspan="3" style="color:var(--text-faint)">— กรอกรหัสพนักงานเพื่อค้นหา —</td>
+              <td><input type="tel" placeholder="เบอร์ติดต่อ"></td>
+              <td></td>
+              <td><button class="icon-btn" onclick="removeMemberRow(this)">✕</button></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder="ค้นหารหัส..." style="width:90px"></td>
+              <td colspan="3" style="color:var(--text-faint)">— กรอกรหัสพนักงานเพื่อค้นหา —</td>
+              <td><input type="tel" placeholder="เบอร์ติดต่อ"></td>
+              <td></td>
+              <td><button class="icon-btn" onclick="removeMemberRow(this)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn-add-member" id="btnAddMember" onclick="addMemberRow()">+ เพิ่มสมาชิก</button>
+      </div>
+    </div>
+
+    <div class="wizard-nav" style="justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="goToStep(2)">ถัดไป: รายละเอียดโครงการ →</button>
+    </div>
+  </div>
+
+  <!-- ============ STEP 2 ============ -->
+  <div id="step2">
+
+    <div class="wizard-nav" style="margin-top:0; margin-bottom:20px;">
+      <button class="btn btn-ghost" onclick="goToStep(1)">← ย้อนกลับ</button>
+      <button class="btn btn-submit" onclick="alert('ตัวอย่างหน้าจอ (mockup) เท่านั้น — ยังไม่เชื่อมต่อระบบจริง')">✓ ส่งผลงานเข้าประกวด</button>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">1</div><h3>กรุณาเลือกโจทย์นวัตกรรมที่ท่านต้องการแก้ปัญหา</h3></div>
+      <div class="opt-list-single">
+        <label class="opt-row" onclick="toggleRadioRow(this)">
+          <input type="radio" name="challenge">
+          <div class="opt-body"><span class="opt-title">เราจะเพิ่มประสิทธิภาพกระบวนการทำงานด้าน "การปรับปรุงโครงสร้างหนี้" ให้ถูกต้อง สะดวกรวดเร็ว และสามารถนำไปปฏิบัติจริงได้อย่างไร</span></div>
+        </label>
+        <label class="opt-row" onclick="toggleRadioRow(this)">
+          <input type="radio" name="challenge">
+          <div class="opt-body"><span class="opt-title">เราจะเพิ่มประสิทธิภาพกระบวนการทำงานด้าน "การบริหารจัดการหนี้" ให้ถูกต้อง สะดวกรวดเร็ว และสามารถนำไปปฏิบัติจริงได้อย่างไร</span></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">2</div><h3>แหล่งที่มาของแนวคิด (เลือกได้มากกว่า 1 ข้อ)</h3></div>
+      <div class="opt-grid" id="ideaSourceList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">3</div><h3>อธิบายถึงลูกค้าที่เป็นกลุ่มเป้าหมาย</h3></div>
+      <p class="hint">ระบุรายละเอียดของผู้ใช้งานหรือลูกค้าของแนวคิดที่นำเสนอพร้อมปัญหาของกลุ่มเป้าหมาย</p>
+      <div class="rte">
+        <div class="rte-toolbar">
+          <button onclick="exec('bold')"><b>B</b></button>
+          <button onclick="exec('italic')"><i>I</i></button>
+          <button onclick="exec('underline')"><u>U</u></button>
+          <div class="sep"></div>
+          <button onclick="exec('insertUnorderedList')">≡ •</button>
+          <button onclick="exec('insertOrderedList')">≡ 1.</button>
+        </div>
+        <div class="rte-body" contenteditable="true" data-placeholder="พิมพ์รายละเอียดที่นี่..."></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">4</div><h3>ประเภทของนวัตกรรม</h3></div>
+      <div class="opt-list-single">
+        <label class="opt-row" onclick="toggleRadioRow(this)"><input type="radio" name="innoType"><div class="opt-body"><span class="opt-title">นวัตกรรมผลิตภัณฑ์</span></div></label>
+        <label class="opt-row" onclick="toggleRadioRow(this)"><input type="radio" name="innoType"><div class="opt-body"><span class="opt-title">นวัตกรรมบริการ</span></div></label>
+        <label class="opt-row" onclick="toggleRadioRow(this)"><input type="radio" name="innoType"><div class="opt-body"><span class="opt-title">นวัตกรรมกระบวนการ</span></div></label>
+        <label class="opt-row" onclick="toggleRadioRow(this)"><input type="radio" name="innoType"><div class="opt-body"><span class="opt-title">นวัตกรรมรูปแบบการดำเนินธุรกิจหรือการค้าใหม่ขององค์กร</span></div></label>
+        <label class="opt-row" onclick="toggleRadioRow(this)"><input type="radio" name="innoType"><div class="opt-body"><span class="opt-title">นวัตกรรมเกษตรที่ส่งเสริมการยกระดับอาชีพเกษตร</span></div></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">5</div><h3>นำเสนอแนวคิดนวัตกรรมโดยสังเขป</h3></div>
+      <p class="hint">ระบุรายละเอียดหรือภาพรวมของแนวคิด เพื่อให้เข้าใจถึงแนวทางการนำไปใช้พัฒนา/แก้ไขปัญหาที่เกิดขึ้น</p>
+      <div class="rte">
+        <div class="rte-toolbar">
+          <button onclick="exec('bold')"><b>B</b></button>
+          <button onclick="exec('italic')"><i>I</i></button>
+          <button onclick="exec('underline')"><u>U</u></button>
+          <div class="sep"></div>
+          <button onclick="exec('insertUnorderedList')">≡ •</button>
+          <button onclick="exec('insertOrderedList')">≡ 1.</button>
+        </div>
+        <div class="rte-body" contenteditable="true" data-placeholder="พิมพ์แนวคิดนวัตกรรมที่นี่..."></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">6</div><h3>ประโยชน์ที่คาดว่าจะได้รับ</h3></div>
+      <p class="hint">การแก้ปัญหานี้เป็นประโยชน์ต่อภาคธุรกิจอย่างไร ทั้งด้านที่เป็นตัวเงินและที่ไม่ใช่ตัวเงิน</p>
+      <div class="rte">
+        <div class="rte-toolbar">
+          <button onclick="exec('bold')"><b>B</b></button>
+          <button onclick="exec('italic')"><i>I</i></button>
+          <button onclick="exec('underline')"><u>U</u></button>
+          <div class="sep"></div>
+          <button onclick="exec('insertUnorderedList')">≡ •</button>
+          <button onclick="exec('insertOrderedList')">≡ 1.</button>
+        </div>
+        <div class="rte-body" contenteditable="true" data-placeholder="พิมพ์ประโยชน์ที่คาดว่าจะได้รับที่นี่..."></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">7</div><h3>ทักษะ ความรู้ และความสามารถของสมาชิกภายในทีม</h3></div>
+      <div class="cap-group-title">ความสามารถด้านการบริหารโครงการ (General Capabilities)</div>
+      <div class="opt-grid" id="genCapList"></div>
+      <div class="cap-group-title">ความสามารถด้านดิจิทัล (Digital Capabilities)</div>
+      <div class="opt-grid" id="digitalCapList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="idx">8</div><h3>แรงจูงใจในการเข้าร่วมโครงการ Hackathon</h3></div>
+      <p class="hint">โปรดระบุรายละเอียด เหตุใดท่านจึงสนใจสมัครเข้าร่วมโครงการนี้</p>
+      <div class="rte">
+        <div class="rte-toolbar">
+          <button onclick="exec('bold')"><b>B</b></button>
+          <button onclick="exec('italic')"><i>I</i></button>
+          <button onclick="exec('underline')"><u>U</u></button>
+        </div>
+        <div class="rte-body" contenteditable="true" data-placeholder="พิมพ์แรงจูงใจที่นี่..."></div>
+      </div>
+
+      <div style="margin-top:22px;">
+        <h4 style="font-size:14.5px; margin-bottom:10px; color:var(--text-dim);">ทีมงานในโครงการ</h4>
+        <table class="summary-table" id="teamSummaryTable">
+          <thead><tr><th>รหัสพนักงาน</th><th>รายชื่อ</th><th>ตำแหน่ง</th><th>สังกัด</th><th>เบอร์ติดต่อ</th></tr></thead>
+          <tbody id="teamSummaryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn btn-ghost" onclick="goToStep(1)">← ย้อนกลับ</button>
+      <button class="btn btn-submit" onclick="alert('ตัวอย่างหน้าจอ (mockup) เท่านั้น — ยังไม่เชื่อมต่อระบบจริง')">✓ ส่งผลงานเข้าประกวด</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ideaSources = [
+    "ชุมชนนักปฏิบัติ (CoPs)","คลังความรู้ (LR)","ผลงานวิจัย","ประสบการณ์","ศึกษาดูงาน",
+    "การแลกเปลี่ยนเรียนรู้","ฐานข้อมูลนวัตกรรม","ผลการศึกษาความต้องการของตลาด","VOS (Voice of Stakeholder)","อื่นๆ"
+  ];
+  const genCaps = [
+    "การบริหารโครงการ (Project Management)","การสื่อสารภายในหรือภายนอกองค์กร (Communications)",
+    "การตลาด (Marketing)","การวิเคราะห์ทางการเงินและธุรกิจ (Financial and Business Analysis)",
+    "การดูแลลูกค้า (Customer Management)","การดูแลผู้มีส่วนได้เสียและพันธมิตร (Stakeholders and Partnership Management)","อื่นๆ"
+  ];
+  const digitalCaps = [
+    "การพัฒนาผลิตภัณฑ์ (Product Development)","การเขียนโค้ดหรือโปรแกรม (Coding / Programming)",
+    "การวิเคราะห์ข้อมูล (Data Analysis)","การออกแบบกราฟิก UI/UX & Graphic Design",
+    "การพัฒนาซอฟต์แวร์และเครื่องมือต่างๆ (Software and Tooling Development)","อื่นๆ"
+  ];
+
+  function buildCheckboxList(container, items, name){
+    container.innerHTML = items.map((label)=>`
+      <label class="opt-row" onclick="toggleCheckRow(event,this)">
+        <input type="checkbox" name="${name}">
+        <div class="opt-body">
+          <span class="opt-title">${label}</span>
+          <input type="text" class="opt-detail" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)">
+        </div>
+      </label>`).join('');
+  }
+  buildCheckboxList(document.getElementById('ideaSourceList'), ideaSources, 'ideaSource');
+  buildCheckboxList(document.getElementById('genCapList'), genCaps, 'genCap');
+  buildCheckboxList(document.getElementById('digitalCapList'), digitalCaps, 'digitalCap');
+
+  function toggleCheckRow(e, row){
+    if(e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') return;
+    const cb = row.querySelector('input[type=checkbox]');
+    if(e.target !== cb) cb.checked = !cb.checked;
+    row.classList.toggle('checked', cb.checked);
+  }
+  function toggleRadioRow(row){
+    const name = row.querySelector('input').name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(inp=>{
+      inp.closest('.opt-row').classList.remove('checked');
+    });
+    row.querySelector('input').checked = true;
+    row.classList.add('checked');
+  }
+
+  function exec(cmd){ document.execCommand(cmd, false, null); }
+
+  let currentType = 'INDIVIDUAL';
+  function selectType(type){
+    currentType = type;
+    document.getElementById('cardIndividual').classList.toggle('selected', type==='INDIVIDUAL');
+    document.getElementById('cardTeam').classList.toggle('selected', type==='TEAM');
+    const pill = document.getElementById('memberCountPill');
+    const tbody = document.getElementById('memberTbody');
+    const addBtn = document.getElementById('btnAddMember');
+    if(type === 'INDIVIDUAL'){
+      pill.textContent = 'ประเภทบุคคล 1 ท่าน';
+      Array.from(tbody.rows).slice(1).forEach(r=>r.remove());
+      addBtn.style.display = 'none';
+    } else {
+      pill.textContent = 'จำนวนสมาชิก 3-5 ท่าน';
+      addBtn.style.display = 'block';
+    }
+  }
+  selectType('INDIVIDUAL');
+
+  function addMemberRow(){
+    const tbody = document.getElementById('memberTbody');
+    if(tbody.rows.length >= 5){ alert('เพิ่มสมาชิกได้สูงสุด 5 ท่าน'); return; }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" placeholder="ค้นหารหัส..." style="width:90px"></td>
+      <td colspan="3" style="color:var(--text-faint)">— กรอกรหัสพนักงานเพื่อค้นหา —</td>
+      <td><input type="tel" placeholder="เบอร์ติดต่อ"></td>
+      <td></td>
+      <td><button class="icon-btn" onclick="removeMemberRow(this)">✕</button></td>`;
+    tbody.appendChild(tr);
+  }
+  function removeMemberRow(btn){
+    const tbody = document.getElementById('memberTbody');
+    if(tbody.rows.length <= 2){ alert('ต้องมีสมาชิกอย่างน้อย 1 ท่าน นอกเหนือจากหัวหน้าทีม'); return; }
+    btn.closest('tr').remove();
+  }
+
+  function goToStep(n){
+    if(n === 2){
+      const name = document.getElementById('teamName').value.trim();
+      if(!name){ alert('กรุณากรอกชื่อทีม / ชื่อผลงาน'); return; }
+      buildTeamSummary();
+    }
+    document.getElementById('step1').style.display = n===1 ? 'block' : 'none';
+    document.getElementById('step2').style.display = n===2 ? 'block' : 'none';
+    document.getElementById('stepIndicator1').classList.toggle('active', n===1);
+    document.getElementById('stepIndicator1').classList.toggle('done', n===2);
+    document.getElementById('stepIndicator2').classList.toggle('active', n===2);
+    document.getElementById('sideNav').classList.toggle('visible', n===2);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ---- Floating section nav (step 2 cards) ----
+  let sectionObserver;
+  function buildSideNav(){
+    const cards = document.querySelectorAll('#step2 .card');
+    const nav = document.getElementById('sideNav');
+    nav.innerHTML = Array.from(cards).map((card, i)=>{
+      const id = 'sec-' + (i + 1);
+      card.id = id;
+      const title = card.querySelector('.card-head h3')?.textContent.trim() || `ส่วนที่ ${i+1}`;
+      return `<div class="side-nav-item">
+        <div class="side-nav-dot" data-target="${id}" onclick="scrollToSection('${id}')">${i+1}</div>
+        <div class="side-nav-tooltip">${title}</div>
+      </div>`;
+    }).join('');
+
+    if(sectionObserver) sectionObserver.disconnect();
+    sectionObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        document.querySelectorAll('.side-nav-dot').forEach(d=>d.classList.remove('active'));
+        const dot = nav.querySelector(`.side-nav-dot[data-target="${entry.target.id}"]`);
+        if(dot) dot.classList.add('active');
+      });
+    }, { root:null, rootMargin:'-15% 0px -70% 0px', threshold:0 });
+    cards.forEach(c=>sectionObserver.observe(c));
+  }
+
+  function scrollToSection(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 20;
+    window.scrollTo({ top:y, behavior:'smooth' });
+  }
+
+  buildSideNav();
+
+  // ---- Click sparkle burst ----
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sparkleColors = ['#22c55e','#4ade80','#ff8a5c','#7c6bff','#34d0ff','#ffffff'];
+  const sparkleChars = ['✦','✧','⋆','✩'];
+
+  function spawnSparkles(e){
+    if(prefersReducedMotion) return;
+    const count = 7 + Math.floor(Math.random()*3);
+    for(let i=0;i<count;i++){
+      const el = document.createElement('span');
+      el.className = 'sparkle-particle';
+      el.textContent = sparkleChars[Math.floor(Math.random()*sparkleChars.length)];
+      const angle = (Math.PI*2*i)/count + (Math.random()*0.6 - 0.3);
+      const distance = 26 + Math.random()*42;
+      const dx = Math.cos(angle)*distance;
+      const dy = Math.sin(angle)*distance;
+      const size = 8 + Math.random()*11;
+      const color = sparkleColors[Math.floor(Math.random()*sparkleColors.length)];
+      const spin = Math.random() > 0.5 ? 200 : -200;
+      el.style.left = e.clientX + 'px';
+      el.style.top = e.clientY + 'px';
+      el.style.fontSize = size + 'px';
+      el.style.color = color;
+      el.style.textShadow = `0 0 6px ${color}`;
+      document.body.appendChild(el);
+      const anim = el.animate([
+        { transform:'translate(-50%,-50%) scale(1) rotate(0deg)', opacity:1 },
+        { transform:`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.15) rotate(${spin}deg)`, opacity:0 }
+      ], { duration: 500 + Math.random()*300, easing:'cubic-bezier(.2,.8,.2,1)' });
+      anim.onfinish = () => el.remove();
+    }
+  }
+  document.addEventListener('click', spawnSparkles);
+
+  // ---- Shooting stars on page load ----
+  function spawnOneShootingStar(glowColor){
+    const startX = -60 + Math.random()*(window.innerWidth*0.22);
+    const startY = -30 + Math.random()*(window.innerHeight*0.16);
+    const travel = Math.max(window.innerWidth, window.innerHeight) * 1.05;
+    const angle = 32 + Math.random()*14; // deg, diagonal down-right like a meteor
+    const rad = angle * Math.PI/180;
+    const dx = Math.cos(rad) * travel;
+    const dy = Math.sin(rad) * travel;
+    const length = 90 + Math.random()*70;
+
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+    star.style.setProperty('--glow', glowColor);
+    star.style.width = length + 'px';
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+    document.body.appendChild(star);
+
+    const duration = 950 + Math.random()*350;
+    const anim = star.animate([
+      { transform:`translate(0,0) rotate(${angle}deg)`, opacity:0 },
+      { transform:`translate(${dx*0.1}px, ${dy*0.1}px) rotate(${angle}deg)`, opacity:1, offset:0.12 },
+      { transform:`translate(${dx*0.8}px, ${dy*0.8}px) rotate(${angle}deg)`, opacity:1, offset:0.78 },
+      { transform:`translate(${dx}px, ${dy}px) rotate(${angle}deg)`, opacity:0 }
+    ], { duration, easing:'cubic-bezier(.3,.6,.4,1)' });
+    anim.onfinish = () => star.remove();
+  }
+
+  function spawnShootingStars(){
+    if(prefersReducedMotion) return;
+    const glowColors = ['rgba(124,107,255,.45)','rgba(52,208,255,.45)','rgba(34,197,94,.45)'];
+    glowColors.forEach((glow, i)=>{
+      setTimeout(()=> spawnOneShootingStar(glow), i*380 + Math.random()*220);
+    });
+  }
+  setTimeout(spawnShootingStars, 300);
+
+  function buildTeamSummary(){
+    const tbody = document.getElementById('memberTbody');
+    const summary = document.getElementById('teamSummaryBody');
+    let rows = '';
+    Array.from(tbody.rows).forEach(r=>{
+      const cells = r.querySelectorAll('td');
+      const empCode = cells[0].querySelector('input')?.value || '';
+      if(!empCode) return;
+      const isPlaceholder = cells[1].hasAttribute('colspan');
+      const name = isPlaceholder ? '(รอค้นหา)' : cells[1].textContent;
+      const pos = isPlaceholder ? '-' : cells[2].textContent;
+      const org = isPlaceholder ? '-' : cells[3].textContent;
+      const mobile = cells[4].querySelector('input')?.value || '-';
+      rows += `<tr><td>${empCode}</td><td>${name}</td><td>${pos}</td><td>${org}</td><td>${mobile}</td></tr>`;
+    });
+    summary.innerHTML = rows || '<tr><td colspan="5" style="color:var(--text-faint)">ยังไม่มีข้อมูลสมาชิก</td></tr>';
+  }
+</script>
+</body>
+</html>

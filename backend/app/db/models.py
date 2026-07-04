@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, Text, TIMESTAMP, text, String, DateTime
+from sqlalchemy import Column, Integer, BigInteger, Text, TIMESTAMP, text, String, DateTime, Boolean, SmallInteger, ForeignKey
+from sqlalchemy.dialects.mssql import TINYINT
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.elements import quoted_name
 
 from app.db.database import Base
@@ -98,6 +100,103 @@ class User(Base):
         DateTime, nullable=False, server_default=text("GETDATE()")
     )
     user_role = Column(String(50), nullable=True, default='user')
+
+
+class ProjectSubmission(Base):
+    __tablename__ = quoted_name("ProjectSubmission", True)
+    __table_args__ = {"schema": "dbo"}
+
+    ProjectId = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
+    EventYear = Column(SmallInteger, nullable=False, server_default=text("2026"))
+    SubmissionTypeCode = Column(String(20), nullable=False)
+    SubmissionTypeNameTh = Column(String(100), nullable=False)
+    TeamName = Column(String(200), nullable=False)
+
+    ChallengeNo = Column(TINYINT, nullable=True)
+    ChallengeText = Column(String(1000), nullable=True)
+
+    IdeaSourceCoPs = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceCoPsDetail = Column(String(1000), nullable=True)
+    IdeaSourceLR = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceLRDetail = Column(String(1000), nullable=True)
+    IdeaSourceResearch = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceResearchDetail = Column(String(1000), nullable=True)
+    IdeaSourceExperience = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceExperienceDetail = Column(String(1000), nullable=True)
+    IdeaSourceStudyVisit = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceStudyVisitDetail = Column(String(1000), nullable=True)
+    IdeaSourceKnowledgeExchange = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceKnowledgeExchangeDetail = Column(String(1000), nullable=True)
+    IdeaSourceInnovationDatabase = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceInnovationDatabaseDetail = Column(String(1000), nullable=True)
+    IdeaSourceMarketStudy = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceMarketStudyDetail = Column(String(1000), nullable=True)
+    IdeaSourceVOS = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceVOSDetail = Column(String(1000), nullable=True)
+    IdeaSourceOther = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceOtherDetail = Column(String(1000), nullable=True)
+
+    TargetCustomerHtml = Column(Text, nullable=True)
+
+    InnovationTypeNo = Column(TINYINT, nullable=True)
+    InnovationTypeText = Column(String(500), nullable=True)
+
+    IdeaConceptHtml = Column(Text, nullable=True)
+    ExpectedBenefitHtml = Column(Text, nullable=True)
+
+    GenCapProjectManagement = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapCommunications = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapMarketing = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapFinancialBusinessAnalysis = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapCustomerManagement = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapStakeholderPartnership = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapOther = Column(Boolean, nullable=False, server_default=text("0"))
+    GenCapOtherDetail = Column(String(1000), nullable=True)
+
+    DigitalCapProductDevelopment = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapCodingProgramming = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapDataAnalysis = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapUiUxGraphicDesign = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapSoftwareTooling = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapOther = Column(Boolean, nullable=False, server_default=text("0"))
+    DigitalCapOtherDetail = Column(String(1000), nullable=True)
+
+    HackathonMotivationHtml = Column(Text, nullable=True)
+
+    StatusCode = Column(String(20), nullable=False, server_default=text("'DRAFT'"))
+    SubmittedAt = Column(DateTime, nullable=True)
+
+    CreatedByEmpCode = Column(String(20), nullable=True)
+    CreatedAt = Column(DateTime, nullable=False, server_default=text("SYSDATETIME()"))
+    UpdatedByEmpCode = Column(String(20), nullable=True)
+    UpdatedAt = Column(DateTime, nullable=True)
+
+    members = relationship(
+        "ProjectSubmissionMember",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="ProjectSubmissionMember.MemberSeq",
+    )
+
+
+class ProjectSubmissionMember(Base):
+    __tablename__ = quoted_name("ProjectSubmissionMember", True)
+    __table_args__ = {"schema": "dbo"}
+
+    ProjectMemberId = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
+    ProjectId = Column(BigInteger, ForeignKey("dbo.ProjectSubmission.ProjectId", ondelete="CASCADE"), nullable=False)
+    MemberSeq = Column(TINYINT, nullable=False)
+    EmpCode = Column(String(20), nullable=False)
+    FullNameTh = Column(String(200), nullable=False)
+    PositionName = Column(String(200), nullable=True)
+    OrgName = Column(String(300), nullable=True)
+    MobileNo = Column(String(50), nullable=True)
+    IsTeamLeader = Column(Boolean, nullable=False, server_default=text("0"))
+    IsMainContact = Column(Boolean, nullable=False, server_default=text("0"))
+    CreatedAt = Column(DateTime, nullable=False, server_default=text("SYSDATETIME()"))
+    UpdatedAt = Column(DateTime, nullable=True)
+
+    project = relationship("ProjectSubmission", back_populates="members")
 
 
 class Setting(Base):

@@ -10,6 +10,9 @@ interface BackgroundProviderProps {
 export default function BackgroundProvider({ children }: BackgroundProviderProps) {
   const pathname = usePathname();
 
+  // These pages fully control their own background/theme via page-scoped CSS
+  const selfManagedBackgroundPages = pathname.startsWith('/project_submission');
+
   // Check if current page should have black background
   const blackBackgroundPages = ["index","create-question", "answer_list", "answer_analytic","present-answer", "answer_evaluation"];
   
@@ -27,10 +30,12 @@ export default function BackgroundProvider({ children }: BackgroundProviderProps
   console.log("shouldHaveBlackBackground:", shouldHaveBlackBackground);
   
   useEffect(() => {
+    if (selfManagedBackgroundPages) return;
+
     // Apply background style to html and body elements
     const htmlElement = document.documentElement;
     const bodyElement = document.body;
-    
+
     const backgroundStyle = shouldHaveBlackBackground
       ? 'linear-gradient(135deg, #073a22 0%,    #000000 100%)'
       : '#F5F5F7';
@@ -64,7 +69,7 @@ export default function BackgroundProvider({ children }: BackgroundProviderProps
       bodyElement.style.margin = '';
       bodyElement.style.padding = '';
     };
-  }, [shouldHaveBlackBackground]);
+  }, [shouldHaveBlackBackground, selfManagedBackgroundPages]);
 
   return (
     <div>
