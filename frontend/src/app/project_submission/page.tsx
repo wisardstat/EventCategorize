@@ -389,11 +389,11 @@ export default function ProjectSubmissionPage() {
                   <tbody>
                     {members.map((m, idx) => (
                       <tr key={idx}>
-                        <td><input type="text" value={m.EmpCode} onChange={(e) => updateMember(idx, "EmpCode", e.target.value)} placeholder="รหัสพนักงาน" style={{ width: 90 }} /></td>
-                        <td><input type="text" value={m.FullNameTh} onChange={(e) => updateMember(idx, "FullNameTh", e.target.value)} placeholder="ชื่อ-นามสกุล" /></td>
-                        <td><input type="text" value={m.PositionName} onChange={(e) => updateMember(idx, "PositionName", e.target.value)} placeholder="ตำแหน่ง" /></td>
-                        <td><input type="text" value={m.OrgName} onChange={(e) => updateMember(idx, "OrgName", e.target.value)} placeholder="สังกัด" /></td>
-                        <td><input type="tel" value={m.MobileNo} onChange={(e) => updateMember(idx, "MobileNo", e.target.value)} placeholder="เบอร์ติดต่อ" /></td>
+                        <td data-label="รหัสพนักงาน*"><input type="text" value={m.EmpCode} onChange={(e) => updateMember(idx, "EmpCode", e.target.value)} placeholder="รหัสพนักงาน" style={{ width: 90 }} /></td>
+                        <td data-label="ชื่อ-นามสกุล*"><input type="text" value={m.FullNameTh} onChange={(e) => updateMember(idx, "FullNameTh", e.target.value)} placeholder="ชื่อ-นามสกุล" /></td>
+                        <td data-label="ตำแหน่ง"><input type="text" value={m.PositionName} onChange={(e) => updateMember(idx, "PositionName", e.target.value)} placeholder="ตำแหน่ง" /></td>
+                        <td data-label="สังกัด(สำนักวิจัยและนวัตกรรม(วพ.))"><input type="text" value={m.OrgName} onChange={(e) => updateMember(idx, "OrgName", e.target.value)} placeholder="สังกัด" /></td>
+                        <td data-label="เบอร์ติดต่อ"><input type="tel" value={m.MobileNo} onChange={(e) => updateMember(idx, "MobileNo", e.target.value)} placeholder="เบอร์ติดต่อ" /></td>
                         <td style={{ textAlign: "center" }}>{idx === 0 ? <span className="badge-leader">{submissionType === "TEAM" ? "หัวหน้าทีม" : "ผู้ส่งผลงาน"}</span> : null}</td>
                         <td>{idx > 0 ? <button type="button" className="icon-btn" onClick={() => removeMember(idx)}>&#10005;</button> : null}</td>
                       </tr>
