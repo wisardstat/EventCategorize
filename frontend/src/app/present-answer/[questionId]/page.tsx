@@ -61,7 +61,7 @@ export default function PresentAnswerPage() {
 
     useEffect(() => {
         if (questionId === "29af19ef-ab12-4e83-a27b-294373c10344") {
-            router.replace("/project_submission");
+            router.replace("/project_submission_new");
             return;
         }
 
