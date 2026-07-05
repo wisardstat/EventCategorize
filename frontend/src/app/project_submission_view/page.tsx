@@ -64,7 +64,7 @@ function ViewContent() {
   }
 
   return (
-    <div className={`ps-wizard ${kanit.variable}`}>
+    <div className={`ps-wizard psv-page ${kanit.variable}`}>
       <div className="thank-hero thank-hero-compact">
         <img src="/images/space_dark.png" alt="" />
         <div className="thank-hero-content">

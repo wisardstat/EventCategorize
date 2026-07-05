@@ -199,6 +199,114 @@ class ProjectSubmissionMember(Base):
     project = relationship("ProjectSubmission", back_populates="members")
 
 
+class ProjectSubmissionNew(Base):
+    __tablename__ = quoted_name("ProjectSubmissionNew", True)
+    __table_args__ = {"schema": "dbo"}
+
+    ProjectId = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
+    EventYear = Column(SmallInteger, nullable=False, server_default=text("2026"))
+    SubmissionTypeCode = Column(String(20), nullable=False)
+    SubmissionTypeNameTh = Column(String(100), nullable=False)
+    TeamName = Column(String(200), nullable=True)
+    CreativeIdeaName = Column(String(300), nullable=False)
+
+    ChallengeNo = Column(TINYINT, nullable=True)
+    ChallengeText = Column(String(1000), nullable=True)
+
+    ChallengeCategoryNo = Column(TINYINT, nullable=True)
+    ChallengeCategoryText = Column(String(500), nullable=True)
+
+    StrategicObjectiveSO1 = Column(Boolean, nullable=False, server_default=text("0"))
+    StrategicObjectiveSO2 = Column(Boolean, nullable=False, server_default=text("0"))
+    StrategicObjectiveSO3 = Column(Boolean, nullable=False, server_default=text("0"))
+    StrategicObjectiveSO4 = Column(Boolean, nullable=False, server_default=text("0"))
+    StrategicObjectiveSO5 = Column(Boolean, nullable=False, server_default=text("0"))
+    StrategicObjectiveSO6 = Column(Boolean, nullable=False, server_default=text("0"))
+
+    IdeaSourceCoPs = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceCoPsDetail = Column(String(1000), nullable=True)
+    IdeaSourceLR = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceLRDetail = Column(String(1000), nullable=True)
+    IdeaSourceResearch = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceResearchDetail = Column(String(1000), nullable=True)
+    IdeaSourceExperience = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceExperienceDetail = Column(String(1000), nullable=True)
+    IdeaSourceStudyVisit = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceStudyVisitDetail = Column(String(1000), nullable=True)
+    IdeaSourceKnowledgeExchange = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceKnowledgeExchangeDetail = Column(String(1000), nullable=True)
+    IdeaSourceInnovationDatabase = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceInnovationDatabaseDetail = Column(String(1000), nullable=True)
+    IdeaSourceMarketStudy = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceMarketStudyDetail = Column(String(1000), nullable=True)
+    IdeaSourceVOS = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceVOSDetail = Column(String(1000), nullable=True)
+    IdeaSourceOther = Column(Boolean, nullable=False, server_default=text("0"))
+    IdeaSourceOtherDetail = Column(String(1000), nullable=True)
+
+    TargetCustomerTypeNo = Column(TINYINT, nullable=True)
+    TargetCustomerTypeText = Column(String(100), nullable=True)
+    TargetCustomerProblemHtml = Column(Text, nullable=True)
+
+    InnovationTypeNo = Column(TINYINT, nullable=True)
+    InnovationTypeText = Column(String(500), nullable=True)
+
+    IdeaConceptHtml = Column(Text, nullable=True)
+
+    DigitalInnovationNo = Column(TINYINT, nullable=True)
+    DigitalInnovationText = Column(String(300), nullable=True)
+
+    NoveltyLevelNo = Column(TINYINT, nullable=True)
+    NoveltyLevelText = Column(String(1000), nullable=True)
+
+    InnovationValueFinancial = Column(Boolean, nullable=False, server_default=text("0"))
+    FinancialValueRevenue = Column(Boolean, nullable=False, server_default=text("0"))
+    FinancialValueCostSaving = Column(Boolean, nullable=False, server_default=text("0"))
+    FinancialValueDetailHtml = Column(Text, nullable=True)
+
+    InnovationValueNonFinancial = Column(Boolean, nullable=False, server_default=text("0"))
+    NonFinancialValueCustomerSatisfaction = Column(Boolean, nullable=False, server_default=text("0"))
+    NonFinancialValueWorkEfficiency = Column(Boolean, nullable=False, server_default=text("0"))
+    NonFinancialValueCustomerQuality = Column(Boolean, nullable=False, server_default=text("0"))
+    NonFinancialValueEnvironment = Column(Boolean, nullable=False, server_default=text("0"))
+    NonFinancialValueDetailHtml = Column(Text, nullable=True)
+
+    StatusCode = Column(String(20), nullable=False, server_default=text("'DRAFT'"))
+    SubmittedAt = Column(DateTime, nullable=True)
+
+    CreatedByEmpCode = Column(String(20), nullable=True)
+    CreatedAt = Column(DateTime, nullable=False, server_default=text("SYSDATETIME()"))
+    UpdatedByEmpCode = Column(String(20), nullable=True)
+    UpdatedAt = Column(DateTime, nullable=True)
+
+    members = relationship(
+        "ProjectSubmissionNewMember",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="ProjectSubmissionNewMember.MemberSeq",
+    )
+
+
+class ProjectSubmissionNewMember(Base):
+    __tablename__ = quoted_name("ProjectSubmissionNewMember", True)
+    __table_args__ = {"schema": "dbo"}
+
+    ProjectMemberId = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
+    ProjectId = Column(BigInteger, ForeignKey("dbo.ProjectSubmissionNew.ProjectId", ondelete="CASCADE"), nullable=False)
+    MemberSeq = Column(TINYINT, nullable=False)
+    EmpCode = Column(String(20), nullable=False)
+    FullNameTh = Column(String(200), nullable=False)
+    PositionName = Column(String(200), nullable=True)
+    OrgName = Column(String(300), nullable=True)
+    MobileNo = Column(String(50), nullable=True)
+    IsTeamLeader = Column(Boolean, nullable=False, server_default=text("0"))
+    IsMainContact = Column(Boolean, nullable=False, server_default=text("0"))
+    CreatedAt = Column(DateTime, nullable=False, server_default=text("SYSDATETIME()"))
+    UpdatedAt = Column(DateTime, nullable=True)
+
+    project = relationship("ProjectSubmissionNew", back_populates="members")
+
+
 class Setting(Base):
     __tablename__ = quoted_name("tb_setting", True)
     __table_args__ = {"schema": "dbo"}

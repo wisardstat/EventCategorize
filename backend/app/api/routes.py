@@ -1,6 +1,7 @@
 import uuid
 import logging
 import json
+import re
 from datetime import datetime
 from typing import List, Optional
 
@@ -27,6 +28,10 @@ from app.db.schemas import (
     ProjectSubmissionStep2In,
     ProjectSubmissionOut,
     ProjectSubmissionListResponse,
+    ProjectSubmissionNewStep1In,
+    ProjectSubmissionNewStep2In,
+    ProjectSubmissionNewOut,
+    ProjectSubmissionNewListResponse,
 )
 from sqlalchemy.orm import joinedload
 from fastapi.responses import StreamingResponse
@@ -1485,6 +1490,109 @@ def submit_project_submission(project_id: int, payload: ProjectSubmissionStep2In
     return _get_submission_or_404(db, project_id)
 
 
+PROJECT_SUBMISSION_EXPORT_COLUMNS_TH = {
+    "ProjectId": "รหัสโครงการ",
+    "EventYear": "ปีของโครงการ",
+    "SubmissionTypeCode": "รหัสประเภทการส่งประกวด",
+    "SubmissionTypeNameTh": "ประเภทการส่งประกวด",
+    "TeamName": "ชื่อทีม / ชื่อผลงาน",
+
+    "ChallengeNo": "ลำดับโจทย์นวัตกรรม",
+    "ChallengeText": "โจทย์นวัตกรรมที่เลือก",
+
+    "IdeaSourceCoPs": "แหล่งที่มา: ชุมชนนักปฏิบัติ (CoPs)",
+    "IdeaSourceCoPsDetail": "รายละเอียด: ชุมชนนักปฏิบัติ (CoPs)",
+    "IdeaSourceLR": "แหล่งที่มา: คลังความรู้ (LR)",
+    "IdeaSourceLRDetail": "รายละเอียด: คลังความรู้ (LR)",
+    "IdeaSourceResearch": "แหล่งที่มา: ผลงานวิจัย",
+    "IdeaSourceResearchDetail": "รายละเอียด: ผลงานวิจัย",
+    "IdeaSourceExperience": "แหล่งที่มา: ประสบการณ์",
+    "IdeaSourceExperienceDetail": "รายละเอียด: ประสบการณ์",
+    "IdeaSourceStudyVisit": "แหล่งที่มา: ศึกษาดูงาน",
+    "IdeaSourceStudyVisitDetail": "รายละเอียด: ศึกษาดูงาน",
+    "IdeaSourceKnowledgeExchange": "แหล่งที่มา: การแลกเปลี่ยนเรียนรู้",
+    "IdeaSourceKnowledgeExchangeDetail": "รายละเอียด: การแลกเปลี่ยนเรียนรู้",
+    "IdeaSourceInnovationDatabase": "แหล่งที่มา: ฐานข้อมูลนวัตกรรม",
+    "IdeaSourceInnovationDatabaseDetail": "รายละเอียด: ฐานข้อมูลนวัตกรรม",
+    "IdeaSourceMarketStudy": "แหล่งที่มา: ผลการศึกษาความต้องการของตลาด",
+    "IdeaSourceMarketStudyDetail": "รายละเอียด: ผลการศึกษาความต้องการของตลาด",
+    "IdeaSourceVOS": "แหล่งที่มา: Voice of Stakeholder (VOS)",
+    "IdeaSourceVOSDetail": "รายละเอียด: Voice of Stakeholder (VOS)",
+    "IdeaSourceOther": "แหล่งที่มา: อื่นๆ",
+    "IdeaSourceOtherDetail": "รายละเอียด: อื่นๆ",
+
+    "TargetCustomerHtml": "กลุ่มลูกค้าเป้าหมาย",
+
+    "InnovationTypeNo": "ลำดับประเภทนวัตกรรม",
+    "InnovationTypeText": "ประเภทนวัตกรรม",
+
+    "IdeaConceptHtml": "แนวคิดนวัตกรรมโดยสังเขป",
+    "ExpectedBenefitHtml": "ประโยชน์ที่คาดว่าจะได้รับ",
+
+    "GenCapProjectManagement": "ทักษะทั่วไป: การบริหารโครงการ",
+    "GenCapCommunications": "ทักษะทั่วไป: การสื่อสาร",
+    "GenCapMarketing": "ทักษะทั่วไป: การตลาด",
+    "GenCapFinancialBusinessAnalysis": "ทักษะทั่วไป: การวิเคราะห์การเงินและธุรกิจ",
+    "GenCapCustomerManagement": "ทักษะทั่วไป: การดูแลลูกค้า",
+    "GenCapStakeholderPartnership": "ทักษะทั่วไป: การดูแลผู้มีส่วนได้เสียและพันธมิตร",
+    "GenCapOther": "ทักษะทั่วไป: อื่นๆ",
+    "GenCapOtherDetail": "รายละเอียดทักษะทั่วไปอื่นๆ",
+
+    "DigitalCapProductDevelopment": "ทักษะดิจิทัล: การพัฒนาผลิตภัณฑ์",
+    "DigitalCapCodingProgramming": "ทักษะดิจิทัล: การเขียนโค้ด/โปรแกรม",
+    "DigitalCapDataAnalysis": "ทักษะดิจิทัล: การวิเคราะห์ข้อมูล",
+    "DigitalCapUiUxGraphicDesign": "ทักษะดิจิทัล: UI/UX & Graphic Design",
+    "DigitalCapSoftwareTooling": "ทักษะดิจิทัล: การพัฒนาซอฟต์แวร์และเครื่องมือ",
+    "DigitalCapOther": "ทักษะดิจิทัล: อื่นๆ",
+    "DigitalCapOtherDetail": "รายละเอียดทักษะดิจิทัลอื่นๆ",
+
+    "HackathonMotivationHtml": "แรงจูงใจในการเข้าร่วมโครงการ",
+
+    "StatusCode": "สถานะ",
+    "SubmittedAt": "วันที่ส่งผลงาน",
+    "CreatedByEmpCode": "ผู้สร้างรายการ (รหัสพนักงาน)",
+    "CreatedAt": "วันที่สร้างรายการ",
+    "UpdatedByEmpCode": "ผู้แก้ไขล่าสุด (รหัสพนักงาน)",
+    "UpdatedAt": "วันที่แก้ไขล่าสุด",
+}
+
+for _seq in range(1, 6):
+    PROJECT_SUBMISSION_EXPORT_COLUMNS_TH[f"Member{_seq}EmpCode"] = f"สมาชิกคนที่ {_seq}: รหัสพนักงาน"
+    PROJECT_SUBMISSION_EXPORT_COLUMNS_TH[f"Member{_seq}FullNameTh"] = f"สมาชิกคนที่ {_seq}: ชื่อ-นามสกุล"
+    PROJECT_SUBMISSION_EXPORT_COLUMNS_TH[f"Member{_seq}PositionName"] = f"สมาชิกคนที่ {_seq}: ตำแหน่งงาน"
+    PROJECT_SUBMISSION_EXPORT_COLUMNS_TH[f"Member{_seq}OrgName"] = f"สมาชิกคนที่ {_seq}: สังกัด/ฝ่าย"
+    PROJECT_SUBMISSION_EXPORT_COLUMNS_TH[f"Member{_seq}MobileNo"] = f"สมาชิกคนที่ {_seq}: เบอร์ติดต่อ"
+
+PROJECT_SUBMISSION_EXPORT_BIT_COLUMNS = [
+    "IdeaSourceCoPs", "IdeaSourceLR", "IdeaSourceResearch", "IdeaSourceExperience",
+    "IdeaSourceStudyVisit", "IdeaSourceKnowledgeExchange", "IdeaSourceInnovationDatabase",
+    "IdeaSourceMarketStudy", "IdeaSourceVOS", "IdeaSourceOther",
+    "GenCapProjectManagement", "GenCapCommunications", "GenCapMarketing",
+    "GenCapFinancialBusinessAnalysis", "GenCapCustomerManagement", "GenCapStakeholderPartnership",
+    "GenCapOther",
+    "DigitalCapProductDevelopment", "DigitalCapCodingProgramming", "DigitalCapDataAnalysis",
+    "DigitalCapUiUxGraphicDesign", "DigitalCapSoftwareTooling", "DigitalCapOther",
+]
+
+PROJECT_SUBMISSION_EXPORT_HTML_COLUMNS = [
+    "TargetCustomerHtml", "IdeaConceptHtml", "ExpectedBenefitHtml", "HackathonMotivationHtml",
+]
+
+PROJECT_SUBMISSION_EXPORT_SUBMISSION_TYPE_TH = {"INDIVIDUAL": "บุคคล", "TEAM": "ทีม"}
+PROJECT_SUBMISSION_EXPORT_STATUS_TH = {
+    "DRAFT": "ร่าง", "SUBMITTED": "ส่งแล้ว", "CANCELLED": "ยกเลิก",
+    "APPROVED": "ผ่าน", "REJECTED": "ไม่ผ่าน",
+}
+
+
+def _strip_html_to_text(value):
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return None
+    text_value = re.sub(r"<[^>]+>", " ", str(value))
+    text_value = re.sub(r"\s+", " ", text_value).strip()
+    return text_value or None
+
+
 @router.get("/project-submissions/export")
 def export_project_submissions(
     team_name: Optional[str] = None,
@@ -1508,9 +1616,24 @@ def export_project_submissions(
 
     df = pd.read_sql(text(sql), db.bind, params=params)
 
+    for col in PROJECT_SUBMISSION_EXPORT_BIT_COLUMNS:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda v: "ใช่" if bool(v) else "ไม่ใช่")
+
+    for col in PROJECT_SUBMISSION_EXPORT_HTML_COLUMNS:
+        if col in df.columns:
+            df[col] = df[col].apply(_strip_html_to_text)
+
+    if "SubmissionTypeCode" in df.columns:
+        df["SubmissionTypeCode"] = df["SubmissionTypeCode"].map(PROJECT_SUBMISSION_EXPORT_SUBMISSION_TYPE_TH).fillna(df["SubmissionTypeCode"])
+    if "StatusCode" in df.columns:
+        df["StatusCode"] = df["StatusCode"].map(PROJECT_SUBMISSION_EXPORT_STATUS_TH).fillna(df["StatusCode"])
+
+    df = df.rename(columns=PROJECT_SUBMISSION_EXPORT_COLUMNS_TH)
+
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False, sheet_name="ProjectSubmissions")
+        df.to_excel(writer, index=False, sheet_name="ผลงานที่ส่งเข้าประกวด")
     buffer.seek(0)
 
     return StreamingResponse(
@@ -1551,6 +1674,363 @@ def list_project_submissions(
 @router.get("/project-submissions/{project_id}", response_model=ProjectSubmissionOut)
 def get_project_submission(project_id: int, db: Session = Depends(get_db)):
     return _get_submission_or_404(db, project_id)
+
+
+# Project Submission New (IDEA Tank 2026 - new form) API Routes
+
+def _get_submission_new_or_404(db: Session, project_id: int) -> models.ProjectSubmissionNew:
+    submission = (
+        db.query(models.ProjectSubmissionNew)
+        .options(joinedload(models.ProjectSubmissionNew.members))
+        .filter(models.ProjectSubmissionNew.ProjectId == project_id)
+        .first()
+    )
+    if not submission:
+        raise HTTPException(status_code=404, detail="Project submission not found")
+    return submission
+
+
+def _replace_members_new(db: Session, project_id: int, members: list) -> None:
+    db.query(models.ProjectSubmissionNewMember).filter(
+        models.ProjectSubmissionNewMember.ProjectId == project_id
+    ).delete(synchronize_session=False)
+    for seq, member in enumerate(members, start=1):
+        db.add(
+            models.ProjectSubmissionNewMember(
+                ProjectId=project_id,
+                MemberSeq=seq,
+                EmpCode=member.EmpCode,
+                FullNameTh=member.FullNameTh,
+                PositionName=member.PositionName,
+                OrgName=member.OrgName,
+                MobileNo=member.MobileNo,
+                IsTeamLeader=member.IsTeamLeader,
+                IsMainContact=member.IsMainContact,
+            )
+        )
+
+
+@router.post("/project-submissions-new", response_model=ProjectSubmissionNewOut, status_code=status.HTTP_201_CREATED)
+def create_project_submission_new(payload: ProjectSubmissionNewStep1In, db: Session = Depends(get_db)):
+    _validate_members(payload.SubmissionTypeCode, payload.Members)
+    if payload.SubmissionTypeCode == "TEAM" and not (payload.TeamName and payload.TeamName.strip()):
+        raise HTTPException(status_code=400, detail="กรุณากรอกชื่อทีม")
+
+    new_submission = models.ProjectSubmissionNew(
+        SubmissionTypeCode=payload.SubmissionTypeCode,
+        SubmissionTypeNameTh=SUBMISSION_TYPE_NAME_TH[payload.SubmissionTypeCode],
+        TeamName=payload.TeamName if payload.SubmissionTypeCode == "TEAM" else None,
+        CreativeIdeaName=payload.CreativeIdeaName,
+        CreatedByEmpCode=payload.Members[0].EmpCode,
+    )
+    db.add(new_submission)
+    try:
+        db.flush()
+        _replace_members_new(db, new_submission.ProjectId, payload.Members)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create project submission")
+
+    return _get_submission_new_or_404(db, new_submission.ProjectId)
+
+
+@router.put("/project-submissions-new/{project_id}/step1", response_model=ProjectSubmissionNewOut)
+def update_project_submission_new_step1(project_id: int, payload: ProjectSubmissionNewStep1In, db: Session = Depends(get_db)):
+    _validate_members(payload.SubmissionTypeCode, payload.Members)
+    if payload.SubmissionTypeCode == "TEAM" and not (payload.TeamName and payload.TeamName.strip()):
+        raise HTTPException(status_code=400, detail="กรุณากรอกชื่อทีม")
+
+    submission = _get_submission_new_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ไม่สามารถแก้ไขผลงานที่ส่งแล้วได้")
+
+    submission.SubmissionTypeCode = payload.SubmissionTypeCode
+    submission.SubmissionTypeNameTh = SUBMISSION_TYPE_NAME_TH[payload.SubmissionTypeCode]
+    submission.TeamName = payload.TeamName if payload.SubmissionTypeCode == "TEAM" else None
+    submission.CreativeIdeaName = payload.CreativeIdeaName
+    submission.CreatedByEmpCode = payload.Members[0].EmpCode
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        _replace_members_new(db, project_id, payload.Members)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update project submission")
+
+    return _get_submission_new_or_404(db, project_id)
+
+
+def _apply_step2_fields_new(submission: models.ProjectSubmissionNew, payload: ProjectSubmissionNewStep2In) -> None:
+    for field, value in payload.model_dump().items():
+        setattr(submission, field, value)
+
+
+@router.put("/project-submissions-new/{project_id}/step2", response_model=ProjectSubmissionNewOut)
+def save_project_submission_new_step2(project_id: int, payload: ProjectSubmissionNewStep2In, db: Session = Depends(get_db)):
+    submission = _get_submission_new_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ไม่สามารถแก้ไขผลงานที่ส่งแล้วได้")
+
+    _apply_step2_fields_new(submission, payload)
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save project submission draft")
+
+    return _get_submission_new_or_404(db, project_id)
+
+
+@router.post("/project-submissions-new/{project_id}/submit", response_model=ProjectSubmissionNewOut)
+def submit_project_submission_new(project_id: int, payload: ProjectSubmissionNewStep2In, db: Session = Depends(get_db)):
+    submission = _get_submission_new_or_404(db, project_id)
+    if submission.StatusCode != "DRAFT":
+        raise HTTPException(status_code=409, detail="ผลงานนี้ถูกส่งไปแล้ว")
+
+    if not submission.CreativeIdeaName or not submission.CreativeIdeaName.strip():
+        raise HTTPException(status_code=400, detail="กรุณาระบุชื่อความคิดสร้างสรรค์")
+    if not payload.ChallengeNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกโจทย์นวัตกรรมที่ท่านต้องการแก้ปัญหา")
+    if not payload.ChallengeCategoryNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกประเภทของโจทย์นวัตกรรม")
+    strategic_objectives = [
+        payload.StrategicObjectiveSO1, payload.StrategicObjectiveSO2, payload.StrategicObjectiveSO3,
+        payload.StrategicObjectiveSO4, payload.StrategicObjectiveSO5, payload.StrategicObjectiveSO6,
+    ]
+    if not any(strategic_objectives):
+        raise HTTPException(status_code=400, detail="กรุณาเลือกความสอดคล้องกับวัตถุประสงค์เชิงยุทธศาสตร์ (SO) อย่างน้อย 1 ข้อ")
+    idea_sources = [
+        payload.IdeaSourceCoPs, payload.IdeaSourceLR, payload.IdeaSourceResearch,
+        payload.IdeaSourceExperience, payload.IdeaSourceStudyVisit, payload.IdeaSourceKnowledgeExchange,
+        payload.IdeaSourceInnovationDatabase, payload.IdeaSourceMarketStudy, payload.IdeaSourceVOS,
+        payload.IdeaSourceOther,
+    ]
+    if not any(idea_sources):
+        raise HTTPException(status_code=400, detail="กรุณาเลือกแหล่งที่มาของแนวคิดอย่างน้อย 1 ข้อ")
+    if not payload.TargetCustomerTypeNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกลูกค้ากลุ่มเป้าหมาย")
+    if not payload.TargetCustomerProblemHtml or not payload.TargetCustomerProblemHtml.strip():
+        raise HTTPException(status_code=400, detail="กรุณาอธิบายลูกค้ากลุ่มเป้าหมายและประเด็นปัญหา")
+    if not payload.InnovationTypeNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกประเภทของนวัตกรรม")
+    if not payload.IdeaConceptHtml or not payload.IdeaConceptHtml.strip():
+        raise HTTPException(status_code=400, detail="กรุณาระบุแนวคิดนวัตกรรมโดยสังเขป")
+    if not payload.DigitalInnovationNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกผลงานนวัตกรรมเทคโนโลยีดิจิทัล")
+    if not payload.NoveltyLevelNo:
+        raise HTTPException(status_code=400, detail="กรุณาเลือกระดับความใหม่ของความคิดสร้างสรรค์")
+    if not payload.InnovationValueFinancial and not payload.InnovationValueNonFinancial:
+        raise HTTPException(status_code=400, detail="กรุณาระบุมูลค่านวัตกรรมอย่างน้อย 1 ด้าน (การเงิน หรือ ไม่ใช่การเงิน)")
+    if payload.InnovationValueFinancial and not (payload.FinancialValueRevenue or payload.FinancialValueCostSaving):
+        raise HTTPException(status_code=400, detail="กรุณาเลือกมูลค่านวัตกรรมด้านการเงินอย่างน้อย 1 ข้อ")
+    if payload.InnovationValueNonFinancial and not (
+        payload.NonFinancialValueCustomerSatisfaction or payload.NonFinancialValueWorkEfficiency
+        or payload.NonFinancialValueCustomerQuality or payload.NonFinancialValueEnvironment
+    ):
+        raise HTTPException(status_code=400, detail="กรุณาเลือกมูลค่านวัตกรรมที่ไม่ใช่การเงินอย่างน้อย 1 ข้อ")
+
+    _apply_step2_fields_new(submission, payload)
+    submission.StatusCode = "SUBMITTED"
+    submission.SubmittedAt = datetime.now()
+    submission.UpdatedAt = datetime.now()
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to submit project submission")
+
+    return _get_submission_new_or_404(db, project_id)
+
+
+PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH = {
+    "ProjectId": "รหัสโครงการ",
+    "EventYear": "ปีของโครงการ",
+    "SubmissionTypeCode": "รหัสประเภทการส่งประกวด",
+    "SubmissionTypeNameTh": "ประเภทการส่งประกวด",
+    "TeamName": "ชื่อทีม",
+    "CreativeIdeaName": "ชื่อความคิดสร้างสรรค์",
+
+    "ChallengeNo": "ลำดับโจทย์นวัตกรรม",
+    "ChallengeText": "โจทย์นวัตกรรมที่เลือก",
+
+    "ChallengeCategoryNo": "ลำดับประเภทของโจทย์นวัตกรรม",
+    "ChallengeCategoryText": "ประเภทของโจทย์นวัตกรรม",
+
+    "StrategicObjectiveSO1": "SO1: บริหารจัดการสินทรัพย์เพื่อสร้างรายได้ให้สมดุล",
+    "StrategicObjectiveSO2": "SO2: บริหารจัดการคุณภาพสินเชื่อเพื่อความแข็งแกร่งทางการเงิน",
+    "StrategicObjectiveSO3": "SO3: เพิ่มขีดความสามารถลูกค้าและชุมชนผ่านแกนกลางการเกษตร",
+    "StrategicObjectiveSO4": "SO4: เพิ่มขีดความสามารถองค์กรด้วยเทคโนโลยีดิจิทัลและนวัตกรรม",
+    "StrategicObjectiveSO5": "SO5: เพิ่มศักยภาพบุคลากรและ GRC รองรับการเติบโตทางธุรกิจ",
+    "StrategicObjectiveSO6": "SO6: บริหารจัดการองค์กรและชุมชนเพื่อมุ่งสู่ Net Zero Emissions",
+
+    "IdeaSourceCoPs": "แหล่งที่มา: ชุมชนนักปฏิบัติ (CoPs)",
+    "IdeaSourceCoPsDetail": "รายละเอียด: ชุมชนนักปฏิบัติ (CoPs)",
+    "IdeaSourceLR": "แหล่งที่มา: คลังความรู้ (LR)",
+    "IdeaSourceLRDetail": "รายละเอียด: คลังความรู้ (LR)",
+    "IdeaSourceResearch": "แหล่งที่มา: ผลงานวิจัย",
+    "IdeaSourceResearchDetail": "รายละเอียด: ผลงานวิจัย",
+    "IdeaSourceExperience": "แหล่งที่มา: ประสบการณ์",
+    "IdeaSourceExperienceDetail": "รายละเอียด: ประสบการณ์",
+    "IdeaSourceStudyVisit": "แหล่งที่มา: ศึกษาดูงาน",
+    "IdeaSourceStudyVisitDetail": "รายละเอียด: ศึกษาดูงาน",
+    "IdeaSourceKnowledgeExchange": "แหล่งที่มา: การแลกเปลี่ยนเรียนรู้",
+    "IdeaSourceKnowledgeExchangeDetail": "รายละเอียด: การแลกเปลี่ยนเรียนรู้",
+    "IdeaSourceInnovationDatabase": "แหล่งที่มา: ฐานข้อมูลนวัตกรรม",
+    "IdeaSourceInnovationDatabaseDetail": "รายละเอียด: ฐานข้อมูลนวัตกรรม",
+    "IdeaSourceMarketStudy": "แหล่งที่มา: ผลการศึกษาความต้องการของตลาด",
+    "IdeaSourceMarketStudyDetail": "รายละเอียด: ผลการศึกษาความต้องการของตลาด",
+    "IdeaSourceVOS": "แหล่งที่มา: Voice of Stakeholder (VOS)",
+    "IdeaSourceVOSDetail": "รายละเอียด: Voice of Stakeholder (VOS)",
+    "IdeaSourceOther": "แหล่งที่มา: อื่นๆ",
+    "IdeaSourceOtherDetail": "รายละเอียด: อื่นๆ",
+
+    "TargetCustomerTypeNo": "ลำดับลูกค้ากลุ่มเป้าหมาย",
+    "TargetCustomerTypeText": "ลูกค้ากลุ่มเป้าหมาย",
+    "TargetCustomerProblemHtml": "รายละเอียดลูกค้ากลุ่มเป้าหมายและประเด็นปัญหา",
+
+    "InnovationTypeNo": "ลำดับประเภทนวัตกรรม",
+    "InnovationTypeText": "ประเภทนวัตกรรม",
+
+    "IdeaConceptHtml": "แนวคิดนวัตกรรมโดยสังเขป",
+
+    "DigitalInnovationNo": "ลำดับผลงานนวัตกรรมเทคโนโลยีดิจิทัล",
+    "DigitalInnovationText": "ผลงานนวัตกรรมเทคโนโลยีดิจิทัล",
+
+    "NoveltyLevelNo": "ลำดับระดับความใหม่",
+    "NoveltyLevelText": "ระดับความใหม่ของความคิดสร้างสรรค์",
+
+    "InnovationValueFinancial": "มูลค่านวัตกรรม: ด้านการเงิน",
+    "FinancialValueRevenue": "ด้านการเงิน: สร้างรายได้",
+    "FinancialValueCostSaving": "ด้านการเงิน: ลดค่าใช้จ่าย",
+    "FinancialValueDetailHtml": "รายละเอียดเพิ่มเติมด้านการเงิน",
+
+    "InnovationValueNonFinancial": "มูลค่านวัตกรรม: ไม่ใช่การเงิน",
+    "NonFinancialValueCustomerSatisfaction": "ไม่ใช่การเงิน: ความพึงพอใจ",
+    "NonFinancialValueWorkEfficiency": "ไม่ใช่การเงิน: ลดขั้นตอนการทำงาน/เพิ่ม Value Added",
+    "NonFinancialValueCustomerQuality": "ไม่ใช่การเงิน: คุณภาพชีวิตลูกค้า",
+    "NonFinancialValueEnvironment": "ไม่ใช่การเงิน: สิ่งแวดล้อม",
+    "NonFinancialValueDetailHtml": "รายละเอียดเพิ่มเติมที่ไม่ใช่การเงิน",
+
+    "StatusCode": "สถานะ",
+    "SubmittedAt": "วันที่ส่งผลงาน",
+    "CreatedByEmpCode": "ผู้สร้างรายการ (รหัสพนักงาน)",
+    "CreatedAt": "วันที่สร้างรายการ",
+    "UpdatedByEmpCode": "ผู้แก้ไขล่าสุด (รหัสพนักงาน)",
+    "UpdatedAt": "วันที่แก้ไขล่าสุด",
+}
+
+for _seq in range(1, 6):
+    PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH[f"Member{_seq}EmpCode"] = f"สมาชิกคนที่ {_seq}: รหัสพนักงาน"
+    PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH[f"Member{_seq}FullNameTh"] = f"สมาชิกคนที่ {_seq}: ชื่อ-นามสกุล"
+    PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH[f"Member{_seq}PositionName"] = f"สมาชิกคนที่ {_seq}: ตำแหน่งงาน"
+    PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH[f"Member{_seq}OrgName"] = f"สมาชิกคนที่ {_seq}: สังกัด/ฝ่าย"
+    PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH[f"Member{_seq}MobileNo"] = f"สมาชิกคนที่ {_seq}: เบอร์ติดต่อ"
+
+PROJECT_SUBMISSION_NEW_EXPORT_BIT_COLUMNS = [
+    "StrategicObjectiveSO1", "StrategicObjectiveSO2", "StrategicObjectiveSO3",
+    "StrategicObjectiveSO4", "StrategicObjectiveSO5", "StrategicObjectiveSO6",
+    "IdeaSourceCoPs", "IdeaSourceLR", "IdeaSourceResearch", "IdeaSourceExperience",
+    "IdeaSourceStudyVisit", "IdeaSourceKnowledgeExchange", "IdeaSourceInnovationDatabase",
+    "IdeaSourceMarketStudy", "IdeaSourceVOS", "IdeaSourceOther",
+    "InnovationValueFinancial", "FinancialValueRevenue", "FinancialValueCostSaving",
+    "InnovationValueNonFinancial", "NonFinancialValueCustomerSatisfaction",
+    "NonFinancialValueWorkEfficiency", "NonFinancialValueCustomerQuality", "NonFinancialValueEnvironment",
+]
+
+PROJECT_SUBMISSION_NEW_EXPORT_HTML_COLUMNS = [
+    "TargetCustomerProblemHtml", "IdeaConceptHtml", "FinancialValueDetailHtml", "NonFinancialValueDetailHtml",
+]
+
+
+@router.get("/project-submissions-new/export")
+def export_project_submissions_new(
+    team_name: Optional[str] = None,
+    innovation_type_no: Optional[int] = None,
+    challenge_no: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    sql = "SELECT * FROM dbo.vProjectSubmissionNewExport WHERE StatusCode = 'SUBMITTED'"
+    params: dict = {}
+    if team_name:
+        sql += " AND (TeamName LIKE :team_name OR CreativeIdeaName LIKE :team_name)"
+        params["team_name"] = f"%{team_name}%"
+    if innovation_type_no is not None:
+        sql += " AND InnovationTypeNo = :innovation_type_no"
+        params["innovation_type_no"] = innovation_type_no
+    if challenge_no is not None:
+        sql += " AND ChallengeNo = :challenge_no"
+        params["challenge_no"] = challenge_no
+    sql += " ORDER BY ProjectId DESC"
+
+    df = pd.read_sql(text(sql), db.bind, params=params)
+
+    for col in PROJECT_SUBMISSION_NEW_EXPORT_BIT_COLUMNS:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda v: "ใช่" if bool(v) else "ไม่ใช่")
+
+    for col in PROJECT_SUBMISSION_NEW_EXPORT_HTML_COLUMNS:
+        if col in df.columns:
+            df[col] = df[col].apply(_strip_html_to_text)
+
+    if "SubmissionTypeCode" in df.columns:
+        df["SubmissionTypeCode"] = df["SubmissionTypeCode"].map(PROJECT_SUBMISSION_EXPORT_SUBMISSION_TYPE_TH).fillna(df["SubmissionTypeCode"])
+    if "StatusCode" in df.columns:
+        df["StatusCode"] = df["StatusCode"].map(PROJECT_SUBMISSION_EXPORT_STATUS_TH).fillna(df["StatusCode"])
+
+    df = df.rename(columns=PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH)
+
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="ผลงานที่ส่งเข้าประกวด")
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=project_submissions_new_export.xlsx"},
+    )
+
+
+@router.get("/project-submissions-new", response_model=ProjectSubmissionNewListResponse)
+def list_project_submissions_new(
+    page: int = 1,
+    page_size: int = 10,
+    team_name: Optional[str] = None,
+    innovation_type_no: Optional[int] = None,
+    challenge_no: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    query = db.query(models.ProjectSubmissionNew).filter(models.ProjectSubmissionNew.StatusCode == "SUBMITTED")
+    if team_name:
+        query = query.filter(
+            models.ProjectSubmissionNew.TeamName.ilike(f"%{team_name}%")
+            | models.ProjectSubmissionNew.CreativeIdeaName.ilike(f"%{team_name}%")
+        )
+    if innovation_type_no is not None:
+        query = query.filter(models.ProjectSubmissionNew.InnovationTypeNo == innovation_type_no)
+    if challenge_no is not None:
+        query = query.filter(models.ProjectSubmissionNew.ChallengeNo == challenge_no)
+
+    total = query.count()
+    items = (
+        query.order_by(models.ProjectSubmissionNew.CreatedAt.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return ProjectSubmissionNewListResponse(items=items, total=total, page=page, page_size=page_size)
+
+
+@router.get("/project-submissions-new/{project_id}", response_model=ProjectSubmissionNewOut)
+def get_project_submission_new(project_id: int, db: Session = Depends(get_db)):
+    return _get_submission_new_or_404(db, project_id)
 
 
 @router.post("/settings", response_model=SettingOut, status_code=status.HTTP_201_CREATED)

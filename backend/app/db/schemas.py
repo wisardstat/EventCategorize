@@ -295,6 +295,207 @@ class ProjectSubmissionListResponse(BaseModel):
     page_size: int
 
 
+class ProjectSubmissionNewMemberIn(BaseModel):
+    EmpCode: str = Field(..., min_length=1, max_length=20)
+    FullNameTh: str = Field(..., min_length=1, max_length=200)
+    PositionName: Optional[str] = Field(None, max_length=200)
+    OrgName: Optional[str] = Field(None, max_length=300)
+    MobileNo: Optional[str] = Field(None, max_length=50)
+    IsTeamLeader: bool = False
+    IsMainContact: bool = False
+
+
+class ProjectSubmissionNewMemberOut(BaseModel):
+    ProjectMemberId: int
+    ProjectId: int
+    MemberSeq: int
+    EmpCode: str
+    FullNameTh: str
+    PositionName: Optional[str] = None
+    OrgName: Optional[str] = None
+    MobileNo: Optional[str] = None
+    IsTeamLeader: bool
+    IsMainContact: bool
+    CreatedAt: datetime
+    UpdatedAt: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectSubmissionNewStep1In(BaseModel):
+    CreativeIdeaName: str = Field(..., min_length=1, max_length=300)
+    TeamName: Optional[str] = Field(None, max_length=200)
+    SubmissionTypeCode: str = Field(..., pattern="^(INDIVIDUAL|TEAM)$")
+    Members: List[ProjectSubmissionNewMemberIn] = Field(..., min_length=1)
+
+
+class ProjectSubmissionNewStep2In(BaseModel):
+    ChallengeNo: Optional[int] = None
+    ChallengeText: Optional[str] = Field(None, max_length=1000)
+
+    ChallengeCategoryNo: Optional[int] = None
+    ChallengeCategoryText: Optional[str] = Field(None, max_length=500)
+
+    StrategicObjectiveSO1: bool = False
+    StrategicObjectiveSO2: bool = False
+    StrategicObjectiveSO3: bool = False
+    StrategicObjectiveSO4: bool = False
+    StrategicObjectiveSO5: bool = False
+    StrategicObjectiveSO6: bool = False
+
+    IdeaSourceCoPs: bool = False
+    IdeaSourceCoPsDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceLR: bool = False
+    IdeaSourceLRDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceResearch: bool = False
+    IdeaSourceResearchDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceExperience: bool = False
+    IdeaSourceExperienceDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceStudyVisit: bool = False
+    IdeaSourceStudyVisitDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceKnowledgeExchange: bool = False
+    IdeaSourceKnowledgeExchangeDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceInnovationDatabase: bool = False
+    IdeaSourceInnovationDatabaseDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceMarketStudy: bool = False
+    IdeaSourceMarketStudyDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceVOS: bool = False
+    IdeaSourceVOSDetail: Optional[str] = Field(None, max_length=1000)
+    IdeaSourceOther: bool = False
+    IdeaSourceOtherDetail: Optional[str] = Field(None, max_length=1000)
+
+    TargetCustomerTypeNo: Optional[int] = None
+    TargetCustomerTypeText: Optional[str] = Field(None, max_length=100)
+    TargetCustomerProblemHtml: Optional[str] = None
+
+    InnovationTypeNo: Optional[int] = None
+    InnovationTypeText: Optional[str] = Field(None, max_length=500)
+
+    IdeaConceptHtml: Optional[str] = None
+
+    DigitalInnovationNo: Optional[int] = None
+    DigitalInnovationText: Optional[str] = Field(None, max_length=300)
+
+    NoveltyLevelNo: Optional[int] = None
+    NoveltyLevelText: Optional[str] = Field(None, max_length=1000)
+
+    InnovationValueFinancial: bool = False
+    FinancialValueRevenue: bool = False
+    FinancialValueCostSaving: bool = False
+    FinancialValueDetailHtml: Optional[str] = None
+
+    InnovationValueNonFinancial: bool = False
+    NonFinancialValueCustomerSatisfaction: bool = False
+    NonFinancialValueWorkEfficiency: bool = False
+    NonFinancialValueCustomerQuality: bool = False
+    NonFinancialValueEnvironment: bool = False
+    NonFinancialValueDetailHtml: Optional[str] = None
+
+
+class ProjectSubmissionNewOut(BaseModel):
+    ProjectId: int
+    EventYear: int
+    SubmissionTypeCode: str
+    SubmissionTypeNameTh: str
+    TeamName: Optional[str] = None
+    CreativeIdeaName: str
+
+    ChallengeNo: Optional[int] = None
+    ChallengeText: Optional[str] = None
+
+    ChallengeCategoryNo: Optional[int] = None
+    ChallengeCategoryText: Optional[str] = None
+
+    StrategicObjectiveSO1: bool
+    StrategicObjectiveSO2: bool
+    StrategicObjectiveSO3: bool
+    StrategicObjectiveSO4: bool
+    StrategicObjectiveSO5: bool
+    StrategicObjectiveSO6: bool
+
+    IdeaSourceCoPs: bool
+    IdeaSourceCoPsDetail: Optional[str] = None
+    IdeaSourceLR: bool
+    IdeaSourceLRDetail: Optional[str] = None
+    IdeaSourceResearch: bool
+    IdeaSourceResearchDetail: Optional[str] = None
+    IdeaSourceExperience: bool
+    IdeaSourceExperienceDetail: Optional[str] = None
+    IdeaSourceStudyVisit: bool
+    IdeaSourceStudyVisitDetail: Optional[str] = None
+    IdeaSourceKnowledgeExchange: bool
+    IdeaSourceKnowledgeExchangeDetail: Optional[str] = None
+    IdeaSourceInnovationDatabase: bool
+    IdeaSourceInnovationDatabaseDetail: Optional[str] = None
+    IdeaSourceMarketStudy: bool
+    IdeaSourceMarketStudyDetail: Optional[str] = None
+    IdeaSourceVOS: bool
+    IdeaSourceVOSDetail: Optional[str] = None
+    IdeaSourceOther: bool
+    IdeaSourceOtherDetail: Optional[str] = None
+
+    TargetCustomerTypeNo: Optional[int] = None
+    TargetCustomerTypeText: Optional[str] = None
+    TargetCustomerProblemHtml: Optional[str] = None
+
+    InnovationTypeNo: Optional[int] = None
+    InnovationTypeText: Optional[str] = None
+
+    IdeaConceptHtml: Optional[str] = None
+
+    DigitalInnovationNo: Optional[int] = None
+    DigitalInnovationText: Optional[str] = None
+
+    NoveltyLevelNo: Optional[int] = None
+    NoveltyLevelText: Optional[str] = None
+
+    InnovationValueFinancial: bool
+    FinancialValueRevenue: bool
+    FinancialValueCostSaving: bool
+    FinancialValueDetailHtml: Optional[str] = None
+
+    InnovationValueNonFinancial: bool
+    NonFinancialValueCustomerSatisfaction: bool
+    NonFinancialValueWorkEfficiency: bool
+    NonFinancialValueCustomerQuality: bool
+    NonFinancialValueEnvironment: bool
+    NonFinancialValueDetailHtml: Optional[str] = None
+
+    StatusCode: str
+    SubmittedAt: Optional[datetime] = None
+
+    CreatedByEmpCode: Optional[str] = None
+    CreatedAt: datetime
+    UpdatedByEmpCode: Optional[str] = None
+    UpdatedAt: Optional[datetime] = None
+
+    Members: List[ProjectSubmissionNewMemberOut] = Field(default_factory=list, alias="members")
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+
+class ProjectSubmissionNewListItem(BaseModel):
+    ProjectId: int
+    TeamName: Optional[str] = None
+    CreativeIdeaName: str
+    ChallengeText: Optional[str] = None
+    InnovationTypeText: Optional[str] = None
+    CreatedAt: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectSubmissionNewListResponse(BaseModel):
+    items: List[ProjectSubmissionNewListItem]
+    total: int
+    page: int
+    page_size: int
+
+
 class UserCreate(BaseModel):
     user_code: str = Field(..., min_length=1, max_length=50)
     user_fname: str = Field(..., min_length=1, max_length=100)

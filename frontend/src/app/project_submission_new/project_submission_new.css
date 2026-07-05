@@ -236,10 +236,10 @@
 
 .ps-wizard .field-error{ color:var(--danger); font-size:12.5px; margin-top:6px; }
 
-/* project_submission_view: value text white, labels unchanged */
-.ps-wizard.psv-page .summary-table td{ color:#ffffff; }
-.ps-wizard.psv-page .html-block{ color:#ffffff; }
-.ps-wizard.psv-page .kv-item .v{ color:#ffffff; }
+/* detail cards (thank-you / view): value text white, labels unchanged */
+.ps-wizard.detail-white-values .summary-table td{ color:#ffffff; }
+.ps-wizard.detail-white-values .html-block{ color:#ffffff; }
+.ps-wizard.detail-white-values .kv-item .v{ color:#ffffff; }
 
 @media(max-width:640px){
   .ps-wizard .type-grid, .ps-wizard .opt-grid{ grid-template-columns:1fr;}
@@ -361,7 +361,14 @@
 .ps-wizard .thank-hero-compact .thank-hero-content .eyebrow{ margin-bottom:10px; }
 .ps-wizard .thank-hero-compact .thank-hero-content p{ margin-top:8px; font-size:14px; }
 
+.ps-wizard .thank-hero.thank-hero-anchor-bottom{ align-items:flex-end; }
+.ps-wizard .thank-hero-anchor-bottom .thank-hero-content{ padding-bottom:26px; }
+
 .ps-wizard .thank-cards{ max-width:900px; margin:0 auto; padding:30px 24px 100px; display:flex; flex-direction:column; gap:18px; }
+.ps-wizard .headline-value{ margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid var(--border); }
+.ps-wizard .headline-value .k{ font-size:11.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
+.ps-wizard .headline-value .v{ font-size:22px; font-weight:600; color:var(--text); }
+.ps-wizard.detail-white-values .headline-value .v{ color:#ffffff; }
 .ps-wizard .kv-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
 .ps-wizard .kv-item .k{ font-size:11.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px;}
 .ps-wizard .kv-item .v{ font-size:14px; color:var(--text); }
