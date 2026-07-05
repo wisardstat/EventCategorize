@@ -60,6 +60,11 @@ export default function PresentAnswerPage() {
     };
 
     useEffect(() => {
+        if (questionId === "29af19ef-ab12-4e83-a27b-294373c10344") {
+            router.replace("/project_submission");
+            return;
+        }
+
         async function load() {
             setLoading(true);
             setError(null);
@@ -77,7 +82,7 @@ export default function PresentAnswerPage() {
         if (questionId) {
             load();
         }
-    }, [questionId]);
+    }, [questionId, router]);
 
     async function handleSave(e: React.FormEvent) {
         e.preventDefault();
