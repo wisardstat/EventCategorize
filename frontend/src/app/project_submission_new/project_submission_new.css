@@ -36,7 +36,7 @@
   background:#05060f;
   border-bottom:1px solid var(--border);
 }
-.ps-wizard .hero img{
+.ps-wizard .hero img.hero-bg{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%;
   opacity:.65;
 }
@@ -48,6 +48,10 @@
 .ps-wizard .hero-content{
   position:relative; z-index:2; max-width:980px; margin:0 auto; height:100%;
   display:flex; flex-direction:column; justify-content:flex-end; padding:0 24px 26px;
+}
+.ps-wizard .hero-logo{
+  align-self:flex-start; height:56px; width:56px; object-fit:contain;
+  margin-bottom:14px; filter:drop-shadow(0 4px 14px rgba(0,0,0,.4));
 }
 .ps-wizard .hero-eyebrow{
   display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:500;

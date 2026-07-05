@@ -402,8 +402,9 @@ export default function ProjectSubmissionNewPage() {
   return (
     <div className={`ps-wizard ${kanit.variable}`} ref={pageRef}>
       <div className="hero">
-        <img src="/images/space_dark.png" alt="" />
+        <img src="/images/space_dark.png" alt="" className="hero-bg" />
         <div className="hero-content">
+          <img src="/BAAC_Logo.svg.png" alt="BAAC" className="hero-logo" />
           <span className="hero-eyebrow">&#9679; Idea to Innovation</span>
           <h1 ref={titleRef}>กิจกรรมเสนอความคิดสร้างสรรค์</h1>
           <p>ร่วมส่งไอเดียดีๆ เพื่อพัฒนาธนาคาร สู่ผลงานนวัตกรรมที่ยั่งยืน</p>
