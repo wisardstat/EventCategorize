@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text
+from sqlalchemy import func, text, or_
 
 from app.db.database import get_db
 from app.db import models
@@ -1947,6 +1947,24 @@ PROJECT_SUBMISSION_NEW_EXPORT_HTML_COLUMNS = [
 ]
 
 
+def _project_submission_new_to_export_row(submission: models.ProjectSubmissionNew) -> dict:
+    row = {
+        column.name: getattr(submission, column.name)
+        for column in models.ProjectSubmissionNew.__table__.columns
+    }
+
+    members_by_seq = {member.MemberSeq: member for member in submission.members}
+    for seq in range(1, 6):
+        member = members_by_seq.get(seq)
+        row[f"Member{seq}EmpCode"] = member.EmpCode if member else None
+        row[f"Member{seq}FullNameTh"] = member.FullNameTh if member else None
+        row[f"Member{seq}PositionName"] = member.PositionName if member else None
+        row[f"Member{seq}OrgName"] = member.OrgName if member else None
+        row[f"Member{seq}MobileNo"] = member.MobileNo if member else None
+
+    return row
+
+
 @router.get("/project-submissions-new/export")
 def export_project_submissions_new(
     team_name: Optional[str] = None,
@@ -1955,20 +1973,31 @@ def export_project_submissions_new(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    sql = "SELECT * FROM dbo.vProjectSubmissionNewExport WHERE StatusCode = 'SUBMITTED'"
-    params: dict = {}
+    query = (
+        db.query(models.ProjectSubmissionNew)
+        .options(joinedload(models.ProjectSubmissionNew.members))
+        .filter(models.ProjectSubmissionNew.StatusCode == "SUBMITTED")
+    )
     if team_name:
-        sql += " AND (TeamName LIKE :team_name OR CreativeIdeaName LIKE :team_name)"
-        params["team_name"] = f"%{team_name}%"
+        query = query.filter(
+            or_(
+                models.ProjectSubmissionNew.TeamName.ilike(f"%{team_name}%"),
+                models.ProjectSubmissionNew.CreativeIdeaName.ilike(f"%{team_name}%"),
+            )
+        )
     if innovation_type_no is not None:
-        sql += " AND InnovationTypeNo = :innovation_type_no"
-        params["innovation_type_no"] = innovation_type_no
+        query = query.filter(models.ProjectSubmissionNew.InnovationTypeNo == innovation_type_no)
     if challenge_no is not None:
-        sql += " AND ChallengeNo = :challenge_no"
-        params["challenge_no"] = challenge_no
-    sql += " ORDER BY ProjectId DESC"
+        query = query.filter(models.ProjectSubmissionNew.ChallengeNo == challenge_no)
 
-    df = pd.read_sql(text(sql), db.bind, params=params)
+    export_keys = list(PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH.keys())
+    submissions = query.order_by(models.ProjectSubmissionNew.ProjectId.desc()).all()
+    rows = []
+    for submission in submissions:
+        raw_row = _project_submission_new_to_export_row(submission)
+        rows.append({key: raw_row.get(key) for key in export_keys})
+
+    df = pd.DataFrame(rows, columns=export_keys)
 
     for col in PROJECT_SUBMISSION_NEW_EXPORT_BIT_COLUMNS:
         if col in df.columns:
