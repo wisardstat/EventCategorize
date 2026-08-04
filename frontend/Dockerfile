@@ -25,7 +25,7 @@ ENV NEXT_PUBLIC_HOST_URL=${NEXT_PUBLIC_HOST_URL}
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/public ./public
-RUN npm i --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 EXPOSE 3000
 CMD ["npm", "run", "start"]
 
