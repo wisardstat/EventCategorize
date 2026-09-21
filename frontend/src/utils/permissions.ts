@@ -4,7 +4,7 @@
 
 import React from 'react';
 
-export type UserRole = 'user' | 'admin' | 'superuser' | 'superuser_md';
+export type UserRole = 'user' | 'admin' | 'superuser' | 'superuser_md' | 'super_admin';
 
 export interface User {
   user_code: string;
@@ -120,6 +120,18 @@ export const canGenerateKeywords = (): boolean => {
  */
 export const canSaveEvaluation = (): boolean => {
   return hasAnyRole(['admin', 'superuser']);
+};
+
+export const canScoreProjectSubmissions = (): boolean => {
+  return hasAnyRole(['admin', 'super_admin']);
+};
+
+export const canEvaluateProjectSubmissionVp = (): boolean => {
+  return hasAnyRole(['admin', 'superuser']);
+};
+
+export const canEvaluateProjectSubmissionCommittee = (): boolean => {
+  return hasAnyRole(['admin', 'superuser_md']);
 };
 
 /**

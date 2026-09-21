@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -393,6 +393,16 @@ class ProjectSubmissionNewStep2In(BaseModel):
     NonFinancialValueDetailHtml: Optional[str] = None
 
 
+class ProjectSubmissionNewVpEvaluationUpdate(BaseModel):
+    status: Optional[Literal["ส่งแนวคิด", "ผ่านคัดเลือก", "ไม่ผ่านคัดเลือก"]]
+    comment: Optional[str] = Field(..., max_length=5000)
+
+
+class ProjectSubmissionNewCommitteeEvaluationUpdate(BaseModel):
+    status: Optional[Literal["ผ่านคัดเลือก", "ไม่ผ่านคัดเลือก"]]
+    comment: Optional[str] = Field(..., max_length=5000)
+
+
 class ProjectSubmissionNewOut(BaseModel):
     ProjectId: int
     EventYear: int
@@ -464,11 +474,21 @@ class ProjectSubmissionNewOut(BaseModel):
 
     StatusCode: str
     SubmittedAt: Optional[datetime] = None
+    data_source: str
+    VpEvaluationStatus: Optional[str] = None
+    VpEvaluationComment: Optional[str] = None
+    CommitteeEvaluationStatus: Optional[str] = None
+    CommitteeEvaluationComment: Optional[str] = None
 
     CreatedByEmpCode: Optional[str] = None
     CreatedAt: datetime
     UpdatedByEmpCode: Optional[str] = None
     UpdatedAt: Optional[datetime] = None
+    AiScore: Optional[int] = None
+    AiScoreComment: Optional[str] = None
+    AiScoredAt: Optional[datetime] = None
+    AiIdeaSummary: Optional[str] = None
+    AiIdeaSummarizedAt: Optional[datetime] = None
 
     Members: List[ProjectSubmissionNewMemberOut] = Field(default_factory=list, alias="members")
 
@@ -484,6 +504,10 @@ class ProjectSubmissionNewListItem(BaseModel):
     ChallengeText: Optional[str] = None
     InnovationTypeText: Optional[str] = None
     CreatedAt: datetime
+    AiScore: Optional[int] = None
+    data_source: str
+    VpEvaluationStatus: Optional[str] = None
+    CommitteeEvaluationStatus: Optional[str] = None
 
     class Config:
         from_attributes = True

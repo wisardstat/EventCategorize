@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { postPublic, putPublic } from "@/utils/api";
 import RichTextEditor from "./RichTextEditor";
@@ -19,6 +19,9 @@ import {
   NONFINANCIAL_VALUE_ITEMS,
 } from "./constants";
 import "./project_submission_new.css";
+
+// Set to false to reopen the project-submission form.
+const flag_expire = true;
 
 interface MemberRow {
   EmpCode: string;
@@ -80,6 +83,10 @@ async function parseJson(res: Response) {
 }
 
 export default function ProjectSubmissionNewPage() {
+  if (flag_expire) {
+    redirect("/project_submission_new_expire");
+  }
+
   const router = useRouter();
   const pageRef = useRef<HTMLDivElement>(null);
   const sideNavRef = useRef<HTMLDivElement>(null);

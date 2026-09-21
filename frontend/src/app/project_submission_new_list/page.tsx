@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getWithAuth } from "@/utils/api";
+import { postWithAuth } from "@/utils/api";
+import Swal from "sweetalert2";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import { canScoreProjectSubmissions } from "@/utils/permissions";
 import { CHALLENGES, INNOVATION_TYPES } from "../project_submission_new/constants";
 import { kanit } from "../project_submission_new/fonts";
 import "../project_submission_new/project_submission_new.css";
@@ -14,9 +18,25 @@ interface ProjectSubmissionNewListItem {
   ChallengeText: string | null;
   InnovationTypeText: string | null;
   CreatedAt: string;
+  AiScore?: number | null;
+  data_source: "a-inno" | "idea-tank";
+  VpEvaluationStatus?: string | null;
+  CommitteeEvaluationStatus?: string | null;
 }
 
 const PAGE_SIZE = 10;
+
+function EvaluationStatusIcon({ status, evaluator }: { status?: string | null; evaluator: string }) {
+  if (status === "ผ่านคัดเลือก") {
+    const label = `ผ่านการคัดเลือกโดย ${evaluator}`;
+    return <span className="evaluation-result-icon evaluation-result-passed" role="img" aria-label={label} title={label}><FaCheck aria-hidden="true" /></span>;
+  }
+  if (status === "ไม่ผ่านคัดเลือก") {
+    const label = `ไม่ผ่านการคัดเลือกโดย ${evaluator}`;
+    return <span className="evaluation-result-icon evaluation-result-failed" role="img" aria-label={label} title={label}><FaTimes aria-hidden="true" /></span>;
+  }
+  return null;
+}
 
 function formatDateTime(value: string) {
   try {
@@ -37,10 +57,14 @@ export default function ProjectSubmissionNewListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [batchScoring, setBatchScoring] = useState(false);
 
   const [teamNameInput, setTeamNameInput] = useState("");
   const [innovationTypeNo, setInnovationTypeNo] = useState("");
   const [challengeNo, setChallengeNo] = useState("");
+  const [dataSource, setDataSource] = useState("");
+  const [scoreStatus, setScoreStatus] = useState<"" | "scored" | "unscored">("");
+  const [scoreOrder, setScoreOrder] = useState<"" | "asc" | "desc">("");
   const [appliedTeamName, setAppliedTeamName] = useState("");
 
   useEffect(() => {
@@ -60,9 +84,12 @@ export default function ProjectSubmissionNewListPage() {
       if (appliedTeamName.trim()) params.set("team_name", appliedTeamName.trim());
       if (innovationTypeNo) params.set("innovation_type_no", innovationTypeNo);
       if (challengeNo) params.set("challenge_no", challengeNo);
+      if (dataSource) params.set("data_source", dataSource);
+      if (scoreStatus) params.set("score_status", scoreStatus);
+      if (scoreOrder) params.set("score_order", scoreOrder);
       return params;
     },
-    [appliedTeamName, innovationTypeNo, challengeNo]
+    [appliedTeamName, innovationTypeNo, challengeNo, dataSource, scoreStatus, scoreOrder]
   );
 
   const loadPage = useCallback(
@@ -90,7 +117,7 @@ export default function ProjectSubmissionNewListPage() {
     if (!authChecked) return;
     loadPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authChecked, appliedTeamName, innovationTypeNo, challengeNo]);
+  }, [authChecked, appliedTeamName, innovationTypeNo, challengeNo, dataSource, scoreStatus, scoreOrder]);
 
   // ---- Twinkling stars around the title, every 5 seconds ----
   useEffect(() => {
@@ -165,6 +192,23 @@ export default function ProjectSubmissionNewListPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  const handleBatchScore = async () => {
+    if (batchScoring) return;
+    const choice = await Swal.fire({ title: "ให้ AI ประมวลผล", input: "select", inputOptions: { replace_all: "แทนที่ใหม่ทั้งหมด", only_unscored: "เฉพาะรายการที่ยังไม่ประมวลผล" }, inputPlaceholder: "เลือกวิธีประมวลผล", showCancelButton: true, confirmButtonText: "ดำเนินการ", cancelButtonText: "ยกเลิก" });
+    if (!choice.isConfirmed || !choice.value) return;
+    const confirmed = await Swal.fire({ icon: "warning", title: choice.value === "replace_all" ? "ยืนยันการแทนที่คะแนนเดิม?" : "ยืนยันการประเมินรายการที่ยังไม่มีคะแนน?", text: "ระบบจะประมวลผลสูงสุด 20 รายการที่ตรงกับ filter ปัจจุบัน", showCancelButton: true, confirmButtonText: "ให้ AI ประมวลผล", cancelButtonText: "ยกเลิก" });
+    if (!confirmed.isConfirmed) return;
+    setBatchScoring(true);
+    try {
+      const res = await postWithAuth("/project-submissions-new/batch-score", { mode: choice.value, team_name: appliedTeamName || undefined, innovation_type_no: innovationTypeNo ? Number(innovationTypeNo) : undefined, challenge_no: challengeNo ? Number(challengeNo) : undefined, data_source: dataSource || undefined, score_status: scoreStatus || undefined });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result?.detail || "ประเมินไม่สำเร็จ");
+      await Swal.fire({ icon: result.error_count ? "warning" : "success", title: "ประมวลผลเสร็จแล้ว", text: `สำเร็จ ${result.success_count}/${result.processed_count} รายการ${result.remaining_count ? `\nเหลือ ${result.remaining_count} รายการ ให้กดประมวลผลรอบถัดไป` : ""}` });
+      loadPage(1);
+    } catch (e) { await Swal.fire({ icon: "error", title: "ประเมินไม่สำเร็จ", text: (e as Error).message }); }
+    finally { setBatchScoring(false); }
+  };
+
   if (!authChecked) return null;
 
   return (
@@ -212,13 +256,47 @@ export default function ProjectSubmissionNewListPage() {
               </select>
             </div>
             <div>
+              <label className="field-label" htmlFor="data-source-filter">แหล่งข้อมูล</label>
+              <select id="data-source-filter" value={dataSource} onChange={(e) => setDataSource(e.target.value)}>
+                <option value="">ทั้งหมด</option>
+                <option value="a-inno">a-inno</option>
+                <option value="idea-tank">idea-tank</option>
+              </select>
+            </div>
+            <div>
+              <label className="field-label" htmlFor="score-status-filter">ประเภทคะแนน</label>
+              <select
+                id="score-status-filter"
+                value={scoreStatus}
+                onChange={(e) => setScoreStatus(e.target.value as "" | "scored" | "unscored")}
+              >
+                <option value="">ทั้งหมด</option>
+                <option value="scored">มีคะแนนแล้ว</option>
+                <option value="unscored">ยังไม่มีคะแนน</option>
+              </select>
+            </div>
+            <div>
+              <label className="field-label" htmlFor="score-order-filter">เรียงคะแนน</label>
+              <select
+                id="score-order-filter"
+                value={scoreOrder}
+                onChange={(e) => setScoreOrder(e.target.value as "" | "asc" | "desc")}
+              >
+                <option value="">ค่าเริ่มต้น</option>
+                <option value="asc">คะแนนน้อย → มาก</option>
+                <option value="desc">คะแนนมาก → น้อย</option>
+              </select>
+            </div>
+            <div>
               <button type="button" className="btn btn-primary" onClick={handleSearch}>ค้นหา</button>
             </div>
           </div>
         </div>
 
         <div className="table-toolbar">
+          <a href="/idea_tank" className="btn btn-ghost">กลับหน้าหลัก</a>
           <a href="/project_submission_new" className="btn btn-primary">+ ส่งผลงาน</a>
+          {canScoreProjectSubmissions() && <button type="button" className="btn btn-primary" onClick={handleBatchScore} disabled={batchScoring}>{batchScoring ? "กำลังประเมิน..." : "ให้ AI ประมวลผล"}</button>}
           <button type="button" className="btn btn-submit" onClick={handleExport} disabled={exporting}>
             {exporting ? "กำลังส่งออก..." : "⬇ Export Excel"}
           </button>
@@ -233,19 +311,23 @@ export default function ProjectSubmissionNewListPage() {
             <table className="list-table">
               <thead>
                 <tr>
-                  <th style={{ width: "8%" }}>รหัสโครงการ</th>
-                  <th style={{ width: "22%" }}>ชื่อความคิดสร้างสรรค์</th>
-                  <th style={{ width: "22%" }}>โจทย์นวัตกรรมที่เลือก</th>
-                  <th style={{ width: "16%" }}>ประเภทของนวัตกรรม</th>
-                  <th style={{ width: "14%" }}>วันที่สร้าง</th>
-                  <th style={{ width: "10%" }}>Action</th>
+                  <th style={{ width: "6%" }}>รหัสโครงการ</th>
+                  <th style={{ width: "17%" }}>ชื่อความคิดสร้างสรรค์</th>
+                  <th style={{ width: "17%" }}>โจทย์นวัตกรรมที่เลือก</th>
+                  <th style={{ width: "13%" }}>ประเภทของนวัตกรรม</th>
+                  <th style={{ width: "12%" }}>วันที่สร้าง</th>
+                  <th style={{ width: "8%" }}>แหล่งข้อมูล</th>
+                  <th style={{ width: "6%" }}>คะแนน AI</th>
+                  <th style={{ width: "5%" }}>ผลประเมิน วพ.</th>
+                  <th style={{ width: "7%" }}>ผลประเมินกรรมการ</th>
+                  <th style={{ width: "9%" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={6} style={{ textAlign: "center", padding: 24 }}>กำลังโหลดข้อมูล...</td></tr>
+                  <tr><td colSpan={10} style={{ textAlign: "center", padding: 24 }}>กำลังโหลดข้อมูล...</td></tr>
                 ) : items.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: "center", padding: 24 }} className="empty-note">ไม่พบข้อมูล</td></tr>
+                  <tr><td colSpan={10} style={{ textAlign: "center", padding: 24 }} className="empty-note">ไม่พบข้อมูล</td></tr>
                 ) : (
                   items.map((item) => (
                     <tr key={item.ProjectId}>
@@ -254,6 +336,10 @@ export default function ProjectSubmissionNewListPage() {
                       <td>{item.ChallengeText || "-"}</td>
                       <td>{item.InnovationTypeText || "-"}</td>
                       <td>{formatDateTime(item.CreatedAt)}</td>
+                      <td>{item.data_source}</td>
+                      <td>{item.AiScore ?? "-"}{item.AiScore !== null && item.AiScore !== undefined ? "/100" : ""}</td>
+                      <td className="evaluation-status-cell"><EvaluationStatusIcon status={item.VpEvaluationStatus} evaluator="วพ." /></td>
+                      <td className="evaluation-status-cell"><EvaluationStatusIcon status={item.CommitteeEvaluationStatus} evaluator="คณะกรรมการ" /></td>
                       <td>
                         <a
                           href={`/project_submission_new_view?id=${item.ProjectId}`}

@@ -318,6 +318,15 @@ CREATE TABLE dbo.ProjectSubmissionNew
     SubmittedAt DATETIME2(0) NULL,
         -- วันที่และเวลาที่กดส่งข้อมูล
 
+    data_source VARCHAR(50) NOT NULL
+        CONSTRAINT DF_ProjectSubmissionNew_data_source DEFAULT ('idea-tank'),
+        -- แหล่งที่มาของข้อมูล เช่น idea-tank หรือ a-inno
+
+    VpEvaluationStatus NVARCHAR(100) NULL,
+    VpEvaluationComment NVARCHAR(MAX) NULL,
+    CommitteeEvaluationStatus NVARCHAR(100) NULL,
+    CommitteeEvaluationComment NVARCHAR(MAX) NULL,
+
     /* =====================================================
        Audit Fields
        ===================================================== */

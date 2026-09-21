@@ -33,6 +33,8 @@ class AuthorizationService:
             "moderator",
             "create:questions",
             "delete:questions",
+            "delete:project_submissions",
+            "score:project_submissions",
             "create:users",
             "update:users",
             "delete:users",

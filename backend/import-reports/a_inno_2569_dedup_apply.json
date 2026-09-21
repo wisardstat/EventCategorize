@@ -1,0 +1,2917 @@
+{
+  "input": "..\\datasource\\ไอเดียจากระบบ_a_inno_2569_selected.xlsx",
+  "sha256": "046ff03b28d337fdced0fc7b5137aea6ec58199fdf49940d1a8c66b9242b6e99",
+  "mode": "apply",
+  "status": "complete",
+  "data_source": "a-inno",
+  "duplicate_match_rule": "NFKC + casefold; remove every non-letter and non-digit Unicode character",
+  "summary": {
+    "source_rows": 358,
+    "planned_projects": 352,
+    "planned_members": 1345,
+    "duplicate_source_rows_skipped": 1,
+    "duplicate_existing_rows_skipped": 4,
+    "empty_normalized_names_skipped": 1
+  },
+  "a_inno_existing_projects_to_delete": 716,
+  "a_inno_existing_members_to_delete": 2497,
+  "backup_tables": {
+    "projects": "dbo.ProjectSubmissionNewAInnoBackup_20260920144425803608",
+    "members": "dbo.ProjectSubmissionNewMemberAInnoBackup_20260920144425803608"
+  },
+  "rows": [
+    {
+      "excel_row": 2,
+      "creativityID": "Creativity20260706162053",
+      "CreativeIdeaName": "การพัฒนาระบบ A-Innovation เพื่อติดตามผลลัพธ์นวัตกรรมตาม Stagegate model",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1134
+    },
+    {
+      "excel_row": 3,
+      "creativityID": "Creativity20260706164615",
+      "CreativeIdeaName": "เพิ่มมูลค่าจากบริการ mobile digital",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1135
+    },
+    {
+      "excel_row": 4,
+      "creativityID": "Creativity20260707101643",
+      "CreativeIdeaName": "ปฏิวัติวงการจำหน่ายสินค้า BAAC OUT ด้วยแนวคิด Omni Channel",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1136
+    },
+    {
+      "excel_row": 5,
+      "creativityID": "Creativity20260708112902",
+      "CreativeIdeaName": "รากฐานที่มั่นคง จากเมล็ดพันธุ์สู่ต้นไม้ใหญ่ ด้วยผลิตภัณฑ์ประกันแบบกลุ่มของสมาคม ฌปก ลูกค้าธกส.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1137
+    },
+    {
+      "excel_row": 6,
+      "creativityID": "Creativity20260708151454",
+      "CreativeIdeaName": "BAAC Mobile First",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1138
+    },
+    {
+      "excel_row": 7,
+      "creativityID": "Creativity20260714133559",
+      "CreativeIdeaName": "สงเคราะห์ชีวิต Click&Pay",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1139
+    },
+    {
+      "excel_row": 8,
+      "creativityID": "Creativity20260714140906",
+      "CreativeIdeaName": "Early Warning หนี้ก่อนสะดุด : ระบบแจ้งเตือนลูกหนี้เสี่ยงก่อนค้างชำระ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1140
+    },
+    {
+      "excel_row": 9,
+      "creativityID": "Creativity20260714142926",
+      "CreativeIdeaName": "Direct Debit พิชิตใจคุณ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1141
+    },
+    {
+      "excel_row": 10,
+      "creativityID": "Creativity20260714154335",
+      "CreativeIdeaName": "BAAC MOVE & SAVE: ขยับกาย สร้างเงินออม",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1142
+    },
+    {
+      "excel_row": 11,
+      "creativityID": "Creativity20260714164344",
+      "CreativeIdeaName": "BAAC FARMX: ใกล้เมือง ใกล้ธรรมชาติ รายได้ใหม่ถึงมือเกษตรกร",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1143
+    },
+    {
+      "excel_row": 12,
+      "creativityID": "Creativity20260714172541",
+      "CreativeIdeaName": "SMART Debt Care \"ระบบติดตามหนี้เชิงรุก ด้วย LINE OA + Dashboard\"",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1144
+    },
+    {
+      "excel_row": 13,
+      "creativityID": "Creativity20260715123907",
+      "CreativeIdeaName": "เบิกไว ตรวจแม่น",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1145
+    },
+    {
+      "excel_row": 14,
+      "creativityID": "Creativity20260717134052",
+      "CreativeIdeaName": "ผลิตภัณฑ์เงินฝาก : ยิ่งฝาก...ยิ่งฟิน...อินกับการรักษ์โลก",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1146
+    },
+    {
+      "excel_row": 15,
+      "creativityID": "Creativity20260720124839",
+      "CreativeIdeaName": "Dashboard การเติบโตสินเชื่อสถาบันเกษตรกรและองค์กร ปีบัญชี 2569",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1147
+    },
+    {
+      "excel_row": 16,
+      "creativityID": "Creativity20260720140924",
+      "CreativeIdeaName": "Insight 360 ํ Insurance",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1148
+    },
+    {
+      "excel_row": 17,
+      "creativityID": "Creativity20260721093736",
+      "CreativeIdeaName": "ระบบกลางบริหารจัดการสิทธิ์การใช้งานและการเข้าถึงข้อมูลแบบรวมศูนย์ (CAMS : Centralized Authorization Management System)",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1149
+    },
+    {
+      "excel_row": 18,
+      "creativityID": "Creativity20260721115543",
+      "CreativeIdeaName": "BAAC WellCare Plus \"อุ่นใจทุกวัย ดูแลไกลได้ ใกล้เหมือนอยู่ข้างกัน\"",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1150
+    },
+    {
+      "excel_row": 19,
+      "creativityID": "Creativity20260721140935",
+      "CreativeIdeaName": "เครื่องมือติดตามความเสี่ยงจากการลงทุนในตราสารหนี้",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1151
+    },
+    {
+      "excel_row": 20,
+      "creativityID": "Creativity20260722132137",
+      "CreativeIdeaName": "พัฒนาระบบ BAAC Corporate Banking",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1152
+    },
+    {
+      "excel_row": 21,
+      "creativityID": "Creativity20260722134632",
+      "CreativeIdeaName": "สลากตรงใจ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1153
+    },
+    {
+      "excel_row": 22,
+      "creativityID": "Creativity20260722135355",
+      "CreativeIdeaName": "BAAC Smart Me",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1154
+    },
+    {
+      "excel_row": 23,
+      "creativityID": "Creativity20260722140139",
+      "CreativeIdeaName": "น้องหอมจัง เติมทุนทันใจ (Digital Lending for BAAC Merchant)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1155
+    },
+    {
+      "excel_row": 24,
+      "creativityID": "Creativity20260722142342",
+      "CreativeIdeaName": "DCA สลากออมทรัพย์ ธ.ก.ส. บน BAAC Mobile",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1156
+    },
+    {
+      "excel_row": 25,
+      "creativityID": "Creativity20260722161524",
+      "CreativeIdeaName": "ATM Mosphere : การนำ Dashboard มาใช้เพื่อบริหารธุรกิจ ATM ของธนาคารอย่างมีประสิทธิภาพ",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1157
+    },
+    {
+      "excel_row": 26,
+      "creativityID": "Creativity20260722163043",
+      "CreativeIdeaName": "BAAC SMS Alert ปลุกพลังสู่เป้าหมาย",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1158
+    },
+    {
+      "excel_row": 27,
+      "creativityID": "Creativity20260722170307",
+      "CreativeIdeaName": "พัฒนาระบบ CCMS เพื่อรองรับการให้บริการผลิตภัณฑ์บัตรอิเล็กทรอนิกส์บน BAAC Mobile",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1159
+    },
+    {
+      "excel_row": 28,
+      "creativityID": "Creativity20260722191221",
+      "CreativeIdeaName": "BAAC Silver Mode & Voice Guide (โหมดผู้สูงวัย ใช้งานง่าย มีเสียงช่วยอ่าน บน BAAC Mobile)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1160
+    },
+    {
+      "excel_row": 29,
+      "creativityID": "Creativity20260723185851",
+      "CreativeIdeaName": "QR PAY",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1161
+    },
+    {
+      "excel_row": 30,
+      "creativityID": "Creativity20260724140104",
+      "CreativeIdeaName": "พัฒนาระบบเพื่อเพิ่มประสิทธิภาพร้านน้องหอมจัง (Feature plus)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1162
+    },
+    {
+      "excel_row": 31,
+      "creativityID": "Creativity20260727110607",
+      "CreativeIdeaName": "Pay point plus",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1163
+    },
+    {
+      "excel_row": 32,
+      "creativityID": "Creativity20260730133107",
+      "CreativeIdeaName": "Sub Account in your BAAC Mobile",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1164
+    },
+    {
+      "excel_row": 33,
+      "creativityID": "Creativity20260730142217",
+      "CreativeIdeaName": "BAAC Family Financial Hub",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1165
+    },
+    {
+      "excel_row": 34,
+      "creativityID": "Creativity20260730142805",
+      "CreativeIdeaName": "BAAC FAN SAVE \"ออมเพราะรัก ออมเพราะฝัน\"",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1166
+    },
+    {
+      "excel_row": 35,
+      "creativityID": "Creativity20260730144749",
+      "CreativeIdeaName": "BAAC VOC Intelligence Copilot",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1167
+    },
+    {
+      "excel_row": 36,
+      "creativityID": "Creativity20260730150257",
+      "CreativeIdeaName": "BAAC Customer Insight \"ขับเคลื่อนการตัดสินใจด้วยข้อมูลลูกค้าเชิงลึก (Customer-Driven Intelligence)\"",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1168
+    },
+    {
+      "excel_row": 37,
+      "creativityID": "Creativity20260730153608",
+      "CreativeIdeaName": "Social Crisis Early Warning Platform (ระบบเตือนภัยวิกฤตบนสื่อสังคมออนไลน์เชิงรุก)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1169
+    },
+    {
+      "excel_row": 38,
+      "creativityID": "Creativity20260731105457",
+      "CreativeIdeaName": "BAAC Carbon Marketplace",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1170
+    },
+    {
+      "excel_row": 39,
+      "creativityID": "Creativity20260731115311",
+      "CreativeIdeaName": "Community Innovator (ชุมชนนวัตกรแห่งการเรียนรู้และสร้างมูลค่าเพิ่ม)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1171
+    },
+    {
+      "excel_row": 40,
+      "creativityID": "Creativity20260731125100",
+      "CreativeIdeaName": "BAAC Mobile อุ่นใจพลัส",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1172
+    },
+    {
+      "excel_row": 41,
+      "creativityID": "Creativity20260731145654",
+      "CreativeIdeaName": "ระบบรายงานผลการดำเนินงานตามตัวชี้วัด KPIs",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1173
+    },
+    {
+      "excel_row": 42,
+      "creativityID": "Creativity20260731174955",
+      "CreativeIdeaName": "แจ้งเตือนตั๋วสัญญาใช้เงิน P/N ครบกำหนด",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1174
+    },
+    {
+      "excel_row": 43,
+      "creativityID": "Creativity20260803080931",
+      "CreativeIdeaName": "ระบบ l@st mile",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1175
+    },
+    {
+      "excel_row": 44,
+      "creativityID": "Creativity20260803113725",
+      "CreativeIdeaName": "Smart Match: พลิกโฉมการขายด้วยระบบแนะนำอัจฉริยะ",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1176
+    },
+    {
+      "excel_row": 45,
+      "creativityID": "Creativity20260803162050",
+      "CreativeIdeaName": "เพิ่มประสิทธิภาพการชำระหนี้ด้วยการแจ้งเตือนล่วงหน้า",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1177
+    },
+    {
+      "excel_row": 46,
+      "creativityID": "Creativity20260804085517",
+      "CreativeIdeaName": "BAAC Thailand Agri Super Platform",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1178
+    },
+    {
+      "excel_row": 47,
+      "creativityID": "Creativity20260804104023",
+      "CreativeIdeaName": "BAAC Data AGENT",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1179
+    },
+    {
+      "excel_row": 48,
+      "creativityID": "Creativity20260804133748",
+      "CreativeIdeaName": "I HAVE AI",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1180
+    },
+    {
+      "excel_row": 49,
+      "creativityID": "Creativity20260804135903",
+      "CreativeIdeaName": "สาขาปันสุข: นวัตกรรมกระจายสินค้าเกษตรชุมชนเพื่อการสร้างรายอาชีพและแก้ปัญหาหนี้สินอย่างยั่งยืน",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1181
+    },
+    {
+      "excel_row": 50,
+      "creativityID": "Creativity20260806104235",
+      "CreativeIdeaName": "BAAC Outlet Online : แพลตฟอร์มตลาดกลางสินค้าชุมชน เชื่อมโยงทุกสาขา เพิ่มโอกาสทางการตลาด",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1182
+    },
+    {
+      "excel_row": 51,
+      "creativityID": "Creativity20260806131752",
+      "CreativeIdeaName": "Model การบริหารทางการเงินแก่ผู้สูงอายุแบบเบ็ดเสร็จ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1183
+    },
+    {
+      "excel_row": 52,
+      "creativityID": "Creativity20260806132704",
+      "CreativeIdeaName": "Predictive Compliance Model (โมเดลคาดการณ์ความเสี่ยงด้าน Compliance)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1184
+    },
+    {
+      "excel_row": 53,
+      "creativityID": "Creativity20260806162116",
+      "CreativeIdeaName": "One Team One Mission One Goal",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1185
+    },
+    {
+      "excel_row": 54,
+      "creativityID": "Creativity20260806182758",
+      "CreativeIdeaName": "สินเชื่อโรงแรมรักษ์โลก",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1186
+    },
+    {
+      "excel_row": 55,
+      "creativityID": "Creativity20260807114644",
+      "CreativeIdeaName": "Green Office \"ธนาคารสีเขียวลดค่าใช้จ่าย ประหยัดพลังงาน\"",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1187
+    },
+    {
+      "excel_row": 56,
+      "creativityID": "Creativity20260807125025",
+      "CreativeIdeaName": "การประยุกต์ใช้ AI เพื่อยกระดับธุรกรรมโอนเงินระหว่างประเทศ",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1188
+    },
+    {
+      "excel_row": 57,
+      "creativityID": "Creativity20260807153718",
+      "CreativeIdeaName": "โครงการสินค้าเกษตรสะดวกซื้อ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1189
+    },
+    {
+      "excel_row": 58,
+      "creativityID": "Creativity20260807155548",
+      "CreativeIdeaName": "Pen - Jai",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1190
+    },
+    {
+      "excel_row": 59,
+      "creativityID": "Creativity20260807161026",
+      "CreativeIdeaName": "สนจ.ราชบุรี ร่วมมือ ร่วมใจ ลดการใช้พลังงาน",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1191
+    },
+    {
+      "excel_row": 60,
+      "creativityID": "Creativity20260810104139",
+      "CreativeIdeaName": "หวยใบเสร็จ(ใบเสร็จรับชำระหนี้ของธนาคาร สีฟ้า และใบเสร็จรับชำระหนี้ของธนาคารที่เป็นอิเลกทรอนิกส์)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1192
+    },
+    {
+      "excel_row": 61,
+      "creativityID": "Creativity20260810112419",
+      "CreativeIdeaName": "Innovation Coin “เหรียญแห่งการสร้างสรรค์นวัตกรรมและคุณค่า”",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1193
+    },
+    {
+      "excel_row": 62,
+      "creativityID": "Creativity20260810130151",
+      "CreativeIdeaName": "นอสตราดาต้า (NORTHSTAR DATA)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1194
+    },
+    {
+      "excel_row": 63,
+      "creativityID": "Creativity20260810142232",
+      "CreativeIdeaName": "เงินฝากยุ้งเงิน",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1195
+    },
+    {
+      "excel_row": 64,
+      "creativityID": "Creativity20260810145847",
+      "CreativeIdeaName": "ระบบโครงสร้างพื้นฐานการยืนยันคำขออิเล็กทรอนิกส์ (iRequest)",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1196
+    },
+    {
+      "excel_row": 65,
+      "creativityID": "Creativity20260810151329",
+      "CreativeIdeaName": "PASSIVE INCOME LOAN",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1197
+    },
+    {
+      "excel_row": 66,
+      "creativityID": "Creativity20260810190655",
+      "CreativeIdeaName": "BAAC FinX",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1198
+    },
+    {
+      "excel_row": 67,
+      "creativityID": "Creativity20260811090404",
+      "CreativeIdeaName": "BAAC Agri Pop Space",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1199
+    },
+    {
+      "excel_row": 68,
+      "creativityID": "Creativity20260811113431",
+      "CreativeIdeaName": "Smart Loan Simulator Sheet (โปรแกรมคำนวณเปรียบเทียบดอกเบี้ยค้ำสลากหน้าเคาน์เตอร์)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1200
+    },
+    {
+      "excel_row": 69,
+      "creativityID": "Creativity20260811115411",
+      "CreativeIdeaName": "BAAC Financial Consultant",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1201
+    },
+    {
+      "excel_row": 70,
+      "creativityID": "Creativity20260811121106",
+      "CreativeIdeaName": "ธ.ก.ส. ออมรัก",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1202
+    },
+    {
+      "excel_row": 71,
+      "creativityID": "Creativity20260811131311",
+      "CreativeIdeaName": "BAAC Smart Reach",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1203
+    },
+    {
+      "excel_row": 72,
+      "creativityID": "Creativity20260811135011",
+      "CreativeIdeaName": "ระบบบริหารจัดการพลังงานรถยนต์ไฟฟ้า ธ.ก.ส. (BAAC EV Smart Energy)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1204
+    },
+    {
+      "excel_row": 73,
+      "creativityID": "Creativity20260811141048",
+      "CreativeIdeaName": "โครงการ AGRIVERSE",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1205
+    },
+    {
+      "excel_row": 74,
+      "creativityID": "Creativity20260811144020",
+      "CreativeIdeaName": "Branch Outlet Online Market",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1206
+    },
+    {
+      "excel_row": 75,
+      "creativityID": "Creativity20260811161907",
+      "CreativeIdeaName": "ระบบออกหนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ)",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1207
+    },
+    {
+      "excel_row": 76,
+      "creativityID": "Creativity20260811171953",
+      "CreativeIdeaName": "AgriMarket Link",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1208
+    },
+    {
+      "excel_row": 77,
+      "creativityID": "Creativity20260813091014",
+      "CreativeIdeaName": "VISTA Action-A Board for Overview",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1209
+    },
+    {
+      "excel_row": 78,
+      "creativityID": "Creativity20260813102058",
+      "CreativeIdeaName": "BAAC Smart Assistant : AI Real-Time Service Companion",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1210
+    },
+    {
+      "excel_row": 79,
+      "creativityID": "Creativity20260813121230",
+      "CreativeIdeaName": "3 ตัวตรง",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1211
+    },
+    {
+      "excel_row": 80,
+      "creativityID": "Creativity20260813131059",
+      "CreativeIdeaName": "BAAC Auto Case Summary",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1212
+    },
+    {
+      "excel_row": 81,
+      "creativityID": "Creativity20260813131708",
+      "CreativeIdeaName": "ระบบวิเคราะห์อารมณ์และความเครียด (AI-Empowered Quality Assurance & Wellness)",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1213
+    },
+    {
+      "excel_row": 82,
+      "creativityID": "Creativity20260813133028",
+      "CreativeIdeaName": "BAAC FAIR COACH AI",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1214
+    },
+    {
+      "excel_row": 83,
+      "creativityID": "Creativity20260813133508",
+      "CreativeIdeaName": "BAAC Care+",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1215
+    },
+    {
+      "excel_row": 84,
+      "creativityID": "Creativity20260813133618",
+      "CreativeIdeaName": "BAAC Service Coach AI",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1216
+    },
+    {
+      "excel_row": 85,
+      "creativityID": "Creativity20260813141410",
+      "CreativeIdeaName": "QR Market : ตลาดสแกนซื้อซ้ำได้",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1217
+    },
+    {
+      "excel_row": 86,
+      "creativityID": "Creativity20260813144328",
+      "CreativeIdeaName": "Runway2Goal",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1218
+    },
+    {
+      "excel_row": 87,
+      "creativityID": "Creativity20260813144710",
+      "CreativeIdeaName": "Scam Shield Hub — ศูนย์แบ่งปันข้อมูลกลโกงมิจฉาชีพ",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1219
+    },
+    {
+      "excel_row": 88,
+      "creativityID": "Creativity20260813145108",
+      "CreativeIdeaName": "First Call Resolution Lab",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1220
+    },
+    {
+      "excel_row": 89,
+      "creativityID": "Creativity20260813150046",
+      "CreativeIdeaName": "AI Compliance Checker",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1221
+    },
+    {
+      "excel_row": 90,
+      "creativityID": "Creativity20260813150549",
+      "CreativeIdeaName": "BAAC SpeakSimple AI",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1222
+    },
+    {
+      "excel_row": 91,
+      "creativityID": "Creativity20260813150848",
+      "CreativeIdeaName": "BAAC Smart Call Routing",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1223
+    },
+    {
+      "excel_row": 92,
+      "creativityID": "Creativity20260813151215",
+      "CreativeIdeaName": "BAAC DebtVoice 24/7 Intelligent Loan Self-Service & Voice Banking Platform",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1224
+    },
+    {
+      "excel_row": 93,
+      "creativityID": "Creativity20260813151544",
+      "CreativeIdeaName": "ระบบแจ้งเตือนงานใกล้เกิน SLA ด้วย Excel อัจฉริยะ (Smart SLA Tracker)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1225
+    },
+    {
+      "excel_row": 94,
+      "creativityID": "Creativity20260813151941",
+      "CreativeIdeaName": "BAAC VoiceGuard AI",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1226
+    },
+    {
+      "excel_row": 95,
+      "creativityID": "Creativity20260813153925",
+      "CreativeIdeaName": "BAAC OneKnowledge Alert",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1227
+    },
+    {
+      "excel_row": 96,
+      "creativityID": "Creativity20260813154152",
+      "CreativeIdeaName": "BAAC Mobile Shield",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1228
+    },
+    {
+      "excel_row": 97,
+      "creativityID": "Creativity20260813154506",
+      "CreativeIdeaName": "BAAC SOS Assist Button",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1229
+    },
+    {
+      "excel_row": 98,
+      "creativityID": "Creativity20260813154842",
+      "CreativeIdeaName": "BAAC Smart Talking Point",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1230
+    },
+    {
+      "excel_row": 99,
+      "creativityID": "Creativity20260813155149",
+      "CreativeIdeaName": "BAAC ATM &Service Radar AI",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1231
+    },
+    {
+      "excel_row": 100,
+      "creativityID": "Creativity20260813155504",
+      "CreativeIdeaName": "BAAC Smart Call Back Queue",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1232
+    },
+    {
+      "excel_row": 101,
+      "creativityID": "Creativity20260813155928",
+      "CreativeIdeaName": "Smart Remittance Verification",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1233
+    },
+    {
+      "excel_row": 102,
+      "creativityID": "Creativity20260813160438",
+      "CreativeIdeaName": "สินเชื่อ ฉ.35 บน BAAC Mobile โดยใช้บัญชีเงินฝากค้ำประกันอัตโนมัติ",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1234
+    },
+    {
+      "excel_row": 103,
+      "creativityID": "Creativity20260813160602",
+      "CreativeIdeaName": "การบริหารจัดการพอร์ตสินเชื่อด้วยข้อมูลเชิงวิเคราะห์ (Dynamic Port Analysis)",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1235
+    },
+    {
+      "excel_row": 104,
+      "creativityID": "Creativity20260813160703",
+      "CreativeIdeaName": "BAAC OneClick Unlock",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1236
+    },
+    {
+      "excel_row": 105,
+      "creativityID": "Creativity20260813162757",
+      "CreativeIdeaName": "BAACLife D-sign",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1237
+    },
+    {
+      "excel_row": 106,
+      "creativityID": "Creativity20260813163245",
+      "CreativeIdeaName": "HUG Today , Grow Tomorrow",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1238
+    },
+    {
+      "excel_row": 107,
+      "creativityID": "Creativity20260813163502",
+      "CreativeIdeaName": "การลดการใช้พลังงาน",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1239
+    },
+    {
+      "excel_row": 108,
+      "creativityID": "Creativity20260813210553",
+      "CreativeIdeaName": "คู่มือ Smart Help",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1240
+    },
+    {
+      "excel_row": 109,
+      "creativityID": "Creativity20260813213500",
+      "CreativeIdeaName": "ปปน.อุ่นใจ = FBI อุ่นจัง",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1241
+    },
+    {
+      "excel_row": 110,
+      "creativityID": "Creativity20260814084053",
+      "CreativeIdeaName": "ภารกิจพิชิต NA",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1242
+    },
+    {
+      "excel_row": 111,
+      "creativityID": "Creativity20260814093952",
+      "CreativeIdeaName": "\"หยุดเลือด เสริมทุน : พลิกวิกฤตดอกค้าง 15 เดือน \"",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1243
+    },
+    {
+      "excel_row": 112,
+      "creativityID": "Creativity20260814102203",
+      "CreativeIdeaName": "NA เราจะลดนายให้ได้เลย",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1244
+    },
+    {
+      "excel_row": 113,
+      "creativityID": "Creativity20260814102407",
+      "CreativeIdeaName": "ปักปุ๊บ ถึงปั๊บ",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1245
+    },
+    {
+      "excel_row": 114,
+      "creativityID": "Creativity20260814115928",
+      "CreativeIdeaName": "“AI รู้หนี้ รู้ใจ” รู้ก่อน ตามตรงจุด ช่วยทันเวลา",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1246
+    },
+    {
+      "excel_row": 115,
+      "creativityID": "Creativity20260814115939",
+      "CreativeIdeaName": "การติดตามสัญญาเงินกู้",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1247
+    },
+    {
+      "excel_row": 116,
+      "creativityID": "Creativity20260814120258",
+      "CreativeIdeaName": "BAAC Customer DNA AI",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1248
+    },
+    {
+      "excel_row": 117,
+      "creativityID": "Creativity20260814122928",
+      "CreativeIdeaName": "LINE Smart Inventory : คลังพัสดุอัจฉริยะ แจ้งเตือนทันใจ บริหารได้แบบ Real-Time",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1249
+    },
+    {
+      "excel_row": 118,
+      "creativityID": "Creativity20260814123520",
+      "CreativeIdeaName": "LINE Workforce SmartTrack \"ระบบบริหารเวลาทำงานและสถานะพนักงานอัจฉริยะผ่าน LINE\"",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1250
+    },
+    {
+      "excel_row": 119,
+      "creativityID": "Creativity20260814125350",
+      "CreativeIdeaName": "BAAC Partner Home & EV \"สิทธิสินเชื่อบ้านและรถยนต์ไฟฟ้าสำหรับผู้ช่วยพนักงาน ธ.ก.ส.\"",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1251
+    },
+    {
+      "excel_row": 120,
+      "creativityID": "Creativity20260814125959",
+      "CreativeIdeaName": "ผลิตภัณฑ์สลากดิจิทัล ต้นกล้าทวีโชค",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1252
+    },
+    {
+      "excel_row": 121,
+      "creativityID": "Creativity20260814132123",
+      "CreativeIdeaName": "โครงการพัฒนาการให้บริการแบบ Self Service บนระบบ Contact Center",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1253
+    },
+    {
+      "excel_row": 122,
+      "creativityID": "Creativity20260814132734",
+      "CreativeIdeaName": "โครงการเพิ่มประสิทธิภาพกระบวนการตรวจสอบคุณภาพการให้บริการ (QC) โดยใช้เทคโนโลยีดิจิทัล (AI)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1254
+    },
+    {
+      "excel_row": 123,
+      "creativityID": "Creativity20260814133728",
+      "CreativeIdeaName": "BAAC Outlet 360 องศา",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1255
+    },
+    {
+      "excel_row": 124,
+      "creativityID": "Creativity20260814135947",
+      "CreativeIdeaName": "แคมเปญส่งเสริมการตลาด “Net Zero GREENmissions 2GETHER*”",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1256
+    },
+    {
+      "excel_row": 125,
+      "creativityID": "Creativity20260814140119",
+      "CreativeIdeaName": "\"เช็คหนี้ ชี้ตัว ตรามหนี้ตรงจุด\"",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1257
+    },
+    {
+      "excel_row": 126,
+      "creativityID": "Creativity20260814140412",
+      "CreativeIdeaName": "BAAC Smart Voice : เสียงใส ใส่ใจวัยเก๋า",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1258
+    },
+    {
+      "excel_row": 127,
+      "creativityID": "Creativity20260814152743",
+      "CreativeIdeaName": "-",
+      "member_count": 10,
+      "status": "skipped",
+      "skip_reason": "creative_idea_name_empty_after_normalization"
+    },
+    {
+      "excel_row": 128,
+      "creativityID": "Creativity20260814155430",
+      "CreativeIdeaName": "Planer Task Tracker",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1259
+    },
+    {
+      "excel_row": 129,
+      "creativityID": "Creativity20260814163011",
+      "CreativeIdeaName": "ช่องทางการเข้าถึงตลาดสินค้าเกษตร",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1260
+    },
+    {
+      "excel_row": 130,
+      "creativityID": "Creativity20260816162851",
+      "CreativeIdeaName": "ฟีเจอร์เตือนใจ...ไหวค่อยจ่าย บน LINE OA : BAAC Family",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1261
+    },
+    {
+      "excel_row": 131,
+      "creativityID": "Creativity20260816164125",
+      "CreativeIdeaName": "ฟีเจอร์ “วัยเก๋าอุ่นใจ” ผ่าน BAAC Mobile",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1262
+    },
+    {
+      "excel_row": 132,
+      "creativityID": "Creativity20260816164829",
+      "CreativeIdeaName": "\"ลด-ตึก-ตัก\" (ลดพลังงานในตึก เพื่อให้องค์กรได้ตักตวงกำไรและช่วยลดโลกร้อน)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1263
+    },
+    {
+      "excel_row": 133,
+      "creativityID": "Creativity20260817093106",
+      "CreativeIdeaName": "\"กระเป๋าเงินเกษตรสุขใจ\" (Smart Pay เพื่อชุมชนยั่งยืน)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1264
+    },
+    {
+      "excel_row": 134,
+      "creativityID": "Creativity20260817102349",
+      "CreativeIdeaName": "CSD - Climate Smart Dashboard",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1265
+    },
+    {
+      "excel_row": 135,
+      "creativityID": "Creativity20260817134239",
+      "CreativeIdeaName": "บริหารพลังงานแบบคลีนๆ ด้วย Green IT Platform",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1266
+    },
+    {
+      "excel_row": 136,
+      "creativityID": "Creativity20260817135438",
+      "CreativeIdeaName": "ร้านค้าเพื่อเกษตร online",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1267
+    },
+    {
+      "excel_row": 137,
+      "creativityID": "Creativity20260817142019",
+      "CreativeIdeaName": "ค้นหา ลูกค้า สงช. (Seek สงช.) และ ติดตาม ยอดขายรายคนได้ทั้ง สนจ.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1268
+    },
+    {
+      "excel_row": 138,
+      "creativityID": "Creativity20260817142821",
+      "CreativeIdeaName": "จัดการหารายได้จากสินเชื่อ สำรอง 100 และการสำรอง จัดการ 15 เดือน",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1269
+    },
+    {
+      "excel_row": 139,
+      "creativityID": "Creativity20260817143348",
+      "CreativeIdeaName": "คนหา เพื่อ รักษาฐานลูกค้า Outstanding การ จ่ายสินเชื่อ สาขา",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1270
+    },
+    {
+      "excel_row": 140,
+      "creativityID": "Creativity20260817170911",
+      "CreativeIdeaName": "AI-Driven Smart Matching & Predictive Market",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1271
+    },
+    {
+      "excel_row": 141,
+      "creativityID": "Creativity20260817173028",
+      "CreativeIdeaName": "สลากออมทรัพย์สายบุญหนุนดวง",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1272
+    },
+    {
+      "excel_row": 142,
+      "creativityID": "Creativity20260817175110",
+      "CreativeIdeaName": "เงินฝาก \"ฤกษ์ดีมั่งมีศรีสุข\"",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1273
+    },
+    {
+      "excel_row": 143,
+      "creativityID": "Creativity20260817180521",
+      "CreativeIdeaName": "Financial Personal Palette",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1274
+    },
+    {
+      "excel_row": 144,
+      "creativityID": "Creativity20260818074339",
+      "CreativeIdeaName": "BAACLife Track",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1275
+    },
+    {
+      "excel_row": 145,
+      "creativityID": "Creativity20260818075006",
+      "CreativeIdeaName": "รู้ไว ได้ กธ.",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1276
+    },
+    {
+      "excel_row": 146,
+      "creativityID": "Creativity20260818084946",
+      "CreativeIdeaName": "BAAC AgriVerse Digital Bank",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1277
+    },
+    {
+      "excel_row": 147,
+      "creativityID": "Creativity20260818085745",
+      "CreativeIdeaName": "น้องหอมจัง everywhere",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1278
+    },
+    {
+      "excel_row": 148,
+      "creativityID": "Creativity20260818090243",
+      "CreativeIdeaName": "BAACLifeFolio",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1279
+    },
+    {
+      "excel_row": 149,
+      "creativityID": "Creativity20260818091143",
+      "CreativeIdeaName": "Clean Up Digital Waste Day",
+      "member_count": 5,
+      "status": "skipped",
+      "skip_reason": "duplicate_existing_creative_idea_name",
+      "matched_projects": [
+        {
+          "ProjectId": 59,
+          "CreativeIdeaName": "Clean Up Digital Waste Day",
+          "data_source": "idea-tank"
+        }
+      ]
+    },
+    {
+      "excel_row": 150,
+      "creativityID": "Creativity20260818095955",
+      "CreativeIdeaName": "ลบอีเมลขยะ ลดคาร์บอน : แค่เคลียร์อีเมลเก่า ก็ช่วยโลกได้",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1280
+    },
+    {
+      "excel_row": 151,
+      "creativityID": "Creativity20260818111817",
+      "CreativeIdeaName": "Farm ดี มีแต้ม",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1281
+    },
+    {
+      "excel_row": 152,
+      "creativityID": "Creativity20260818134413",
+      "CreativeIdeaName": "สลากออมทรัพย์ Fun Mission Saver",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1282
+    },
+    {
+      "excel_row": 153,
+      "creativityID": "Creativity20260818145542",
+      "CreativeIdeaName": "Smart Service Branch",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1283
+    },
+    {
+      "excel_row": 154,
+      "creativityID": "Creativity20260818150758",
+      "CreativeIdeaName": "ภารกิจเกษตรยั่งยืน",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1284
+    },
+    {
+      "excel_row": 155,
+      "creativityID": "Creativity20260819133342",
+      "CreativeIdeaName": "QR Cenergy Saving",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1285
+    },
+    {
+      "excel_row": 156,
+      "creativityID": "Creativity20260819135652",
+      "CreativeIdeaName": "ตาวิเศษ AI เฝ้าระวังธนาคาร",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1286
+    },
+    {
+      "excel_row": 157,
+      "creativityID": "Creativity20260819140228",
+      "CreativeIdeaName": "Zero Paper BAAC",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1287
+    },
+    {
+      "excel_row": 158,
+      "creativityID": "Creativity20260819140811",
+      "CreativeIdeaName": "Green Office Store",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1288
+    },
+    {
+      "excel_row": 159,
+      "creativityID": "Creativity20260820102957",
+      "CreativeIdeaName": "สลากยั่งยืน เพื่ออนาคตโลก\" (ESG & Green Future Lottery)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1289
+    },
+    {
+      "excel_row": 160,
+      "creativityID": "Creativity20260820134224",
+      "CreativeIdeaName": "Survey Check เช็กก่อนถาม ไม่สำรวจซ้ำ",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1290
+    },
+    {
+      "excel_row": 161,
+      "creativityID": "Creativity20260824093633",
+      "CreativeIdeaName": "สินเชื่อเพื่อคนรักหญ้า",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1291
+    },
+    {
+      "excel_row": 162,
+      "creativityID": "Creativity20260824100809",
+      "CreativeIdeaName": "GeoChcek นวัตกรรมตรวจสอบพื้นที่ป่าไม้ถาวรด้วยพิกัด เพื่อสนับสนุนการรับจำนอง (GeoCheck Innovative Coordinate-Based Verification of Permanent Forest Areas for Mortgage Support)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1292
+    },
+    {
+      "excel_row": 163,
+      "creativityID": "Creativity20260824102453",
+      "CreativeIdeaName": "ระบบ Smart Branch Risk Scoring",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1293
+    },
+    {
+      "excel_row": 164,
+      "creativityID": "Creativity20260824154420",
+      "CreativeIdeaName": "นวัตกรรมและโมเดลการพัฒนาชุมชนอย่างยั่งยืน (BAAC Innovation & WISE Model)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1294
+    },
+    {
+      "excel_row": 165,
+      "creativityID": "Creativity20260824164644",
+      "CreativeIdeaName": "BAAC NEXT : Banking Before Banking “สร้างลูกค้ารุ่นใหม่ เริ่มต้นได้ตั้งแต่วัยเด็ก”",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1295
+    },
+    {
+      "excel_row": 166,
+      "creativityID": "Creativity20260824170146",
+      "CreativeIdeaName": "ระบบรับฟังเสียงพนักงาน",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1296
+    },
+    {
+      "excel_row": 167,
+      "creativityID": "Creativity20260825110254",
+      "CreativeIdeaName": "สินเชื่อ \"เกษตรอายุวัฒน์\" (Ayuwat Longevity Loan)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1297
+    },
+    {
+      "excel_row": 168,
+      "creativityID": "Creativity20260825110411",
+      "CreativeIdeaName": "สูงวัย ห่างไกลมิจ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1298
+    },
+    {
+      "excel_row": 169,
+      "creativityID": "Creativity20260825152200",
+      "CreativeIdeaName": "Baac Mobile สำหรับผู้สูงอายุ",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1299
+    },
+    {
+      "excel_row": 170,
+      "creativityID": "Creativity20260825161829",
+      "CreativeIdeaName": "Paper Alert",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1300
+    },
+    {
+      "excel_row": 171,
+      "creativityID": "Creativity20260826111419",
+      "CreativeIdeaName": "ประกันภัยสัตว์เลี้ยง ธ.ก.ส. Pet เพชร",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1301
+    },
+    {
+      "excel_row": 172,
+      "creativityID": "Creativity20260826141120",
+      "CreativeIdeaName": "ระบบแจ้งเตือนกำหนดชำระหนี้เงินกู้",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1302
+    },
+    {
+      "excel_row": 173,
+      "creativityID": "Creativity20260826142106",
+      "CreativeIdeaName": "AI Legal Early Warning ระบบแจ้งเตือนความเสี่ยงลูกหนี้ก่อนเข้าสู่กระบวนการฟ้องคดี",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1303
+    },
+    {
+      "excel_row": 174,
+      "creativityID": "Creativity20260826142452",
+      "CreativeIdeaName": "คลังความรู้: กฎหมายน่ารู้สำหรับเกษตรกร",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1304
+    },
+    {
+      "excel_row": 175,
+      "creativityID": "Creativity20260826143314",
+      "CreativeIdeaName": "Legal Recovery Dashboard",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1305
+    },
+    {
+      "excel_row": 176,
+      "creativityID": "Creativity20260826143515",
+      "CreativeIdeaName": "สัญญาอิเล๋กทรอนิกส์ (E-Contract)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1306
+    },
+    {
+      "excel_row": 177,
+      "creativityID": "Creativity20260826160513",
+      "CreativeIdeaName": "ใบคำขอสบายใจ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1307
+    },
+    {
+      "excel_row": 178,
+      "creativityID": "Creativity20260827152604",
+      "CreativeIdeaName": "BAAC e-Donation & e-Receipt",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1308
+    },
+    {
+      "excel_row": 179,
+      "creativityID": "Creativity20260828110728",
+      "CreativeIdeaName": "smart meeting smart planning",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1309
+    },
+    {
+      "excel_row": 180,
+      "creativityID": "Creativity20260828113905",
+      "CreativeIdeaName": "Paperless & Digital Workflow",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1310
+    },
+    {
+      "excel_row": 181,
+      "creativityID": "Creativity20260828144923",
+      "CreativeIdeaName": "“Smart Route for BAAC- Appraisal : ระบบวางแผนเส้นทางอัจฉริยะเพื่อเพิ่มประสิทธิภาพการสำรวจหลักประกัน\"",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1311
+    },
+    {
+      "excel_row": 182,
+      "creativityID": "Creativity20260831105411",
+      "CreativeIdeaName": "ระบบแผนที่แสดงตำแหน่งและราคาประเมินที่ดิน (Land Valuation Mapping System)",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1312
+    },
+    {
+      "excel_row": 183,
+      "creativityID": "Creativity20260831132345",
+      "CreativeIdeaName": "KPI Smart Flow",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1313
+    },
+    {
+      "excel_row": 184,
+      "creativityID": "Creativity20260831143205",
+      "CreativeIdeaName": "มังแมวออมดี Eco System",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1314
+    },
+    {
+      "excel_row": 185,
+      "creativityID": "Creativity20260831145912",
+      "CreativeIdeaName": "Credit Growth Executive Dashboard",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1315
+    },
+    {
+      "excel_row": 186,
+      "creativityID": "Creativity20260831163739",
+      "CreativeIdeaName": "PDF Tools Offline for BAAC : เครื่องมือจัดการเอกสาร PDF แบบไม่เชื่อมต่ออินเทอร์เน็ต เพื่อสนับสนุนการคุ้มครองข้อมูลส่วนบุคคลของลูกค้า ธ.ก.ส.",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1316
+    },
+    {
+      "excel_row": 187,
+      "creativityID": "Creativity20260831203343",
+      "CreativeIdeaName": "AI Governance Assistant (ผู้ช่วย AI สำหรับตอบคำถามเกี่ยวกับระเบียบ นโยบาย และขั้นตอนปฏิบัติงาน)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1317
+    },
+    {
+      "excel_row": 188,
+      "creativityID": "Creativity20260901132906",
+      "CreativeIdeaName": "อัจฉริยะสร้างโอกาสการเติบโตของรายได้",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1318
+    },
+    {
+      "excel_row": 189,
+      "creativityID": "Creativity20260901133950",
+      "CreativeIdeaName": "Apex Step Savings",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1319
+    },
+    {
+      "excel_row": 190,
+      "creativityID": "Creativity20260901141206",
+      "CreativeIdeaName": "Agri-PinPoint นวัตกรรมแผนที่ยุทธศาสตร์ปักหมุดอนาคต",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1320
+    },
+    {
+      "excel_row": 191,
+      "creativityID": "Creativity20260901143246",
+      "CreativeIdeaName": "นวัตกรรมกระจายการผลิตเห็ดนางฟ้าปักหมุดสร้างรายได้",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1321
+    },
+    {
+      "excel_row": 192,
+      "creativityID": "Creativity20260901145121",
+      "CreativeIdeaName": "นวัตกรรมฐานข้อมูลชุมชนเชิงกลยุทธ์สู่โมเดลต้นแบบสร้างงานและขับเคลื่อนธุรกิจธนาคารแบบครบวงจร",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1322
+    },
+    {
+      "excel_row": 193,
+      "creativityID": "Creativity20260901151843",
+      "CreativeIdeaName": "วัยเก๋า เข้าถึง (Senior Finance Easy)",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1323
+    },
+    {
+      "excel_row": 194,
+      "creativityID": "Creativity20260902092112",
+      "CreativeIdeaName": "โครงการ \"BAAC Agri-Link\"",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1324
+    },
+    {
+      "excel_row": 195,
+      "creativityID": "Creativity20260902092545",
+      "CreativeIdeaName": "โครงการ \"BAAC Seed-Up\"",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1325
+    },
+    {
+      "excel_row": 196,
+      "creativityID": "Creativity20260902093637",
+      "CreativeIdeaName": "โครงการพัฒนาระบบสารสนเทศคาดการณ์ประมาณการทางการเงิน",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1326
+    },
+    {
+      "excel_row": 197,
+      "creativityID": "Creativity20260902094127",
+      "CreativeIdeaName": "โครงการ \"Pre-Emptive Debt Care\" วิเคราะห์ล่วงหน้า ป้องกันก่อนแก้ ดูแลก่อนเป็น NPL",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1327
+    },
+    {
+      "excel_row": 198,
+      "creativityID": "Creativity20260902095017",
+      "CreativeIdeaName": "ระบบ Smart PB (Smart Planning & Budgeting Systems)",
+      "member_count": 9,
+      "status": "inserted",
+      "ProjectId": 1328
+    },
+    {
+      "excel_row": 199,
+      "creativityID": "Creativity20260902133616",
+      "CreativeIdeaName": "ระบบจัดการข้อมูลและสื่อสารภายใน (Internal Hub & Dashboard) ผ่าน canva",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1329
+    },
+    {
+      "excel_row": 200,
+      "creativityID": "Creativity20260902134241",
+      "CreativeIdeaName": "ฺBAAC Regional Connect : เชื่อมโอกาสลูกค้าใหม่ สู่บริการ ธ.ก.ส.",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1330
+    },
+    {
+      "excel_row": 201,
+      "creativityID": "Creativity20260902134737",
+      "CreativeIdeaName": "โครงการเพิ่มการเข้าถึงบริการทางการเงินของผู้สูงอายุผ่าน BAAC Mobile",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1331
+    },
+    {
+      "excel_row": 202,
+      "creativityID": "Creativity20260902135941",
+      "CreativeIdeaName": "ประกันถึงใจ คุ้มภัยถึงชุมชน (BAAC Insurance Connect)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1332
+    },
+    {
+      "excel_row": 203,
+      "creativityID": "Creativity20260902151212",
+      "CreativeIdeaName": "Smart Loan Matching",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1333
+    },
+    {
+      "excel_row": 204,
+      "creativityID": "Creativity20260902153011",
+      "CreativeIdeaName": "Voice from Area (VFA)",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1334
+    },
+    {
+      "excel_row": 205,
+      "creativityID": "Creativity20260902155151",
+      "CreativeIdeaName": "BAAC Money Mate",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1335
+    },
+    {
+      "excel_row": 206,
+      "creativityID": "Creativity20260902160529",
+      "CreativeIdeaName": "ฐานข้อมูลมาตรฐานผลผลิตทั่วประเทศ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1336
+    },
+    {
+      "excel_row": 207,
+      "creativityID": "Creativity20260902165502",
+      "CreativeIdeaName": "ยื่นรับเงินกองทุนสำรองเลี้ยงชีพ ด้วยระบบ Google Form",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1337
+    },
+    {
+      "excel_row": 208,
+      "creativityID": "Creativity20260902173101",
+      "CreativeIdeaName": "From Manual to Automation : ยกระดับการนำเงินเข้าบัญชีลูกค้าจากรายการ Inward Remittance",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1338
+    },
+    {
+      "excel_row": 209,
+      "creativityID": "Creativity20260903085444",
+      "CreativeIdeaName": "Hospital Hub",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1339
+    },
+    {
+      "excel_row": 210,
+      "creativityID": "Creativity20260903133202",
+      "CreativeIdeaName": "สร้างช่องทางรับส่ง/จัดทำ/ปรับปรุงเอกสารการประชุม",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1340
+    },
+    {
+      "excel_row": 211,
+      "creativityID": "Creativity20260903150647",
+      "CreativeIdeaName": "นวัตกรรมคู่มือปฏิบัติงานยุคดิจิทัล",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1341
+    },
+    {
+      "excel_row": 212,
+      "creativityID": "Creativity20260903150703",
+      "CreativeIdeaName": "Process Database Standard Guideline : แนวทางมาตรฐานการจัดทำฐานข้อมูลกระบวนการ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1342
+    },
+    {
+      "excel_row": 213,
+      "creativityID": "Creativity20260903151718",
+      "CreativeIdeaName": "“ระบบประเมินและออกแบบโครงสร้างองค์กร 6 มิติ (Six Lanes Organizational Assessment Platform)”",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1343
+    },
+    {
+      "excel_row": 214,
+      "creativityID": "Creativity20260903152506",
+      "CreativeIdeaName": "การวิเคราะห์โครงสร้างองค์กรด้วยข้อมูลกระบวนการและภารกิจงาน",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1344
+    },
+    {
+      "excel_row": 215,
+      "creativityID": "Creativity20260903152511",
+      "CreativeIdeaName": "มาตรฐานกระบวนการออกแบบและพัฒนาผลิตภัณฑ์ของธนาคาร",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1345
+    },
+    {
+      "excel_row": 216,
+      "creativityID": "Creativity20260903153121",
+      "CreativeIdeaName": "\"Smart Manual : คู่มือดิจิทัลเพื่อการปฏิบัติงานยุคใหม่”",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1346
+    },
+    {
+      "excel_row": 217,
+      "creativityID": "Creativity20260903174916",
+      "CreativeIdeaName": "Stairway to Wealth (ก้าวเพื่อโลก ก้าวเพื่อเรา )",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1347
+    },
+    {
+      "excel_row": 218,
+      "creativityID": "Creativity20260903192857",
+      "CreativeIdeaName": "AI Smart Lighting for Safety (เปิดไฟตามความเคลื่อนไหวในจุดเสี่ยง)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1348
+    },
+    {
+      "excel_row": 219,
+      "creativityID": "Creativity20260903200546",
+      "CreativeIdeaName": "1 Hour Eco-Hour (ชั่วโมงปิดไฟสู้โลกร้อนประจำสัปดาห์)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1349
+    },
+    {
+      "excel_row": 220,
+      "creativityID": "Creativity20260903203159",
+      "CreativeIdeaName": "Green Meeting Protocol (ประชุมสีเขียว ไร้พลังงานส่วนเกิน)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1350
+    },
+    {
+      "excel_row": 221,
+      "creativityID": "Creativity20260903220717",
+      "CreativeIdeaName": "Smart Office Zones (เปิด-ปิดแอร์และไฟตามความหนาแน่น)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1351
+    },
+    {
+      "excel_row": 222,
+      "creativityID": "Creativity20260903224909",
+      "CreativeIdeaName": "Digital Cleanup & Dark Mode (ลดการใช้พลังงานจากระบบไอที)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1352
+    },
+    {
+      "excel_row": 223,
+      "creativityID": "Creativity20260904101044",
+      "CreativeIdeaName": "เครื่องมือวัดศักยภาพและกำหนดกลุ่มเป้าหมายในอนาคต ประเภทสินเชื่อกลุ่ม S3",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1353
+    },
+    {
+      "excel_row": 224,
+      "creativityID": "Creativity20260904101915",
+      "CreativeIdeaName": "ระบบบริหารจัดการคาร์บอนเครดิต",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1354
+    },
+    {
+      "excel_row": 225,
+      "creativityID": "Creativity20260904104052",
+      "CreativeIdeaName": "AAG Housing Insurance ทำประกันบ้านผ่านผู้ประเมิน",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1355
+    },
+    {
+      "excel_row": 226,
+      "creativityID": "Creativity20260904115038",
+      "CreativeIdeaName": "สลากโชคบ้านเฮา",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1356
+    },
+    {
+      "excel_row": 227,
+      "creativityID": "Creativity20260904123854",
+      "CreativeIdeaName": "Biochar Innovation Hub: ปั้นองค์ความรู้ สู่ต้นแบบคาร์บอนเพื่ออนาคต",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1357
+    },
+    {
+      "excel_row": 228,
+      "creativityID": "Creativity20260904133118",
+      "CreativeIdeaName": "Know before You Pay",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1358
+    },
+    {
+      "excel_row": 229,
+      "creativityID": "Creativity20260904134037",
+      "CreativeIdeaName": "LawMate",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1359
+    },
+    {
+      "excel_row": 230,
+      "creativityID": "Creativity20260904134839",
+      "CreativeIdeaName": "Lawinsight AI : ผู้ช่วยอัจฉริยะค้นหาคำตอบทางกฎหมายและองค์ความรู้ ธ.ก.ส. (ทนายน้อย)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1360
+    },
+    {
+      "excel_row": 231,
+      "creativityID": "Creativity20260904135259",
+      "CreativeIdeaName": "Green Credit Score",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1361
+    },
+    {
+      "excel_row": 232,
+      "creativityID": "Creativity20260904135611",
+      "CreativeIdeaName": "AgriPreneur assistant (บุญช่วย)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1362
+    },
+    {
+      "excel_row": 233,
+      "creativityID": "Creativity20260904141503",
+      "CreativeIdeaName": "International Banking Buddy AI เพื่อนคู่คิดธุรกิจต่างประเทศ",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1363
+    },
+    {
+      "excel_row": 234,
+      "creativityID": "Creativity20260904142409",
+      "CreativeIdeaName": "การประยุกต์ใช้ AI เพื่อยกระดับการให้บริการออกหนังสือค้ำประกันต่างประเทศ (International Letter of Guarantee : Int’l L/G)",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1364
+    },
+    {
+      "excel_row": 235,
+      "creativityID": "Creativity20260904143147",
+      "CreativeIdeaName": "การให้บริการกู้ยืมเงินกรมธรรม์ เงินฝากสงเคราะห์ชีวิต ผ่าน BAAC Mobile",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1365
+    },
+    {
+      "excel_row": 236,
+      "creativityID": "Creativity20260904143720",
+      "CreativeIdeaName": "Western Union Member Tier",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1366
+    },
+    {
+      "excel_row": 237,
+      "creativityID": "Creativity20260904143743",
+      "CreativeIdeaName": "DebtSignal",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1367
+    },
+    {
+      "excel_row": 238,
+      "creativityID": "Creativity20260904151358",
+      "CreativeIdeaName": "การบริหารจัดการหนังสือค้ำประกันอิเล็กทรอนิกส์ (BC-LG)",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1368
+    },
+    {
+      "excel_row": 239,
+      "creativityID": "Creativity20260907093700",
+      "CreativeIdeaName": "ปรับปรุงการตรวจสอบธุรกรรมเสี่ยงด้วยคัมภีร์สัญญาณอันตราย",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1369
+    },
+    {
+      "excel_row": 240,
+      "creativityID": "Creativity20260907094921",
+      "CreativeIdeaName": "การสื่อสารผ่านระบบ Line / Teams",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1370
+    },
+    {
+      "excel_row": 241,
+      "creativityID": "Creativity20260907095404",
+      "CreativeIdeaName": "ปรับปรุงช่องทางรับแจ้งเบาะแสด้วยตู้จดหมายอิเล็กทรอนิกส์จำกัดสิทธิ์ (Restricted Internal Mailbox)",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1371
+    },
+    {
+      "excel_row": 242,
+      "creativityID": "Creativity20260907113736",
+      "CreativeIdeaName": "ร่วมกิจกรรมเสนอความคิดสร้างสรรค์ (Idea to Innovation)",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1372
+    },
+    {
+      "excel_row": 243,
+      "creativityID": "Creativity20260907134953",
+      "CreativeIdeaName": "โครงการ “ชำระปุ๊ป ลดปั๊บ”",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1373
+    },
+    {
+      "excel_row": 244,
+      "creativityID": "Creativity20260907143900",
+      "CreativeIdeaName": "ระบบ Backtester และคาดเดาการดำเนินงานโครงการ",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1374
+    },
+    {
+      "excel_row": 245,
+      "creativityID": "Creativity20260907162416",
+      "CreativeIdeaName": "ปรับปรุงกระบวนการสอบทานสินเชื่อ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1375
+    },
+    {
+      "excel_row": 246,
+      "creativityID": "Creativity20260907162758",
+      "CreativeIdeaName": "Dashboard การแก้ไขข้อมูลเครดิต",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1376
+    },
+    {
+      "excel_row": 247,
+      "creativityID": "Creativity20260907163637",
+      "CreativeIdeaName": "ปรับปรุงกระบวนการสอบทานสินเชื่อ",
+      "member_count": 1,
+      "status": "skipped",
+      "skip_reason": "duplicate_in_source_file",
+      "duplicate_of_excel_row": 245
+    },
+    {
+      "excel_row": 248,
+      "creativityID": "Creativity20260907164853",
+      "CreativeIdeaName": "\"อย่าหาว่า Ad(~min) ไม่เตือน!!!\"",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1377
+    },
+    {
+      "excel_row": 249,
+      "creativityID": "Creativity20260908091641",
+      "CreativeIdeaName": "ระบบรองรับการบันทึกธุรกรรมนโยบายรัฐ (PSA)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1378
+    },
+    {
+      "excel_row": 250,
+      "creativityID": "Creativity20260908093528",
+      "CreativeIdeaName": "การส่งหนังสือแจ้งข้อมูลเครดิตผ่าน BAAC Mobile ระยะที่ 2",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1379
+    },
+    {
+      "excel_row": 251,
+      "creativityID": "Creativity20260908094801",
+      "CreativeIdeaName": "โครงการสร้างรายได้ค่าบริการและค่าธรรมเนียม (FBI) ปีบัญชี 2569",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1380
+    },
+    {
+      "excel_row": 252,
+      "creativityID": "Creativity20260908101124",
+      "CreativeIdeaName": "Smart Credit Approval",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1381
+    },
+    {
+      "excel_row": 253,
+      "creativityID": "Creativity20260908101656",
+      "CreativeIdeaName": "การพัฒนาระบบงานสารสนเทศข้อมูลสัญญาปรับปรุงโครงสร้างหนี้ที่มีการรวมบัญชีที่ครบอายุการประมวลผล 5 ปี 90 วัน",
+      "member_count": 2,
+      "status": "skipped",
+      "skip_reason": "duplicate_existing_creative_idea_name",
+      "matched_projects": [
+        {
+          "ProjectId": 116,
+          "CreativeIdeaName": "การพัฒนาระบบงานสารสนเทศข้อมูลสัญญาปรับปรุงโครงสร้างหนี้ที่มีการรวมบัญชีที่ครบอายุการประมวลผล 5 ปี 90 วัน",
+          "data_source": "idea-tank"
+        }
+      ]
+    },
+    {
+      "excel_row": 254,
+      "creativityID": "Creativity20260908102313",
+      "CreativeIdeaName": "Tracking คำขอสินเชื่อตั้งแต่ต้นทาง",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1382
+    },
+    {
+      "excel_row": 255,
+      "creativityID": "Creativity20260908104013",
+      "CreativeIdeaName": "การดำเนินโครงการตามนโยบายของรัฐบาล ผ่าน BAAC Mobile เฟส 1",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1383
+    },
+    {
+      "excel_row": 256,
+      "creativityID": "Creativity20260908104219",
+      "CreativeIdeaName": "Smart Case Routing",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1384
+    },
+    {
+      "excel_row": 257,
+      "creativityID": "Creativity20260908104511",
+      "CreativeIdeaName": "การพัฒนาระบบรายงานตรวจสอบคุณภาพก่อนนำส่ง NCB",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1385
+    },
+    {
+      "excel_row": 258,
+      "creativityID": "Creativity20260908104945",
+      "CreativeIdeaName": "Similar Case Finder",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1386
+    },
+    {
+      "excel_row": 259,
+      "creativityID": "Creativity20260908105507",
+      "CreativeIdeaName": "Approval SLA Radar",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1387
+    },
+    {
+      "excel_row": 260,
+      "creativityID": "Creativity20260908133530",
+      "CreativeIdeaName": "เปลี่ยนพืชผลให้เป็นทุนหมุนเวียน",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1388
+    },
+    {
+      "excel_row": 261,
+      "creativityID": "Creativity20260908134612",
+      "CreativeIdeaName": "สื่อสารบทบาทภารกิจและภาพลักษณ์ธนาคารผ่านรายการหอมแผ่นดิน",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1389
+    },
+    {
+      "excel_row": 262,
+      "creativityID": "Creativity20260908142601",
+      "CreativeIdeaName": "เพิ่มประสิทธิภาพระบบสินเชื่อชะลอการขายข้าวเปลือกนาปี",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1390
+    },
+    {
+      "excel_row": 263,
+      "creativityID": "Creativity20260908143545",
+      "CreativeIdeaName": "พัฒนาระบบ Customer Profile เพื่อเชื่อมโยงฐานลูกค้าเกษตรแบบแปลงใหญ่",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1391
+    },
+    {
+      "excel_row": 264,
+      "creativityID": "Creativity20260908144020",
+      "CreativeIdeaName": "AppSheet แอป ชน งาน",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1392
+    },
+    {
+      "excel_row": 265,
+      "creativityID": "Creativity20260908144434",
+      "CreativeIdeaName": "เครื่องมือปรับโครงสร้างหนี้ส่วนบุคคลแบบอัตโนมัติ (Debt-Free Buddy)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1393
+    },
+    {
+      "excel_row": 266,
+      "creativityID": "Creativity20260908144617",
+      "CreativeIdeaName": "BAAC Family คู่คิด เช็คสิทธิ์เงินรัฐ",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1394
+    },
+    {
+      "excel_row": 267,
+      "creativityID": "Creativity20260908150251",
+      "CreativeIdeaName": "แผนงานยกระดับการตรวจสอบสินเชื่อเชิงรุกโดยใช้ Virtual Audit",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1395
+    },
+    {
+      "excel_row": 268,
+      "creativityID": "Creativity20260908155526",
+      "CreativeIdeaName": "ระบบจ่ายเงินค่าฝากเก็บโครงการชะลอการขายข้าวเปลือกนาปี (กรณีสถาบันเกษตรกร)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1396
+    },
+    {
+      "excel_row": 269,
+      "creativityID": "Creativity20260908155719",
+      "CreativeIdeaName": "ระบบติดตามเรียกร้องค่าสินไหมทดแทน",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1397
+    },
+    {
+      "excel_row": 270,
+      "creativityID": "Creativity20260908160548",
+      "CreativeIdeaName": "การพัฒนาโปรแกรมแปลงไฟล์ รับ-ส่งข้อมูลการโอนเงินแบบหลายรายการ (Bulk Payment) รองรับบัญชีพร้อมเพย์",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1398
+    },
+    {
+      "excel_row": 271,
+      "creativityID": "Creativity20260908163210",
+      "CreativeIdeaName": "Owner Confirmation Campaign",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1399
+    },
+    {
+      "excel_row": 272,
+      "creativityID": "Creativity20260908165125",
+      "CreativeIdeaName": "Audit Lens Mystery",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1400
+    },
+    {
+      "excel_row": 273,
+      "creativityID": "Creativity20260908170733",
+      "CreativeIdeaName": "โครงการจัดตั้งคลินิกกฎหมาย",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1401
+    },
+    {
+      "excel_row": 274,
+      "creativityID": "Creativity20260908171354",
+      "CreativeIdeaName": "Audit Smart Flow การจัดการข้อตรวจพบสู่กระดาษทำการ ด้วย Microsoft 365",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1402
+    },
+    {
+      "excel_row": 275,
+      "creativityID": "Creativity20260908172633",
+      "CreativeIdeaName": "D-Audit (Digital Audit Analytics Dashboard)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1403
+    },
+    {
+      "excel_row": 276,
+      "creativityID": "Creativity20260908173141",
+      "CreativeIdeaName": "DiGIC",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1404
+    },
+    {
+      "excel_row": 277,
+      "creativityID": "Creativity20260908181729",
+      "CreativeIdeaName": "Business Execution & Activity Monitor : BEAM",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1405
+    },
+    {
+      "excel_row": 278,
+      "creativityID": "Creativity20260908184400",
+      "CreativeIdeaName": "ระบบช่วยจัดทำและตรวจสอบเอกสารนิติกรรมสัญญาแบบอัตโนมัติโครงการเงินทุนหมุนเวียนเพื่อแก้ไขปัญหาหนี้สินข้าราชการครู",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1406
+    },
+    {
+      "excel_row": 279,
+      "creativityID": "Creativity20260908184927",
+      "CreativeIdeaName": "Track 2 Close (ตามติด ปิดจบ) ระบบติดตามประเด็นตรวจสอบคงค้างอัตโนมัติ บน Microsoft 365 (License E1/E3)",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1407
+    },
+    {
+      "excel_row": 280,
+      "creativityID": "Creativity20260909085222",
+      "CreativeIdeaName": "สรุป (Saroop)",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1408
+    },
+    {
+      "excel_row": 281,
+      "creativityID": "Creativity20260909091717",
+      "CreativeIdeaName": "ฐานข้อมูลสนับสนุนการอำนวยสินเชื่อโครงการเงินทุนหมุนเวียนเพื่อแก้ไขปัญหาหนี้สินครู",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1409
+    },
+    {
+      "excel_row": 282,
+      "creativityID": "Creativity20260909104202",
+      "CreativeIdeaName": "PARA Pulse",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1410
+    },
+    {
+      "excel_row": 283,
+      "creativityID": "Creativity20260909111911",
+      "CreativeIdeaName": "Checklist ขั้นเทพ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1411
+    },
+    {
+      "excel_row": 284,
+      "creativityID": "Creativity20260909113749",
+      "CreativeIdeaName": "\"Agri-Market Oracle \" แพลตฟอร์ม AI อัจฉริยะ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1412
+    },
+    {
+      "excel_row": 285,
+      "creativityID": "Creativity20260909124934",
+      "CreativeIdeaName": "ระบบวิเคราะห์ความเชื่อมโยงและเฝ้าระวังความเสี่ยงใน Business Chain เพื่อสนับสนุนการกำกับดูแลและบริหารสินเชื่อเชิงรุก",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1413
+    },
+    {
+      "excel_row": 286,
+      "creativityID": "Creativity20260909125644",
+      "CreativeIdeaName": "ส่งหนังสือแจ้งเตือนสถานะบัญชีเงินฝากไม่เคลื่อนไหวผ่าน A-Mobile",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1414
+    },
+    {
+      "excel_row": 287,
+      "creativityID": "Creativity20260909130213",
+      "CreativeIdeaName": "ระบบฐานข้อมูลความเสี่ยงจากผลการสอบทานธุรกรรมด้านสินเชื่อ (RANK : Risk Analysis & Forecasting Kit)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1415
+    },
+    {
+      "excel_row": 288,
+      "creativityID": "Creativity20260909132917",
+      "CreativeIdeaName": "“LOCK TARGET 53311 : Behavioral Loan Acceleration Model”",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1416
+    },
+    {
+      "excel_row": 289,
+      "creativityID": "Creativity20260909133244",
+      "CreativeIdeaName": "Onyx AI Agent",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1417
+    },
+    {
+      "excel_row": 290,
+      "creativityID": "Creativity20260909133326",
+      "CreativeIdeaName": "Smart Check-in Money Expo & Thailand Smart Money",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1418
+    },
+    {
+      "excel_row": 291,
+      "creativityID": "Creativity20260909134910",
+      "CreativeIdeaName": "5401176",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1419
+    },
+    {
+      "excel_row": 292,
+      "creativityID": "Creativity20260909135733",
+      "CreativeIdeaName": "BAAC Energy Tracking & Alert — ระบบติดตามและแจ้งเตือนการใช้พลังงานรายจุด",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1420
+    },
+    {
+      "excel_row": 293,
+      "creativityID": "Creativity20260909142820",
+      "CreativeIdeaName": "BAAC Farmer Market",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1421
+    },
+    {
+      "excel_row": 294,
+      "creativityID": "Creativity20260909144741",
+      "CreativeIdeaName": "โปรแกรมสมัครอบรมต่ออายุใบอนุญาตนายหน้าประกันภัย",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1422
+    },
+    {
+      "excel_row": 295,
+      "creativityID": "Creativity20260909145239",
+      "CreativeIdeaName": "โครงการ 9 วัด 9 โรงเรียน 9 โรงพยาบาล ก้าวไปทำบุญกับ ธ.ก.ส.",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1423
+    },
+    {
+      "excel_row": 296,
+      "creativityID": "Creativity20260909145549",
+      "CreativeIdeaName": "BAAC LoanReady AI",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1424
+    },
+    {
+      "excel_row": 297,
+      "creativityID": "Creativity20260909150007",
+      "CreativeIdeaName": "AI Smart Farmer Advisor",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1425
+    },
+    {
+      "excel_row": 298,
+      "creativityID": "Creativity20260909151550",
+      "CreativeIdeaName": "การเชื่อมต่อเมนูกรมธรรม์ของฉันกับ Application A Insure",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1426
+    },
+    {
+      "excel_row": 299,
+      "creativityID": "Creativity20260909152441",
+      "CreativeIdeaName": "พัฒนาระบบ Application A Insure ON Mobile",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1427
+    },
+    {
+      "excel_row": 300,
+      "creativityID": "Creativity20260909153241",
+      "CreativeIdeaName": "Power Save Reminder สร้างพฤติกรรมการประหยัดพลังงาน",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1428
+    },
+    {
+      "excel_row": 301,
+      "creativityID": "Creativity20260909153430",
+      "CreativeIdeaName": "The Stone",
+      "member_count": 5,
+      "status": "skipped",
+      "skip_reason": "duplicate_existing_creative_idea_name",
+      "matched_projects": [
+        {
+          "ProjectId": 187,
+          "CreativeIdeaName": "The Stone",
+          "data_source": "idea-tank"
+        }
+      ]
+    },
+    {
+      "excel_row": 302,
+      "creativityID": "Creativity20260909154020",
+      "CreativeIdeaName": "ผลิตภัณฑ์เงินฝากสลากออมทรัพย์แห่งอนาคต สลากออมทรัพย์ \"มั่งมีคุ้มภัย\"",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1429
+    },
+    {
+      "excel_row": 303,
+      "creativityID": "Creativity20260909155326",
+      "CreativeIdeaName": "ระบบการตรวจสอบสถานะการส่งเอกสารและการเรียกร้องค่าสินไหมทดแทน",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1430
+    },
+    {
+      "excel_row": 304,
+      "creativityID": "Creativity20260909155405",
+      "CreativeIdeaName": "Loan smart reminder",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1431
+    },
+    {
+      "excel_row": 305,
+      "creativityID": "Creativity20260909161335",
+      "CreativeIdeaName": "โครงการ Paperless Office เพื่อลดการใช้พลังงานและลดการใช้กระดาษ",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1432
+    },
+    {
+      "excel_row": 306,
+      "creativityID": "Creativity20260909162022",
+      "CreativeIdeaName": "Carbon Credit on Mobile",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1433
+    },
+    {
+      "excel_row": 307,
+      "creativityID": "Creativity20260909162136",
+      "CreativeIdeaName": "BAAC FBI Navigator",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1434
+    },
+    {
+      "excel_row": 308,
+      "creativityID": "Creativity20260909163948",
+      "CreativeIdeaName": "ระบบควบคุมบัตรสลากออมทรัพย์",
+      "member_count": 3,
+      "status": "inserted",
+      "ProjectId": 1435
+    },
+    {
+      "excel_row": 309,
+      "creativityID": "Creativity20260909165102",
+      "CreativeIdeaName": "การทดสอบศูนย์ปฏิบัติงานสำรองด้วย Router 4G",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1436
+    },
+    {
+      "excel_row": 310,
+      "creativityID": "Creativity20260909165149",
+      "CreativeIdeaName": "ระบบพิมพ์ใบแจ้งชำระเงินแบบมีบาร์โค๊ด/คิวอาร์โค้ด ของ ธ.ก.ส.",
+      "member_count": 6,
+      "status": "skipped",
+      "skip_reason": "duplicate_existing_creative_idea_name",
+      "matched_projects": [
+        {
+          "ProjectId": 174,
+          "CreativeIdeaName": "ระบบพิมพ์ใบแจ้งชำระเงินแบบมีบาร์โค้ด/คิวอาร์โค้ดของ ธ.ก.ส.",
+          "data_source": "idea-tank"
+        }
+      ]
+    },
+    {
+      "excel_row": 311,
+      "creativityID": "Creativity20260909180211",
+      "CreativeIdeaName": "secure pay",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1437
+    },
+    {
+      "excel_row": 312,
+      "creativityID": "Creativity20260909182022",
+      "CreativeIdeaName": "Alert เคลม อสม.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1438
+    },
+    {
+      "excel_row": 313,
+      "creativityID": "Creativity20260909183401",
+      "CreativeIdeaName": "CHECKER อสม.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1439
+    },
+    {
+      "excel_row": 314,
+      "creativityID": "Creativity20260910080808",
+      "CreativeIdeaName": "ปั้นยอดขายด้วย AI ไร้ขีดจำกัด สร้างความมั่งคั่งอย่างยั่งยืน",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1440
+    },
+    {
+      "excel_row": 315,
+      "creativityID": "Creativity20260910092856",
+      "CreativeIdeaName": "หนี้เบาใจ (EasyDebt AI Assistant)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1441
+    },
+    {
+      "excel_row": 316,
+      "creativityID": "Creativity20260910092942",
+      "CreativeIdeaName": "เชื่อมต่อข้อมูลม้าเทาผ่านช่องทาง Secure File Transfer Protocol (SFTP) เพื่อระงับการทำธุรกรรมอัตโนมัติ",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1442
+    },
+    {
+      "excel_row": 317,
+      "creativityID": "Creativity20260910095120",
+      "CreativeIdeaName": "สินเชื่อเพื่อสถาบันเกษตรกร “Pro Co-op\"",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1443
+    },
+    {
+      "excel_row": 318,
+      "creativityID": "Creativity20260910095215",
+      "CreativeIdeaName": "Credit Review Brief - หนึ่งโครงการ หนึ่งความเข้าใจ",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1444
+    },
+    {
+      "excel_row": 319,
+      "creativityID": "Creativity20260910095816",
+      "CreativeIdeaName": "ระบบบริหารจัดการขอปรับลดอัตราดอกเบี้ยเงินกู้สหกรณ์ออมทรัพย์",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1445
+    },
+    {
+      "excel_row": 320,
+      "creativityID": "Creativity20260910100652",
+      "CreativeIdeaName": "โครงการบูรณาการการบริหารจัดการหนี้สหกรณ์การเกษตร",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1446
+    },
+    {
+      "excel_row": 321,
+      "creativityID": "Creativity20260910101218",
+      "CreativeIdeaName": "แอปวัยเก๋า (Elderly Voice Banking)",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1447
+    },
+    {
+      "excel_row": 322,
+      "creativityID": "Creativity20260910101333",
+      "CreativeIdeaName": "Green Credit Loop",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1448
+    },
+    {
+      "excel_row": 323,
+      "creativityID": "Creativity20260910101539",
+      "CreativeIdeaName": "อ้อยคืนดิน สร้างคุณค่า เปลี่ยนอนาคต",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1449
+    },
+    {
+      "excel_row": 324,
+      "creativityID": "Creativity20260910102822",
+      "CreativeIdeaName": "ยกระดับการออกแบบผลิตภัณฑ์ด้วย AI",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1450
+    },
+    {
+      "excel_row": 325,
+      "creativityID": "Creativity20260910103336",
+      "CreativeIdeaName": "Pushnoti อสม.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1451
+    },
+    {
+      "excel_row": 326,
+      "creativityID": "Creativity20260910110033",
+      "CreativeIdeaName": "โครงการการเบิกเงินกู้ส่วนต่าง Revolving อสม. อสส. ผ่าน application Baac mobile MK 2838 และ MK 3080",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1452
+    },
+    {
+      "excel_row": 327,
+      "creativityID": "Creativity20260910110949",
+      "CreativeIdeaName": "ระบบติดตามและบริหารจัดการงานทีมด้วย Microsoft To Do",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1453
+    },
+    {
+      "excel_row": 328,
+      "creativityID": "Creativity20260910112040",
+      "CreativeIdeaName": "CR SmartGate : AI - Powered Credit Review Readiness ส่งครั้งเดียว ครบ พร้อมสอบทาน",
+      "member_count": 4,
+      "status": "inserted",
+      "ProjectId": 1454
+    },
+    {
+      "excel_row": 329,
+      "creativityID": "Creativity20260910112146",
+      "CreativeIdeaName": "โครงการปรับปรุงพัฒนาระบบรองรับการขอใบเสร็จรับเงิน อิเล็กทรอนิกส์โครงการสินเชื่อของสำนักสินเชื่อสวัสดิการและโครงการพิเศษ",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1455
+    },
+    {
+      "excel_row": 330,
+      "creativityID": "Creativity20260910115225",
+      "CreativeIdeaName": "โปรแกรมช่วยงาน แบบพิมพ์นิติกรรมสัญญากู้เงิน และนิติกรรมที่เกี่ยวข้อง",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1456
+    },
+    {
+      "excel_row": 331,
+      "creativityID": "Creativity20260910123813",
+      "CreativeIdeaName": "ระบบผู้ช่วยอัจฉริยะตรวจทานและแนะนำ Smart Legal AI Assistant",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1457
+    },
+    {
+      "excel_row": 332,
+      "creativityID": "Creativity20260910130102",
+      "CreativeIdeaName": "พัฒนาระบบแจ้งเตือนกรณีหักสำเร็จหนี้ อสม.(เฉพาะหนี้ปกติที่ไม่ค้าง)ให้ ลูกค้า",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1458
+    },
+    {
+      "excel_row": 333,
+      "creativityID": "Creativity20260910130836",
+      "CreativeIdeaName": "โครงการ DOPA Safe and Secure หลักประกันปลอดภัยเชื่อมใจกับทะเบียนราษฎร์",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1459
+    },
+    {
+      "excel_row": 334,
+      "creativityID": "Creativity20260910130919",
+      "CreativeIdeaName": "Excel Smart Checklist เพื่อยกระดับมาตรฐานการสอบทานสินเชื่อ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1460
+    },
+    {
+      "excel_row": 335,
+      "creativityID": "Creativity20260910131317",
+      "CreativeIdeaName": "GrowCoins: ออมสนุก ได้รับโบนัส",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1461
+    },
+    {
+      "excel_row": 336,
+      "creativityID": "Creativity20260910131928",
+      "CreativeIdeaName": "Agri-Token คาร์บอนสร้างรายได้",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1462
+    },
+    {
+      "excel_row": 337,
+      "creativityID": "Creativity20260910133502",
+      "CreativeIdeaName": "FutureFood Sync: ปรับไร่นา สู่อุตสาหกรรมแห่งอนาคต",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1463
+    },
+    {
+      "excel_row": 338,
+      "creativityID": "Creativity20260910141730",
+      "CreativeIdeaName": "ชุมชนดีขึ้น...วัดได้ : KORAT COMMUNITY UPGRADE 360 \"ระบบวิเคราะห์สุขภาพและแผนที่โอกาสชุมชน เพื่อยกระดับชุมชนแบบตรงจุดและวัดผลได้\"",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1464
+    },
+    {
+      "excel_row": 339,
+      "creativityID": "Creativity20260910142306",
+      "CreativeIdeaName": "BAAC Farm Market Connect “จากผลผลิตสู่ตลาด จากรายได้สู่โอกาส”",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1465
+    },
+    {
+      "excel_row": 340,
+      "creativityID": "Creativity20260910142916",
+      "CreativeIdeaName": "BAAC Income+ : 1 ครัวเรือน 2 รายได้ “เปลี่ยนสิ่งที่มี ให้เป็นรายได้ใหม่”",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1466
+    },
+    {
+      "excel_row": 341,
+      "creativityID": "Creativity20260910144121",
+      "CreativeIdeaName": "ระบบบริหารและติดตามกระบวนการพิธีการสินเชื่ออัจฉริยะส่วนภูมิภาค (Smart Regional Loan)",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1467
+    },
+    {
+      "excel_row": 342,
+      "creativityID": "Creativity20260910145204",
+      "CreativeIdeaName": "คู่หูสูงวัย ถูกใจใช่เลย",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1468
+    },
+    {
+      "excel_row": 343,
+      "creativityID": "Creativity20260910145347",
+      "CreativeIdeaName": "ระบบติดตามคำขอสินเชื่อ (Tracking)",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1469
+    },
+    {
+      "excel_row": 344,
+      "creativityID": "Creativity20260910145605",
+      "CreativeIdeaName": "รายงานไม่ซ้ำ ทำครั้งเดียวจบ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1470
+    },
+    {
+      "excel_row": 345,
+      "creativityID": "Creativity20260910150257",
+      "CreativeIdeaName": "การสร้างคุณค่าผลิตภัณฑ์สินค้าเกษตรสู่อาหารท้องถิ่นร่วมสมัย (Agriculture products to Local Shine Dining)",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1471
+    },
+    {
+      "excel_row": 346,
+      "creativityID": "Creativity20260910151704",
+      "CreativeIdeaName": "HRD Data Flow \"กรอกครั้งเดียว..ใช้ได้หลายงาน\"",
+      "member_count": 7,
+      "status": "inserted",
+      "ProjectId": 1472
+    },
+    {
+      "excel_row": 347,
+      "creativityID": "Creativity20260910151826",
+      "CreativeIdeaName": "One Meeting – One Decision",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1473
+    },
+    {
+      "excel_row": 348,
+      "creativityID": "Creativity20260910152227",
+      "CreativeIdeaName": "Paper Smart Office",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1474
+    },
+    {
+      "excel_row": 349,
+      "creativityID": "Creativity20260910152653",
+      "CreativeIdeaName": "Green Meeting by Design",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1475
+    },
+    {
+      "excel_row": 350,
+      "creativityID": "Creativity20260910153213",
+      "CreativeIdeaName": "การเพิ่มรายได้ FBI",
+      "member_count": 10,
+      "status": "inserted",
+      "ProjectId": 1476
+    },
+    {
+      "excel_row": 351,
+      "creativityID": "Creativity20260910153229",
+      "CreativeIdeaName": "One Scan Library",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1477
+    },
+    {
+      "excel_row": 352,
+      "creativityID": "Creativity20260910155551",
+      "CreativeIdeaName": "ระบบบริหารแผนปฏิทินฝึกอบรมอัจฉริยะ",
+      "member_count": 6,
+      "status": "inserted",
+      "ProjectId": 1478
+    },
+    {
+      "excel_row": 353,
+      "creativityID": "Creativity20260910162313",
+      "CreativeIdeaName": "BAAC ONE PAGE จอเดียว รับจบ",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1479
+    },
+    {
+      "excel_row": 354,
+      "creativityID": "Creativity20260910162532",
+      "CreativeIdeaName": "แบบบันทึกความต้องการเข้ารับการพัฒนาศักยภาพอาชีพเกษตรกรลูกค้าพักชำระหนี้",
+      "member_count": 2,
+      "status": "inserted",
+      "ProjectId": 1480
+    },
+    {
+      "excel_row": 355,
+      "creativityID": "Creativity20260910165527",
+      "CreativeIdeaName": "ระบบสนับสนุนการปฏิบัติงาน สง.",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1481
+    },
+    {
+      "excel_row": 356,
+      "creativityID": "Creativity20260910170553",
+      "CreativeIdeaName": "Secure Loan Of Lampang",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1482
+    },
+    {
+      "excel_row": 357,
+      "creativityID": "Creativity20260910234633",
+      "CreativeIdeaName": "Team Navigator – Daily",
+      "member_count": 1,
+      "status": "inserted",
+      "ProjectId": 1483
+    },
+    {
+      "excel_row": 358,
+      "creativityID": "Creativity20260911100506",
+      "CreativeIdeaName": "ควิก เครดิต",
+      "member_count": 8,
+      "status": "inserted",
+      "ProjectId": 1484
+    },
+    {
+      "excel_row": 359,
+      "creativityID": "Creativity20260911104549",
+      "CreativeIdeaName": "กู้ง่าย ขายคล่อง",
+      "member_count": 5,
+      "status": "inserted",
+      "ProjectId": 1485
+    }
+  ]
+}

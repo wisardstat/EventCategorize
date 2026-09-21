@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, Text, TIMESTAMP, text, String, DateTime, Boolean, SmallInteger, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, Text, TIMESTAMP, text, String, Unicode, UnicodeText, DateTime, Boolean, SmallInteger, ForeignKey
 from sqlalchemy.dialects.mssql import TINYINT
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.elements import quoted_name
@@ -273,11 +273,21 @@ class ProjectSubmissionNew(Base):
 
     StatusCode = Column(String(20), nullable=False, server_default=text("'DRAFT'"))
     SubmittedAt = Column(DateTime, nullable=True)
+    data_source = Column(String(50), nullable=False, server_default=text("'idea-tank'"))
+    VpEvaluationStatus = Column(Unicode(100), nullable=True)
+    VpEvaluationComment = Column(UnicodeText, nullable=True)
+    CommitteeEvaluationStatus = Column(Unicode(100), nullable=True)
+    CommitteeEvaluationComment = Column(UnicodeText, nullable=True)
 
     CreatedByEmpCode = Column(String(20), nullable=True)
     CreatedAt = Column(DateTime, nullable=False, server_default=text("SYSDATETIME()"))
     UpdatedByEmpCode = Column(String(20), nullable=True)
     UpdatedAt = Column(DateTime, nullable=True)
+    AiScore = Column(Integer, nullable=True)
+    AiScoreComment = Column(Text, nullable=True)
+    AiScoredAt = Column(DateTime, nullable=True)
+    AiIdeaSummary = Column(Text, nullable=True)
+    AiIdeaSummarizedAt = Column(DateTime, nullable=True)
 
     members = relationship(
         "ProjectSubmissionNewMember",

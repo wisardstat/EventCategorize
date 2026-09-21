@@ -4,6 +4,7 @@ import {
   FINANCIAL_VALUE_ITEMS,
   NONFINANCIAL_VALUE_ITEMS,
 } from "./constants";
+import { shouldShowInnovationValueContent } from "./innovation-value";
 
 export interface MemberOut {
   ProjectMemberId: number;
@@ -45,6 +46,15 @@ export interface SubmissionNewOut {
   StatusCode: string;
   SubmittedAt?: string | null;
   CreatedAt: string;
+  AiScore?: number | null;
+  AiScoreComment?: string | null;
+  AiScoredAt?: string | null;
+  AiIdeaSummary?: string | null;
+  AiIdeaSummarizedAt?: string | null;
+  VpEvaluationStatus?: string | null;
+  VpEvaluationComment?: string | null;
+  CommitteeEvaluationStatus?: string | null;
+  CommitteeEvaluationComment?: string | null;
   members: MemberOut[];
   [key: string]: unknown;
 }
@@ -63,6 +73,16 @@ export function SubmissionDetailCardsNew({ data }: { data: SubmissionNewOut }) {
   const checkedIdeaSources = IDEA_SOURCES.filter(({ key }) => Boolean(data[`IdeaSource${key}`]));
   const checkedFinancial = FINANCIAL_VALUE_ITEMS.filter(({ key }) => Boolean(data[`FinancialValue${key}`]));
   const checkedNonFinancial = NONFINANCIAL_VALUE_ITEMS.filter(({ key }) => Boolean(data[`NonFinancialValue${key}`]));
+  const showFinancialValue = shouldShowInnovationValueContent(
+    data.InnovationValueFinancial,
+    checkedFinancial.length > 0,
+    data.FinancialValueDetailHtml,
+  );
+  const showNonFinancialValue = shouldShowInnovationValueContent(
+    data.InnovationValueNonFinancial,
+    checkedNonFinancial.length > 0,
+    data.NonFinancialValueDetailHtml,
+  );
 
   return (
     <>
@@ -78,6 +98,35 @@ export function SubmissionDetailCardsNew({ data }: { data: SubmissionNewOut }) {
           <div className="kv-item"><div className="k">ประเภทการประกวด</div><div className="v">{data.SubmissionTypeNameTh}</div></div>
           <div className="kv-item"><div className="k">สถานะ</div><div className="v">{data.StatusCode === "SUBMITTED" ? "ส่งผลงานแล้ว" : data.StatusCode}</div></div>
           <div className="kv-item"><div className="k">วันที่ส่งผลงาน</div><div className="v">{formatDateTime(data.SubmittedAt)}</div></div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-head"><div className="idx">AI</div><h3>คะแนนประเมิน</h3></div>
+        <div className="kv-grid"><div className="kv-item"><div className="k">คะแนนรวม</div><div className="v">{data.AiScore ?? "-"}{data.AiScore !== null && data.AiScore !== undefined ? "/100" : ""}</div></div><div className="kv-item"><div className="k">เวลาประเมิน</div><div className="v">{formatDateTime(data.AiScoredAt)}</div></div></div>
+        <div className="cap-group-title" style={{ marginTop: 16 }}>ความคิดเห็นการประเมิน</div>
+        <textarea readOnly rows={16} value={data.AiScoreComment || "-"} style={{ width: "100%", resize: "vertical" }} />
+      </div>
+
+      <div className="card">
+        <div className="card-head"><div className="idx">AI</div><h3>สรุปแนวคิด: Pain point → Solution → Benefit</h3></div>
+        <div className="html-block" style={{ whiteSpace: "pre-wrap" }}>{data.AiIdeaSummary || "ยังไม่ได้ให้ AI สรุปแนวคิด"}</div>
+        <div className="empty-note" style={{ marginTop: 12 }}>ประมวลผลเมื่อ: {formatDateTime(data.AiIdeaSummarizedAt)}</div>
+      </div>
+
+      <div className="card">
+        <div className="card-head"><div className="idx">✓</div><h3>ผลการประเมินโดยผู้ประเมิน</h3></div>
+        <div className="evaluation-result-grid">
+          <section aria-labelledby="vp-evaluation-result-title">
+            <h4 id="vp-evaluation-result-title">ผลการประเมินโดย วพ.</h4>
+            <p className="html-block">{data.VpEvaluationStatus || <span className="empty-note">ยังไม่มีผลประเมิน</span>}</p>
+            <p className="evaluation-result-comment">{data.VpEvaluationComment || <span className="empty-note">ไม่มีความคิดเห็นเพิ่มเติม</span>}</p>
+          </section>
+          <section aria-labelledby="committee-evaluation-result-title">
+            <h4 id="committee-evaluation-result-title">ผลการประเมินโดยกรรมการ</h4>
+            <p className="html-block">{data.CommitteeEvaluationStatus || <span className="empty-note">ยังไม่มีผลประเมิน</span>}</p>
+            <p className="evaluation-result-comment">{data.CommitteeEvaluationComment || <span className="empty-note">ไม่มีเหตุผลเพิ่มเติม</span>}</p>
+          </section>
         </div>
       </div>
 
@@ -171,7 +220,7 @@ export function SubmissionDetailCardsNew({ data }: { data: SubmissionNewOut }) {
       <div className="card">
         <div className="card-head"><div className="idx">11</div><h3>มูลค่านวัตกรรม (Innovation Value)</h3></div>
         <div className="cap-group-title">ด้านการเงิน</div>
-        {data.InnovationValueFinancial ? (
+        {showFinancialValue ? (
           <>
             {checkedFinancial.length ? (
               <div className="tag-list">{checkedFinancial.map(({ key, label }) => <span key={key} className="tag">{label}</span>)}</div>
@@ -184,7 +233,7 @@ export function SubmissionDetailCardsNew({ data }: { data: SubmissionNewOut }) {
           <p className="empty-note">ไม่ได้ระบุ</p>
         )}
         <div className="cap-group-title" style={{ marginTop: 18 }}>ไม่ใช่การเงิน</div>
-        {data.InnovationValueNonFinancial ? (
+        {showNonFinancialValue ? (
           <>
             {checkedNonFinancial.length ? (
               <div className="tag-list">{checkedNonFinancial.map(({ key, label }) => <span key={key} className="tag">{label}</span>)}</div>

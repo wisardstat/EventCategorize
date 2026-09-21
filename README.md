@@ -23,7 +23,8 @@ Create and activate venv, install dependencies (already set up by scripts in thi
 
 ```bash
 cd backend
-./.venv/Scripts/activate  # Windows PowerShell
+.\venv\Scripts\Activate.ps1 
+.\menv\bin\Activate.ps1 # Windows PowerShell
 
 uvicorn app.main:app --reload --port 8000
 # Linux

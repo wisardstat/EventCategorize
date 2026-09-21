@@ -48,6 +48,25 @@ class OpenAIService:
             print(f"Error calling OpenAI: {str(e)}")
             return f"เกิดข้อผิดพลาดในการประมวลผล: {str(e)}"
 
+    async def summarize_project_idea(self, text: str) -> str:
+        if not text or not text.strip():
+            raise ValueError("No project submission content to summarize")
+        prompt = f"""สรุปแนวคิดนวัตกรรมต่อไปนี้เป็นภาษาไทยที่อ่านง่าย โดยใช้หัวข้อ exactly:
+Pain point
+Solution
+Benefit
+แต่ละหัวข้อเขียนกระชับ 1-3 bullet และห้ามสร้างข้อเท็จจริงที่ไม่มีในข้อมูล
+
+ข้อมูลโครงการ:
+{text}"""
+        response = self.client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[{"role": "system", "content": "คุณเป็นผู้ช่วยสรุปแนวคิดนวัตกรรมให้เข้าใจง่าย"}, {"role": "user", "content": prompt}],
+            max_tokens=1000,
+            temperature=0.3,
+        )
+        return response.choices[0].message.content.strip()
+
     async def score_idea(self, system_prompt: str, idea_name: Optional[str] = None, idea_detail: Optional[str] = None) -> Dict[str, Any]:
         """
         Score an idea using AI based on the provided system prompt

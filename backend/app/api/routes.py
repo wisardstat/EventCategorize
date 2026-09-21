@@ -3,7 +3,7 @@ import logging
 import json
 import re
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
@@ -32,6 +32,8 @@ from app.db.schemas import (
     ProjectSubmissionNewStep2In,
     ProjectSubmissionNewOut,
     ProjectSubmissionNewListResponse,
+    ProjectSubmissionNewVpEvaluationUpdate,
+    ProjectSubmissionNewCommitteeEvaluationUpdate,
 )
 from sqlalchemy.orm import joinedload
 from fastapi.responses import StreamingResponse
@@ -41,7 +43,12 @@ from pydantic import BaseModel
 from app.services.classifier import classify_category, extract_keywords
 from app.services.openai_service import openai_service
 from app.services.auth_service import verify_password, get_password_hash, create_access_token, verify_token, validate_password_hash
-from app.services.authorization_service import require_permission, require_role, verify_api_key_dependency, AuthorizationService
+from app.services.authorization_service import require_permission, require_role, verify_api_key_dependency, AuthorizationService, get_current_user_with_permissions
+from app.services.project_submission_new_evaluation import require_project_submission_evaluation_role
+from app.services.project_submission_new_query import (
+    apply_project_submission_score_order,
+    apply_project_submission_score_status_filter,
+)
 from sqlalchemy import desc
 from datetime import timedelta
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -1850,10 +1857,13 @@ def submit_project_submission_new(project_id: int, payload: ProjectSubmissionNew
 PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH = {
     "ProjectId": "รหัสโครงการ",
     "EventYear": "ปีของโครงการ",
+    "data_source": "แหล่งข้อมูล",
     "SubmissionTypeCode": "รหัสประเภทการส่งประกวด",
     "SubmissionTypeNameTh": "ประเภทการส่งประกวด",
     "TeamName": "ชื่อทีม",
     "CreativeIdeaName": "ชื่อความคิดสร้างสรรค์",
+    "AiScore": "Score",
+    "AiIdeaSummary": "Summary",
 
     "ChallengeNo": "ลำดับโจทย์นวัตกรรม",
     "ChallengeText": "โจทย์นวัตกรรมที่เลือก",
@@ -1970,6 +1980,9 @@ def export_project_submissions_new(
     team_name: Optional[str] = None,
     innovation_type_no: Optional[int] = None,
     challenge_no: Optional[int] = None,
+    data_source: Optional[str] = None,
+    score_status: Optional[Literal["scored", "unscored"]] = None,
+    score_order: Optional[Literal["asc", "desc"]] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -1989,9 +2002,24 @@ def export_project_submissions_new(
         query = query.filter(models.ProjectSubmissionNew.InnovationTypeNo == innovation_type_no)
     if challenge_no is not None:
         query = query.filter(models.ProjectSubmissionNew.ChallengeNo == challenge_no)
+    if data_source is not None:
+        query = query.filter(models.ProjectSubmissionNew.data_source == data_source)
+    query = apply_project_submission_score_status_filter(
+        query, models.ProjectSubmissionNew.AiScore, score_status
+    )
 
     export_keys = list(PROJECT_SUBMISSION_NEW_EXPORT_COLUMNS_TH.keys())
-    submissions = query.order_by(models.ProjectSubmissionNew.ProjectId.desc()).all()
+    if score_order:
+        query = apply_project_submission_score_order(
+            query,
+            models.ProjectSubmissionNew.AiScore,
+            models.ProjectSubmissionNew.CreatedAt,
+            models.ProjectSubmissionNew.ProjectId,
+            score_order,
+        )
+    else:
+        query = query.order_by(models.ProjectSubmissionNew.ProjectId.desc())
+    submissions = query.all()
     rows = []
     for submission in submissions:
         raw_row = _project_submission_new_to_export_row(submission)
@@ -2033,6 +2061,9 @@ def list_project_submissions_new(
     team_name: Optional[str] = None,
     innovation_type_no: Optional[int] = None,
     challenge_no: Optional[int] = None,
+    data_source: Optional[str] = None,
+    score_status: Optional[Literal["scored", "unscored"]] = None,
+    score_order: Optional[Literal["asc", "desc"]] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -2046,11 +2077,25 @@ def list_project_submissions_new(
         query = query.filter(models.ProjectSubmissionNew.InnovationTypeNo == innovation_type_no)
     if challenge_no is not None:
         query = query.filter(models.ProjectSubmissionNew.ChallengeNo == challenge_no)
+    if data_source is not None:
+        query = query.filter(models.ProjectSubmissionNew.data_source == data_source)
+    query = apply_project_submission_score_status_filter(
+        query, models.ProjectSubmissionNew.AiScore, score_status
+    )
 
     total = query.count()
+    if score_order:
+        query = apply_project_submission_score_order(
+            query,
+            models.ProjectSubmissionNew.AiScore,
+            models.ProjectSubmissionNew.CreatedAt,
+            models.ProjectSubmissionNew.ProjectId,
+            score_order,
+        )
+    else:
+        query = query.order_by(models.ProjectSubmissionNew.CreatedAt.desc())
     items = (
-        query.order_by(models.ProjectSubmissionNew.CreatedAt.desc())
-        .offset((page - 1) * page_size)
+        query.offset((page - 1) * page_size)
         .limit(page_size)
         .all()
     )
@@ -2060,6 +2105,214 @@ def list_project_submissions_new(
 @router.get("/project-submissions-new/{project_id}", response_model=ProjectSubmissionNewOut)
 def get_project_submission_new(project_id: int, db: Session = Depends(get_db)):
     return _get_submission_new_or_404(db, project_id)
+
+
+@router.put("/project-submissions-new/{project_id}/vp-evaluation", response_model=ProjectSubmissionNewOut)
+def save_project_submission_new_vp_evaluation(
+    project_id: int,
+    payload: ProjectSubmissionNewVpEvaluationUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user_with_permissions),
+):
+    require_project_submission_evaluation_role(current_user, "vp")
+    submission = _get_submission_new_or_404(db, project_id)
+    submission.VpEvaluationStatus = payload.status
+    submission.VpEvaluationComment = payload.comment
+    submission.UpdatedAt = datetime.now()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save VP evaluation")
+    return _get_submission_new_or_404(db, project_id)
+
+
+@router.put("/project-submissions-new/{project_id}/committee-evaluation", response_model=ProjectSubmissionNewOut)
+def save_project_submission_new_committee_evaluation(
+    project_id: int,
+    payload: ProjectSubmissionNewCommitteeEvaluationUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user_with_permissions),
+):
+    require_project_submission_evaluation_role(current_user, "committee")
+    submission = _get_submission_new_or_404(db, project_id)
+    submission.CommitteeEvaluationStatus = payload.status
+    submission.CommitteeEvaluationComment = payload.comment
+    submission.UpdatedAt = datetime.now()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save committee evaluation")
+    return _get_submission_new_or_404(db, project_id)
+
+
+class ProjectSubmissionNewBatchScoreRequest(BaseModel):
+    mode: str
+    team_name: Optional[str] = None
+    innovation_type_no: Optional[int] = None
+    challenge_no: Optional[int] = None
+    data_source: Optional[str] = None
+    score_status: Optional[Literal["scored", "unscored"]] = None
+
+
+def _project_submission_new_score_context(submission: models.ProjectSubmissionNew) -> str:
+    fields = [
+        ("ชื่อผลงาน", submission.CreativeIdeaName),
+        ("ลูกค้ากลุ่มเป้าหมาย", submission.TargetCustomerTypeText),
+        ("ปัญหา/ความต้องการของกลุ่มลูกค้า", _strip_html_to_text(submission.TargetCustomerProblemHtml or "")),
+        ("แนวคิดนวัตกรรมโดยสังเขป", _strip_html_to_text(submission.IdeaConceptHtml or "")),
+        ("ระดับความใหม่ของความคิดสร้างสรรค์", submission.NoveltyLevelText),
+    ]
+
+    financial_options = [
+        label
+        for field, label in [
+            (submission.FinancialValueRevenue, "สร้างรายได้ (รายได้ธนาคาร/รายได้ลูกค้า)"),
+            (submission.FinancialValueCostSaving, "ลดค่าใช้จ่าย (ค่าใช้จ่ายธนาคาร/ค่าใช้จ่ายลูกค้า)"),
+        ]
+        if field
+    ]
+    financial_detail = _strip_html_to_text(submission.FinancialValueDetailHtml or "")
+    nonfinancial_options = [
+        label
+        for field, label in [
+            (submission.NonFinancialValueCustomerSatisfaction, "ความพึงพอใจ"),
+            (submission.NonFinancialValueWorkEfficiency, "ลดขั้นตอนการทำงาน เพื่อเพิ่มเวลา Free Time สำหรับงานที่สร้างมูลค่า Value Added"),
+            (submission.NonFinancialValueCustomerQuality, "ด้านคุณภาพชีวิตลูกค้า อาทิ ลดระยะเวลาการเดินทางของลูกค้า ลดระยะเวลาการทำธุรกรรมของลูกค้า"),
+            (submission.NonFinancialValueEnvironment, "ด้านสิ่งแวดล้อม อาทิ ลดปริมาณการปล่อยก๊าซเรือนกระจก เพิ่มปริมาณคาร์บอนเครดิต"),
+        ]
+        if field
+    ]
+    nonfinancial_detail = _strip_html_to_text(submission.NonFinancialValueDetailHtml or "")
+
+    innovation_value_sections = []
+    if submission.InnovationValueFinancial or financial_options or financial_detail:
+        financial_lines = ["ด้านการเงิน:"]
+        if financial_options:
+            financial_lines.append(f"รายการที่เลือก: {', '.join(financial_options)}")
+        if financial_detail:
+            financial_lines.append(f"รายละเอียด: {financial_detail}")
+        if not financial_options and not financial_detail:
+            financial_lines.append("เลือกด้านการเงิน แต่ไม่มีตัวเลือกหรือรายละเอียดเพิ่มเติม")
+        innovation_value_sections.append("\n".join(financial_lines))
+
+    if submission.InnovationValueNonFinancial or nonfinancial_options or nonfinancial_detail:
+        nonfinancial_lines = ["ด้านที่ไม่ใช่การเงิน:"]
+        if nonfinancial_options:
+            nonfinancial_lines.append(f"รายการที่เลือก: {', '.join(nonfinancial_options)}")
+        if nonfinancial_detail:
+            nonfinancial_lines.append(f"รายละเอียด: {nonfinancial_detail}")
+        if not nonfinancial_options and not nonfinancial_detail:
+            nonfinancial_lines.append("เลือกด้านที่ไม่ใช่การเงิน แต่ไม่มีตัวเลือกหรือรายละเอียดเพิ่มเติม")
+        innovation_value_sections.append("\n".join(nonfinancial_lines))
+
+    if innovation_value_sections:
+        fields.append(("มูลค่านวัตกรรม (Innovation Value)", "\n".join(innovation_value_sections)))
+
+    return "\n\n".join(f"{label}: {value}" for label, value in fields if value)
+
+
+def _format_project_submission_new_score(result: dict) -> tuple[int, str]:
+    overall_score = int(round(float(result["overall_score"])))
+    if not 0 <= overall_score <= 100:
+        raise ValueError("AI overall score is out of range")
+    lines = ["=== ผลการประเมินความคิดสร้างสรรค์ ===", ""]
+    for item in result["scores"]:
+        lines.extend([str(item["criterion"]), f"คะแนน: {item['score']}/20", f"คำอธิบาย: {item['explanation']}", ""])
+    lines.extend([f"คะแนนรวม: {overall_score}/100", f"เฉลี่ย: {overall_score / 5:.1f}/20", "", f"ข้อเสนอแนะโดยรวม:\n{result['overall_feedback']}"])
+    return overall_score, "\n".join(lines)
+
+
+async def _score_project_submission_new(submission: models.ProjectSubmissionNew, db: Session) -> None:
+    if submission.StatusCode != "SUBMITTED":
+        raise HTTPException(status_code=409, detail="Only submitted project submissions can be scored")
+    setting = db.query(models.Setting).filter(models.Setting.set_code == "system-prompt").first()
+    if not setting or not setting.set_value.strip():
+        raise HTTPException(status_code=409, detail="AI scoring system prompt is not configured")
+    context = _project_submission_new_score_context(submission)
+    result = await openai_service.score_idea(
+        system_prompt=setting.set_value,
+        idea_name=submission.CreativeIdeaName,
+        idea_detail=context,
+    )
+    submission.AiScore, submission.AiScoreComment = _format_project_submission_new_score(result)
+    submission.AiScoredAt = datetime.now()
+    submission.AiIdeaSummary = await openai_service.summarize_project_idea(context)
+    submission.AiIdeaSummarizedAt = datetime.now()
+
+
+@router.post("/project-submissions-new/{project_id}/score", response_model=ProjectSubmissionNewOut)
+async def score_project_submission_new(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("score:project_submissions")),
+):
+    submission = _get_submission_new_or_404(db, project_id)
+    try:
+        await _score_project_submission_new(submission, db)
+        db.commit()
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to score project submission: {exc}")
+    return _get_submission_new_or_404(db, project_id)
+
+
+@router.post("/project-submissions-new/batch-score")
+async def batch_score_project_submissions_new(
+    request: ProjectSubmissionNewBatchScoreRequest,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("score:project_submissions")),
+):
+    if request.mode not in {"replace_all", "only_unscored"}:
+        raise HTTPException(status_code=422, detail="mode must be replace_all or only_unscored")
+    query = db.query(models.ProjectSubmissionNew).filter(models.ProjectSubmissionNew.StatusCode == "SUBMITTED")
+    if request.team_name:
+        query = query.filter(models.ProjectSubmissionNew.TeamName.ilike(f"%{request.team_name}%") | models.ProjectSubmissionNew.CreativeIdeaName.ilike(f"%{request.team_name}%"))
+    if request.innovation_type_no is not None:
+        query = query.filter(models.ProjectSubmissionNew.InnovationTypeNo == request.innovation_type_no)
+    if request.challenge_no is not None:
+        query = query.filter(models.ProjectSubmissionNew.ChallengeNo == request.challenge_no)
+    if request.data_source is not None:
+        query = query.filter(models.ProjectSubmissionNew.data_source == request.data_source)
+    query = apply_project_submission_score_status_filter(
+        query, models.ProjectSubmissionNew.AiScore, request.score_status
+    )
+    if request.mode == "only_unscored":
+        query = query.filter(models.ProjectSubmissionNew.AiScore.is_(None))
+    remaining_count = query.count()
+    submissions = query.order_by(models.ProjectSubmissionNew.ProjectId.desc()).limit(20).all()
+    errors: list[str] = []
+    success_count = 0
+    for submission in submissions:
+        try:
+            await _score_project_submission_new(submission, db)
+            db.commit()
+            success_count += 1
+        except Exception as exc:
+            db.rollback()
+            errors.append(f"#{submission.ProjectId}: {exc}")
+    return {"processed_count": len(submissions), "success_count": success_count, "error_count": len(errors), "errors": errors, "remaining_count": max(0, remaining_count - len(submissions))}
+
+
+@router.delete("/project-submissions-new/{project_id}")
+def delete_project_submission_new(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_permission("delete:project_submissions")),
+):
+    submission = _get_submission_new_or_404(db, project_id)
+    try:
+        db.delete(submission)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete project submission")
+
+    return {"deleted_project_id": project_id}
 
 
 @router.post("/settings", response_model=SettingOut, status_code=status.HTTP_201_CREATED)
