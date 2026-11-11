@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-}
+      openai_api_key: ${OPENAI_API_KEY:-}
+      ALLOW_ORIGINS: ${ALLOW_ORIGINS:-}
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://139.180.144.194:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [eventnet]
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_HOST_URL: ${NEXT_PUBLIC_HOST_URL:-http://localhost:80}
+    depends_on: [backend]
+    ports: ["80:3000"]
+    networks: [eventnet]
+    restart: unless-stopped
+
+networks:
+  eventnet: {}
