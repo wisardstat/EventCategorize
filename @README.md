@@ -27,6 +27,11 @@ npm run dev   # http://localhost:3000
 Backend (Windows PowerShell):
 ```bash
 cd backend
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --port 8000
+
+
+
 ./.venv/Scripts/activate
 source emenv/bin/activate
 

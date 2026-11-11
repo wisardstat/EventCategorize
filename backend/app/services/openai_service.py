@@ -1,14 +1,14 @@
-import openai
 import json
 import logging
 from typing import Optional, Dict, Any, List
 from app.core.config import get_settings
+from app.services.llm_client import create_openrouter_client
 
 settings = get_settings()
 
 class OpenAIService:
     def __init__(self):
-        self.client = openai.OpenAI(api_key=settings.openai_api_key)
+        self.client = create_openrouter_client()
     
     async def summarize_and_format_text(self, text: str) -> str:
         """
@@ -33,7 +33,7 @@ class OpenAIService:
             """
             
             response = self.client.chat.completions.create(
-                model="gpt-4.1",
+                model=settings.openrouter_model,
                 messages=[
                     {"role": "system", "content": "คุณเป็นผู้ช่วยในการวิเคราะห์และสรุปข้อความภาษาไทยเพื่อให้อ่านง่ายขึ้น คุณมีความเชี่ยวชาญในการจัดรูปแบบข้อความและสรุปใจความสำคัญ"},
                     {"role": "user", "content": prompt}
@@ -60,7 +60,7 @@ Benefit
 ข้อมูลโครงการ:
 {text}"""
         response = self.client.chat.completions.create(
-            model="gpt-4.1",
+            model=settings.openrouter_model,
             messages=[{"role": "system", "content": "คุณเป็นผู้ช่วยสรุปแนวคิดนวัตกรรมให้เข้าใจง่าย"}, {"role": "user", "content": prompt}],
             max_tokens=1000,
             temperature=0.3,
@@ -127,14 +127,14 @@ Benefit
             - เขียนคำอธิบายและข้อเสนอแนะเป็นภาษาไทยที่ชัดเจนและมีประโยชน์
             """
             
-            # Log the OpenAI API request
-            logging.info(f"OpenAI API Request - Model: gpt-4.1, Max tokens: 3000, Temperature: 0.3")            
+            # Log the OpenRouter API request without credentials.
+            logging.info(f"OpenRouter API Request - Model: {settings.openrouter_model}, Max tokens: 3000, Temperature: 0.3")
             logging.info(f"User prompt length: {len(prompt)}")
             logging.info(f"Idea name: {idea_name}")
             logging.info(f"Idea detail length: {len(idea_detail) if idea_detail else 0}")
             
             response = self.client.chat.completions.create(
-                model="gpt-4.1",
+                model=settings.openrouter_model,
                 messages=[
                     {"role": "system", "content": ''' คุณมีประสบการณ์ทางด้านการพัฒนาเทคโนโลยีหรือนวัตกรรมใหม่ เคยทำงานกับ Elon musk ในโครงการ spaceX มีประสบการณ์การทำงานในธุรกิจธนาคารของประเทศไทยไม่น้อยกว่า 20ปี เคยทำงานที่ศูนย์นวัตกรรมแห่งชาติ 5ปี จบสาขาคอมพิวเตอร์และเทคโนโลยสารสนเทศ จบสาขาการงเงินการบัญชี
 /ฉันเป็นกรรมการตัดสินการประกวดนวัตกรรมเพื่อนำไปสร้างผลิตภัณฑ์ใหม่ๆ หรือปรับปรุงกระบวนการทำงานในธนาคาร โดยให้ผู้เข้าแข่งขันส่งบทความเข้ามา และฉันจะให้ Ai ช่วยตัดสินจากบทความนั้นๆ'''},
@@ -144,9 +144,9 @@ Benefit
                 temperature=0.3
             )
             
-            # Log the OpenAI API response
+            # Log the OpenRouter API response
             response_content = response.choices[0].message.content.strip()
-            logging.info(f"OpenAI API Response - Status: Success")
+            logging.info("OpenRouter API Response - Status: Success")
             logging.info(f"Response length: {len(response_content)}")
             logging.info(f"Response preview: {response_content[:200]}..." if len(response_content) > 200 else f"Response: {response_content}")
             logging.info(f"Tokens used: {response.usage.total_tokens if hasattr(response, 'usage') else 'N/A'}")
@@ -198,7 +198,12 @@ Benefit
                 raise ValueError(f"Invalid JSON response from AI: {str(e)}")
             
         except Exception as e:
-            print(f"Error calling OpenAI for scoring: {str(e)}")
+            logging.exception(
+                "OpenRouter scoring failed | model=%s | base_url=%s | error_type=%s",
+                settings.openrouter_model,
+                settings.openrouter_base_url,
+                type(e).__name__,
+            )
             raise ValueError(f"Error scoring idea: {str(e)}")
 
 # Create singleton instance

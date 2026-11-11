@@ -14,8 +14,12 @@ class Settings(BaseSettings):
     mssql_port: int = 1433
     mssql_driver: str = "ODBC Driver 17 for SQL Server"
     
-    # OpenAI Configuration
-    openai_api_key: str = ""
+    # OpenRouter Configuration
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_model: str = "openai/gpt-4.1-mini"
+    openrouter_app_url: str = ""
+    openrouter_app_name: str = "EventCategorize"
     
     # Application Configuration
     debug: bool = True

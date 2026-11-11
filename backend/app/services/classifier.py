@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import os
 import re
 from typing import Optional, Tuple
 
 from app.core.config import get_settings
+from app.services.llm_client import create_openrouter_client
 
 
 CATEGORIES = [
@@ -35,42 +35,33 @@ def _keyword_fallback(text: str) -> Optional[str]:
 
 
 def classify_category(answer_text: str) -> Optional[str]:
-	"""Return one of CATEGORIES using OpenAI if configured, otherwise keyword fallback.
+	"""Return one of CATEGORIES using OpenRouter if configured, otherwise keyword fallback.
 
-	If OpenAI classification fails or is not configured, returns best-effort keyword match
+	If OpenRouter classification fails or is not configured, returns best-effort keyword match
 	or None.
 	"""
 	settings = get_settings()
 	print("start-settings classify_category")
-	api_key = settings.openai_api_key 
-	print("api_key classify_category >>", api_key)
-	# Try OpenAI if key is available
+	api_key = settings.openrouter_api_key
+	# Try OpenRouter if key is available
 	if api_key:
 		try:
-			print("try OpenAI")
-			# Lazy import to avoid dependency if not needed
-			from openai import OpenAI
-			print("CATEGORIES: ", CATEGORIES)
-
-			os.environ["OPENAI_API_KEY"] = api_key
-			client = OpenAI()
-			print("client: ", client)
+			print("try OpenRouter")
+			client = create_openrouter_client(settings)
 			prompt = (
 				"คุณคือนักจัดหมวดหมู่ จัดข้อความคำตอบต่อไปนี้ให้เป็นหนึ่งในหมวดหมู่: "
 				+ ", ".join(CATEGORIES)
 				+ ".\nตอบกลับเฉพาะชื่อหมวดหมู่เท่านั้น.\nข้อความ: "
 				+ answer_text
 			)
-			print("prompt: ", prompt)
-
 			resp = client.chat.completions.create(
-				model="gpt-4.1-mini",
+				model=settings.openrouter_model,
 				messages=[{"role": "user", "content": prompt}],
 				max_tokens=100,
 				temperature=0,
 			)
 			choice = resp.choices[0].message.content.strip() if resp.choices else ""			
-			print(f"OpenAI choice: {choice}")
+			print(f"OpenRouter choice: {choice}")
 					
 			for cat in CATEGORIES:
 				if cat in choice:
@@ -89,23 +80,20 @@ def classify_category(answer_text: str) -> Optional[str]:
 def extract_keywords(answer_text: str) -> str:
 	"""
 	Return up to three short important keywords as a comma-separated string: "k1,k2,k3".
-	Uses OpenAI if configured, otherwise falls back to a simple heuristic.
+	Uses OpenRouter if configured, otherwise falls back to a simple heuristic.
 	"""
 	print("start-settings extract_keywords")
 	settings = get_settings()
-	api_key = settings.openai_api_key.strip() 
-	print("api_key extract_keywords >>["+ api_key +"]")
+	api_key = settings.openrouter_api_key.strip()
 	if api_key:
 		try:
-			from openai import OpenAI
-			os.environ["OPENAI_API_KEY"] = api_key
-			client = OpenAI()
+			client = create_openrouter_client(settings)
 			prompt = (
 				"สกัดคีย์เวิร์ด (keywords) ที่สำคัญที่สุด 3 คำ (keywords) ขอเป็นคำหรือข้อความที่สั้นๆ จากข้อความ คำว่า (" + answer_text + ") และให้ตอบกลับรูปแบบ: keyword1,keyword2,keyword3 \n"				 
 			)
 
 			resp = client.chat.completions.create(
-				model="gpt-4.1-mini",
+				model=settings.openrouter_model,
 				messages=[{"role": "user", "content": prompt}],
 				max_tokens=60,
 				temperature=0,

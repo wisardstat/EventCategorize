@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import * as echarts from "echarts";
-import "echarts-wordcloud";
 import { QRCodeCanvas } from "qrcode.react";
 import { getPublic } from "@/utils/api";
 
@@ -205,7 +204,13 @@ export default function AnswerAnalyticPage() {
                             </section>
                         </div>
 
-                        <div className="flex justify-center">
+                        <div className="flex flex-wrap justify-center gap-3">
+                            <Link
+                                href={`/present-answer/${questionId}`}
+                                className="mt-3 inline-flex items-center gap-2 rounded-md border-2 border-sky-400 px-5 py-2 text-sm font-semibold uppercase tracking-wider text-sky-100 bg-gradient-to-r from-sky-900/60 to-cyan-900/40 shadow-[0_0_8px_rgba(56,189,248,0.6),inset_0_0_12px_rgba(56,189,248,0.2)] hover:from-sky-800/70 hover:to-cyan-800/60 hover:shadow-[0_0_14px_rgba(56,189,248,0.9),inset_0_0_16px_rgba(56,189,248,0.35)] transition"
+                            >
+                                แสดงความคิดเห็น
+                            </Link>
                             <button
                                 type="button"
                                 onClick={() => {
@@ -248,39 +253,49 @@ function WordCloud({ categories }: { categories: string[] }) {
         const el = containerRef.current;
         if (!el) return;
 
-        // Reuse existing instance if any
-        const instance = echarts.getInstanceByDom(el) || echarts.init(el);
+        let disposed = false;
+        let instance: echarts.ECharts | undefined;
 
-        const option = {
-            tooltip: {},
-            series: [
-                {
-                    type: "wordCloud",
-                    shape: "circle",
-                    gridSize: 8,
-                    sizeRange: WORDCLOUD_SIZE_RANGE,
-                    rotationRange: [0, 0],
-                    textStyle: {
-                        color: () => {
-                            // Pastel-ish random color
-                            const r = Math.floor(150 + Math.random() * 100);
-                            const g = Math.floor(150 + Math.random() * 100);
-                            const b = Math.floor(150 + Math.random() * 100);
-                            return `rgb(${r}, ${g}, ${b})`;
+        async function renderWordCloud() {
+            // This plugin accesses `window` during evaluation, so load it only in the browser.
+            await import("echarts-wordcloud");
+            if (disposed || !el) return;
+
+            instance = echarts.getInstanceByDom(el) || echarts.init(el);
+
+            const option = {
+                tooltip: {},
+                series: [
+                    {
+                        type: "wordCloud",
+                        shape: "circle",
+                        gridSize: 8,
+                        sizeRange: WORDCLOUD_SIZE_RANGE,
+                        rotationRange: [0, 0],
+                        textStyle: {
+                            color: () => {
+                                // Pastel-ish random color
+                                const r = Math.floor(150 + Math.random() * 100);
+                                const g = Math.floor(150 + Math.random() * 100);
+                                const b = Math.floor(150 + Math.random() * 100);
+                                return `rgb(${r}, ${g}, ${b})`;
+                            },
                         },
+                        data,
                     },
-                    data,
-                },
-            ],
-        } as echarts.EChartsOption;
+                ],
+            } as echarts.EChartsOption;
 
-        instance.setOption(option);
+            instance.setOption(option);
+            window.addEventListener("resize", onResize);
+        }
 
-        const onResize = () => instance.resize();
-        window.addEventListener("resize", onResize);
+        const onResize = () => instance?.resize();
+        void renderWordCloud();
         return () => {
+            disposed = true;
             window.removeEventListener("resize", onResize);
-            if (!instance.isDisposed()) instance.dispose();
+            if (instance && !instance.isDisposed()) instance.dispose();
         };
     }, [data]);
 
